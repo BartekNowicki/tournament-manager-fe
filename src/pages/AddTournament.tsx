@@ -1,13 +1,13 @@
 import { useOutletContext } from "react-router-dom";
 
-export interface INewTournamentProps {}
+export interface IAddTournamentProps {}
 
-export function NewTournament(props: INewTournamentProps) {
+export function AddTournament(props: IAddTournamentProps) {
   const obj: { decor: string } = useOutletContext();
   const { decor } = obj;
   return (
     <div>
-      {decor} NewTournament {decor}
+      {decor} AddTournament {decor}
     </div>
   );
 }
