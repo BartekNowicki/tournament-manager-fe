@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import { Link } from "react-router-dom";
-import PlayerList from "../components/playerList";
+import PlayerList from "../components/PlayerList";
 
 export interface IPlayersProps {}
 

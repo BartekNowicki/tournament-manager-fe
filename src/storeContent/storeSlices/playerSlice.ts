@@ -1,9 +1,12 @@
+/* eslint-disable no-param-reassign */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Player {
   id: number;
   firstName: string;
   lastName: string;
+  strength: number;
+  comment: string;
 }
 
 interface PlayerSliceState {
@@ -11,7 +14,15 @@ interface PlayerSliceState {
 }
 
 const initialState: PlayerSliceState = {
-  players: [{ id: 0, firstName: "bubba", lastName: "smith" }],
+  players: [
+    {
+      id: 0,
+      firstName: "bubba",
+      lastName: "smith",
+      strength: 9,
+      comment: "no comment",
+    },
+  ],
 };
 
 export const PlayerSlice = createSlice({
@@ -20,7 +31,12 @@ export const PlayerSlice = createSlice({
   reducers: {
     addPlayer: (
       state,
-      action: PayloadAction<{ firstName: string; lastName: string }>
+      action: PayloadAction<{
+        firstName: string;
+        lastName: string;
+        strength: number;
+        comment: string;
+      }>
     ) => {
       state.players = [
         ...state.players,
@@ -28,6 +44,8 @@ export const PlayerSlice = createSlice({
           id: state.players.length,
           firstName: action.payload.firstName,
           lastName: action.payload.lastName,
+          strength: action.payload.strength,
+          comment: action.payload.comment,
         },
       ];
     },

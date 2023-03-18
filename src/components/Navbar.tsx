@@ -18,7 +18,6 @@ export function Navbar(props: INavbarProps) {
       </NavLink>
       <NavLink to="/tournaments">Turnieje</NavLink>
       <NavLink to="/players">Uczestnicy</NavLink>
-      <NavLink to="/about">O nas</NavLink>
       <NavLink to="/location">Lokalizacja</NavLink>
       <NavLink to="/contact">Kontakt</NavLink>
     </>

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import * as React from "react";
 import { useAppSelector } from "../storeContent/store";
+import Player from "./Player";
 
 interface IPlayerListProps {}
 
@@ -12,9 +13,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = (props) => {
     <>
       <p>this is a list of players</p>
       {players.map((player) => (
-        <li key={player.id}>
-          {player.id} {player.firstName} {player.lastName}
-        </li>
+        <Player
+          key={player.id}
+          id={player.id}
+          firstName={player.firstName}
+          lastName={player.lastName}
+          strength={player.strength}
+          comment={player.comment}
+        />
       ))}
     </>
   );

@@ -9,14 +9,22 @@ import { useAppDispatch } from "../storeContent/store";
 function AddPlayer() {
   const firstName = useRef<string>("");
   const lastName = useRef<string>("");
+  const strength = useRef<number>(0);
+  const comment = useRef<string>("");
   const dispatch = useAppDispatch();
 
   return (
     <form>
-      <label htmlFor="">First Name:</label>
+      <label htmlFor="">Imię:</label>
       <input onChange={(e) => (firstName.current = e.target.value)} />
-      <label htmlFor="">Last Name:</label>
+      <label htmlFor="">Nazwisko:</label>
       <input onChange={(e) => (lastName.current = e.target.value)} />
+      <label htmlFor="">Siła:</label>
+      <input
+        onChange={(e) => (strength.current = parseInt(e.target.value, 10))}
+      />
+      <label htmlFor="">Uwagi:</label>
+      <input onChange={(e) => (comment.current = e.target.value)} />
       <button
         onClick={(e) => {
           e.preventDefault();
@@ -24,6 +32,8 @@ function AddPlayer() {
             addPlayer({
               firstName: firstName.current,
               lastName: lastName.current,
+              strength: strength.current,
+              comment: comment.current,
             })
           );
         }}

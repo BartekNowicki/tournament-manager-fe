@@ -3,15 +3,14 @@ import MainWrapper from "./components/mainWrapper/MainWrapper";
 import { Navbar } from "./components/Navbar";
 import { Home } from "./pages/Home";
 import { Tournaments } from "./pages/Tournaments";
-import { AddTournament } from "./pages/AddTournament";
 import { TournamentLayout } from "./pages/TournamentLayout";
 import { Players } from "./pages/Players";
-import { About } from "./pages/About";
 import { Location } from "./pages/Location";
 import { Contact } from "./pages/Contact";
 import { ErrorPage } from "./pages/ErrorPage";
 import { PlayerLayout } from "./pages/PlayerLayout";
 import AddPlayer from "./components/AddPlayer";
+import AddTournament from "./components/AddTournament";
 import "./App.css";
 
 function App() {
@@ -28,7 +27,6 @@ function App() {
           <Route index element={<Players />} />
           <Route path="add" element={<AddPlayer />} />
         </Route>
-        <Route path="/about" element={<About />} />
         <Route path="/location" element={<Location />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<ErrorPage />} />
