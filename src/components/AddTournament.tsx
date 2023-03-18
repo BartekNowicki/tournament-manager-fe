@@ -17,7 +17,7 @@ setDefaultLocale("pl");
 function AddTournament() {
   const [startDate, setStartDate] = useState(new Date("2023-01-01"));
   const [endDate, setEndDate] = useState(new Date("2023-01-02"));
-  const type = useRef<string>(TournamentType[1]);
+  const type = useRef<string>(TournamentType.DOUBLES);
   const groupSize = useRef<number>(0);
   const comment = useRef<string>("");
   const dispatch = useAppDispatch();
@@ -29,8 +29,8 @@ function AddTournament() {
     <form>
       <label htmlFor="">Typ:</label>
       <select onChange={(e) => (type.current = e.target.value)}>
-        <option value="doubles">{TournamentType[1]}</option>
-        <option value="singles">{TournamentType[0]}</option>
+        <option value="doubles">{TournamentType.DOUBLES}</option>
+        <option value="singles">{TournamentType.SINGLES}</option>
       </select>
       <label htmlFor="">Data rozpoczęcia:</label>
       <DatePicker

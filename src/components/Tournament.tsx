@@ -3,8 +3,8 @@
 import * as React from "react";
 
 export enum TournamentType {
-  singles,
-  doubles,
+  SINGLES = "singles",
+  DOUBLES = "doubles",
 }
 
 interface ITournamentProps {
