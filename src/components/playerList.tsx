@@ -11,7 +11,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = (props) => {
 
   return (
     <>
-      <p>this is a list of players</p>
+      <p className="py-4 flex">this is a list of players</p>
       {players.map((player) => (
         <Player
           key={player.id}

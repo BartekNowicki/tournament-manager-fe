@@ -13,7 +13,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = (
 
   return (
     <>
-      <p>this is a list of Tournaments</p>
+      <p>this is a list of Tournamentsssss</p>
       {tournaments.map((tournament) => (
         <Tournament
           key={tournament.id}
