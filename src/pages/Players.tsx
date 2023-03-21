@@ -12,7 +12,7 @@ export function Players(props: IPlayersProps) {
         Uczestniczy
       </p>
       <button className="btn btn-wide m-2 mb-12">
-        <Link to="/players/add">Dodaj nowy</Link>
+        <Link to="/players/add">nowy uczestnik</Link>
       </button>
       <PlayerList />
     </>

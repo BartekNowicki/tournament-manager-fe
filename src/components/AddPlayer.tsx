@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/button-has-type */
 /* eslint-disable no-return-assign */
@@ -14,32 +15,130 @@ function AddPlayer() {
   const dispatch = useAppDispatch();
 
   return (
-    <form>
-      <label htmlFor="">Imię:</label>
-      <input onChange={(e) => (firstName.current = e.target.value)} />
-      <label htmlFor="">Nazwisko:</label>
-      <input onChange={(e) => (lastName.current = e.target.value)} />
-      <label htmlFor="">Siła:</label>
-      <input
-        onChange={(e) => (strength.current = parseInt(e.target.value, 10))}
-      />
-      <label htmlFor="">Uwagi:</label>
-      <input onChange={(e) => (comment.current = e.target.value)} />
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          dispatch(
-            addPlayer({
-              firstName: firstName.current,
-              lastName: lastName.current,
-              strength: strength.current,
-              comment: comment.current,
-            })
-          );
-        }}
-      >
-        Add
-      </button>
+    <form className="mx-auto">
+      <div className="m-8 border border-sky-500">
+        <div className="overflow-x-auto w-full">
+          <table className="table w-full">
+            {/* head */}
+            <thead>
+              <tr>
+                <th className="text text-center">Imię i Nazwisko</th>
+                <th className="text text-center">Siła</th>
+                <th className="text text-center">Uwagi</th>
+                <th />
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {/* rows */}
+
+              <tr>
+                <td>
+                  <div className="flex items-center space-x-3">
+                    <div className="avatar">
+                      <div className="mask mask-squircle w-12 h-12">
+                        <img
+                          src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
+                          alt="Avatar"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-bold">
+                        <label htmlFor="" />
+                        <input
+                          style={{ paddingLeft: "10px" }}
+                          placeholder="imię"
+                          onChange={(e) => (firstName.current = e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div className="flex items-center space-x-3">
+                    <div className="avatar">
+                      <div className="mask mask-squircle w-12 h-12">
+                        <img
+                          src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
+                          alt="Avatar"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="font-bold">
+                        <label htmlFor="" />
+                        <input
+                          style={{ paddingLeft: "10px" }}
+                          placeholder="nazwisko"
+                          onChange={(e) => (lastName.current = e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td className="text text-center">
+                  <div className="font-bold">
+                    <label htmlFor="" />
+                    <select
+                      onChange={(e) => (strength.current = +e.target.value)}
+                    >
+                      <option value={1}>1</option>
+                      <option value={2}>2</option>
+                      <option value={3}>3</option>
+                      <option value={4}>4</option>
+                      <option value={5}>5</option>
+                      <option value={6}>6</option>
+                      <option value={7}>7</option>
+                      <option value={8}>8</option>
+                      <option value={9}>9</option>
+                      <option value={10}>10</option>
+                    </select>
+                  </div>
+                </td>
+                <td className="text text-center">
+                  <div className="font-bold">
+                    <label htmlFor="" />
+                    <input
+                      style={{ paddingLeft: "10px" }}
+                      placeholder="uwagi"
+                      onChange={(e) => (comment.current = e.target.value)}
+                    />
+                  </div>
+                </td>
+                <th>
+                  <button
+                    className="btn btn-ghost btn-xs bg-slate-600"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      dispatch(
+                        addPlayer({
+                          firstName: firstName.current,
+                          lastName: lastName.current,
+                          strength: strength.current,
+                          comment: comment.current,
+                        })
+                      );
+                    }}
+                  >
+                    Add
+                  </button>
+                </th>
+              </tr>
+            </tbody>
+            {/* foot */}
+            <tfoot>
+              <tr>
+                <th />
+                <th />
+                <th />
+                <th />
+                <th />
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
     </form>
   );
 }

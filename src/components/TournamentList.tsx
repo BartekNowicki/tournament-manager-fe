@@ -56,7 +56,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = (
                     <div className="avatar">
                       <div className="mask mask-squircle w-12 h-12">
                         <img
-                          src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
+                          src="https://img.icons8.com/fluency/96/null/medal.png"
                           alt="Avatar"
                         />
                       </div>
