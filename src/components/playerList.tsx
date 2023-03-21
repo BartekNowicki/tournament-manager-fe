@@ -3,36 +3,38 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import * as React from "react";
-import { useAppSelector } from "../storeContent/store";
+import { useAppDispatch, useAppSelector } from "../storeContent/store";
+import {
+  checkPlayer,
+  checkAllPlayers,
+} from "../storeContent/storeSlices/playerSlice";
 import Player from "./PlayerUnused";
 
 interface IPlayerListProps {}
 
 const PlayerList: React.FunctionComponent<IPlayerListProps> = (props) => {
   const players = useAppSelector((state) => state.player.players);
-  const checkedPlayersInitialState = new Map<number, boolean>();
-  players.forEach((player) => checkedPlayersInitialState.set(player.id, false));
-  checkedPlayersInitialState.set(-1, false);
-
-  const [checkedPlayers, setCheckedPlayers] = React.useState(
-    checkedPlayersInitialState
-  );
-
+  const dispatch = useAppDispatch();
+  const findById = (id: number) =>
+    players.filter((player) => player.id === id)[0];
+  const isChecked = (id: number): boolean => findById(id).isChecked;
   const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
     const key: number = +e.target.id;
-    const opposite: boolean = checkedPlayers.get(key) !== true;
+    const opposite: boolean = isChecked(key) !== true;
+    const player = findById(key);
     if (key !== -1) {
-      setCheckedPlayers((prev) => {
-        return new Map(prev.set(key, opposite));
-      });
+      dispatch(
+        checkPlayer({
+          id: player.id,
+          isChecked: opposite,
+        })
+      );
     } else {
-      const newState = new Map<number, boolean>();
-      players.forEach((player) => newState.set(player.id, opposite));
-      newState.set(-1, opposite);
-      console.log(newState);
-      setCheckedPlayers((prev) => {
-        return newState;
-      });
+      dispatch(
+        checkAllPlayers({
+          isChecked: opposite,
+        })
+      );
     }
   };
 
@@ -49,7 +51,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = (props) => {
                     type="checkbox"
                     className="checkbox"
                     id="-1"
-                    checked={checkedPlayers.get(-1)}
+                    checked={isChecked(-1) === true}
                     onChange={handleCheck}
                   />
                 </label>
@@ -72,7 +74,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = (props) => {
                         type="checkbox"
                         className="checkbox"
                         id={player.id.toString()}
-                        checked={checkedPlayers.get(player.id) === true}
+                        checked={isChecked(player.id) === true}
                         onChange={handleCheck}
                       />
                     </label>
