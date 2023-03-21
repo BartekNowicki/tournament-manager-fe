@@ -12,8 +12,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = (
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
 
   return (
-    <>
-      <p>this is a list of Tournamentsssss</p>
+    <div className="m-8 border border-sky-500">
       {tournaments.map((tournament) => (
         <Tournament
           key={tournament.id}
@@ -25,7 +24,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = (
           comment={tournament.comment}
         />
       ))}
-    </>
+    </div>
   );
 };
 

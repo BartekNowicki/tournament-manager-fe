@@ -4,7 +4,7 @@ export interface IPlayerLayoutProps {}
 
 export function PlayerLayout(props: IPlayerLayoutProps) {
   return (
-    <div style={{ border: "1px solid pink" }}>
+    <div style={{}}>
       <Outlet context={{ decor: "++" }} />
     </div>
   );

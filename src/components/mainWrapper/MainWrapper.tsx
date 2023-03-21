@@ -9,11 +9,9 @@ interface IMainWrapperProps {
 const MainWrapper: React.FC<IMainWrapperProps> = ({
   children,
 }): JSX.Element => {
-  const primaryMainBgColor = "neutral-100";
+  const primaryMainBg = "bg-transparent";
   return (
-    <div
-      className={`max-w-7xl mx-auto border border-black-400 bg-${primaryMainBgColor}`}
-    >
+    <div className={`max-w-7xl mx-auto border border-black ${primaryMainBg}`}>
       {children}
     </div>
   );

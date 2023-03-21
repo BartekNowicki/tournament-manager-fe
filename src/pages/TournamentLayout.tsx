@@ -4,7 +4,7 @@ export interface ITournamentLayoutProps {}
 
 export function TournamentLayout(props: ITournamentLayoutProps) {
   return (
-    <div style={{ border: "2px solid blue" }}>
+    <div style={{}}>
       <Outlet context={{ decor: "**" }} />
     </div>
   );

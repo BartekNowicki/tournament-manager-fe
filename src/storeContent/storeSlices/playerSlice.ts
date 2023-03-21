@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Player {
   id: number;
+  isChecked: boolean;
   firstName: string;
   lastName: string;
   strength: number;
@@ -16,7 +17,16 @@ interface PlayerSliceState {
 const initialState: PlayerSliceState = {
   players: [
     {
+      id: -1,
+      isChecked: false,
+      firstName: "allPlayers",
+      lastName: "allPlayers",
+      strength: 0,
+      comment: "no comment0",
+    },
+    {
       id: 0,
+      isChecked: false,
       firstName: "bubba0",
       lastName: "smith0",
       strength: 0,
@@ -24,6 +34,7 @@ const initialState: PlayerSliceState = {
     },
     {
       id: 1,
+      isChecked: false,
       firstName: "bubba1",
       lastName: "smith1",
       strength: 1,
@@ -31,6 +42,7 @@ const initialState: PlayerSliceState = {
     },
     {
       id: 2,
+      isChecked: false,
       firstName: "bubba2",
       lastName: "smith2",
       strength: 2,
@@ -38,6 +50,7 @@ const initialState: PlayerSliceState = {
     },
     {
       id: 3,
+      isChecked: false,
       firstName: "bubb3",
       lastName: "smith3",
       strength: 3,
@@ -45,6 +58,7 @@ const initialState: PlayerSliceState = {
     },
     {
       id: 4,
+      isChecked: false,
       firstName: "bubba4",
       lastName: "smit4",
       strength: 4,
@@ -70,6 +84,7 @@ export const PlayerSlice = createSlice({
         ...state.players,
         {
           id: state.players.length,
+          isChecked: false,
           firstName: action.payload.firstName,
           lastName: action.payload.lastName,
           strength: action.payload.strength,
@@ -77,8 +92,21 @@ export const PlayerSlice = createSlice({
         },
       ];
     },
+    checkPlayer: (
+      state,
+      action: PayloadAction<{
+        id: number;
+        firstName: string;
+        isChecked: boolean;
+        lastName: string;
+        strength: number;
+        comment: string;
+      }>
+    ) => {
+      state.players = state.players.map((player) => player);
+    },
   },
 });
 
 export default PlayerSlice.reducer;
-export const { addPlayer } = PlayerSlice.actions;
+export const { addPlayer, checkPlayer } = PlayerSlice.actions;
