@@ -3,6 +3,7 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import * as React from "react";
+import { useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
   checkPlayer,
@@ -15,28 +16,41 @@ interface IPlayerListProps {}
 const PlayerList: React.FunctionComponent<IPlayerListProps> = (props) => {
   const players = useAppSelector((state) => state.player.players);
   const dispatch = useAppDispatch();
-  const findById = (id: number) =>
-    players.filter((player) => player.id === id)[0];
-  const isChecked = (id: number): boolean => findById(id).isChecked;
-  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const key: number = +e.target.id;
-    const opposite: boolean = isChecked(key) !== true;
-    const player = findById(key);
-    if (key !== -1) {
-      dispatch(
-        checkPlayer({
-          id: player.id,
-          isChecked: opposite,
-        })
-      );
-    } else {
-      dispatch(
-        checkAllPlayers({
-          isChecked: opposite,
-        })
-      );
-    }
-  };
+  const findById = useCallback(
+    (id: number) => {
+      return players.filter((player) => player.id === id)[0];
+    },
+    [players]
+  );
+
+  const isChecked = useCallback(
+    (id: number): boolean => {
+      return findById(id).isChecked;
+    },
+    [findById]
+  );
+  const handleCheck = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const key: number = +e.target.id;
+      const opposite: boolean = isChecked(key) !== true;
+      const player = findById(key);
+      if (key !== -1) {
+        dispatch(
+          checkPlayer({
+            id: player.id,
+            isChecked: opposite,
+          })
+        );
+      } else {
+        dispatch(
+          checkAllPlayers({
+            isChecked: opposite,
+          })
+        );
+      }
+    },
+    [dispatch, findById, isChecked]
+  );
 
   return (
     <div className="m-8 border border-sky-500">
