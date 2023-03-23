@@ -2,17 +2,66 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/button-has-type */
 /* eslint-disable no-return-assign */
-import { useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { addPlayer } from "../storeContent/storeSlices/playerSlice";
-import { useAppDispatch } from "../storeContent/store";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Player,
+  addPlayer,
+  updatePlayer,
+} from "../storeContent/storeSlices/playerSlice";
+import { useAppDispatch, useAppSelector } from "../storeContent/store";
 
-function AddPlayer() {
-  const firstName = useRef<string>("");
-  const lastName = useRef<string>("");
-  const strength = useRef<number>(0);
-  const comment = useRef<string>("");
+export enum UserActions {
+  ADD = "add",
+  EDIT = "edit",
+  NONE = "none",
+}
+
+function AddOrEditPlayer() {
+  const navigate = useNavigate();
+  const params = useParams() ?? {};
+  let idToEdit = -1;
+  if (params.action) {
+    idToEdit =
+      params.action !== "add"
+        ? parseInt(params.action.split("").slice(4).join(""), 10)
+        : -1;
+  }
+
+  const userAction: string = params.action ?? UserActions.NONE;
+  const players = useAppSelector((state) => state.player.players);
+  const findById = useCallback(
+    (id: number) => {
+      const dummyPlayer: Player = {
+        id: -1,
+        isChecked: false,
+        firstName: "",
+        lastName: "",
+        strength: 0,
+        comment: "",
+      };
+      if (id === -1) return dummyPlayer;
+      return players.filter((player) => player.id === id)[0];
+    },
+    [players]
+  );
+
+  const initialDisplayedPlayer: Player = findById(idToEdit);
+  const [displayedPlayer, setDisplayedPlayer] = useState(
+    initialDisplayedPlayer
+  );
+  const [firstName, setFirstName] = useState(displayedPlayer.firstName);
+  const [lastName, setLastName] = useState(displayedPlayer.lastName);
+  const [strength, setStrength] = useState(displayedPlayer.strength);
+  const [comment, setComment] = useState(displayedPlayer.comment);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (userAction === UserActions.NONE) {
+      navigate("/nosuchpath");
+    }
+  }, [navigate, idToEdit, userAction]);
 
   return (
     <form className="mx-auto">
@@ -49,7 +98,8 @@ function AddPlayer() {
                         <input
                           style={{ paddingLeft: "10px" }}
                           placeholder="imię"
-                          onChange={(e) => (firstName.current = e.target.value)}
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
                         />
                       </div>
                     </div>
@@ -71,7 +121,8 @@ function AddPlayer() {
                         <input
                           style={{ paddingLeft: "10px" }}
                           placeholder="nazwisko"
-                          onChange={(e) => (lastName.current = e.target.value)}
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
                         />
                       </div>
                     </div>
@@ -81,8 +132,10 @@ function AddPlayer() {
                   <div className="font-bold">
                     <label htmlFor="" />
                     <select
-                      onChange={(e) => (strength.current = +e.target.value)}
+                      value={strength}
+                      onChange={(e) => setStrength(+e.target.value)}
                     >
+                      <option value={0}>0</option>
                       <option value={1}>1</option>
                       <option value={2}>2</option>
                       <option value={3}>3</option>
@@ -102,7 +155,8 @@ function AddPlayer() {
                     <input
                       style={{ paddingLeft: "10px" }}
                       placeholder="uwagi"
-                      onChange={(e) => (comment.current = e.target.value)}
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
                     />
                   </div>
                 </td>
@@ -111,17 +165,29 @@ function AddPlayer() {
                     className="btn btn-ghost btn-xs bg-slate-600"
                     onClick={(e) => {
                       e.preventDefault();
-                      dispatch(
-                        addPlayer({
-                          firstName: firstName.current,
-                          lastName: lastName.current,
-                          strength: strength.current,
-                          comment: comment.current,
-                        })
-                      );
+                      if (userAction === UserActions.ADD) {
+                        dispatch(
+                          addPlayer({
+                            firstName,
+                            lastName,
+                            strength,
+                            comment,
+                          })
+                        );
+                      } else {
+                        dispatch(
+                          updatePlayer({
+                            idToEdit,
+                            firstName,
+                            lastName,
+                            strength,
+                            comment,
+                          })
+                        );
+                      }
                     }}
                   >
-                    Add
+                    {userAction === UserActions.ADD ? "dodaj" : "zapisz"}
                   </button>
                 </th>
               </tr>
@@ -143,4 +209,4 @@ function AddPlayer() {
   );
 }
 
-export default AddPlayer;
+export default AddOrEditPlayer;

@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import * as React from "react";
 import { useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
   checkPlayer,
@@ -114,7 +115,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = (props) => {
                   <td className="text text-center">{player.comment}</td>
                   <th>
                     <button className="btn btn-ghost btn-xs bg-slate-600">
-                      edytuj
+                      <Link to={`/players/addoredit/edit${player.id}`}>
+                        edytuj
+                      </Link>
                     </button>
                   </th>
                 </tr>

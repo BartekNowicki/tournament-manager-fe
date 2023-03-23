@@ -9,7 +9,7 @@ import { Location } from "./pages/Location";
 import { Contact } from "./pages/Contact";
 import { ErrorPage } from "./pages/ErrorPage";
 import { PlayerLayout } from "./pages/PlayerLayout";
-import AddPlayer from "./components/AddPlayer";
+import AddOrEditPlayer from "./components/AddOrEditPlayer";
 import AddTournament from "./components/AddTournament";
 import "./App.css";
 
@@ -25,7 +25,7 @@ function App() {
         </Route>
         <Route path="/players" element={<PlayerLayout />}>
           <Route index element={<Players />} />
-          <Route path="add" element={<AddPlayer />} />
+          <Route path="addoredit/:action" element={<AddOrEditPlayer />} />
         </Route>
         <Route path="/location" element={<Location />} />
         <Route path="/contact" element={<Contact />} />
