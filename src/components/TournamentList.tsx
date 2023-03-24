@@ -39,6 +39,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = (
                 <label />
               </th>
               <th className="text text-center">Data</th>
+              <th className="text text-center">Rodzaj</th>
               <th className="text text-center">Rozmiar grupy</th>
               <th className="text text-center">Uwagi</th>
               <th />
@@ -68,6 +69,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = (
                     </div>
                   </div>
                 </td>
+                <td className="text text-center">{tournament.type}</td>
                 <td className="text text-center">{tournament.groupSize}</td>
                 <td className="text text-center">{tournament.comment}</td>
                 <th>
@@ -81,6 +83,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = (
           {/* foot */}
           <tfoot>
             <tr>
+              <th />
               <th />
               <th />
               <th />

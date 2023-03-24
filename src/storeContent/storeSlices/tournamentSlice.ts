@@ -51,7 +51,7 @@ const initialState: TournamentSliceState = {
     },
     {
       id: 4,
-      type: TournamentType[0],
+      type: TournamentType.DOUBLES,
       startDate: new Date("January 14, 2023").toLocaleDateString(),
       endDate: new Date("January 24, 2023").toLocaleDateString(),
       groupSize: 4,
@@ -67,7 +67,7 @@ export const TournamentSlice = createSlice({
     addTournament: (
       state,
       action: PayloadAction<{
-        type: TournamentType;
+        type: string;
         startDate: string;
         endDate: string;
         groupSize: number;
