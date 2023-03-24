@@ -1,8 +1,10 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable react/button-has-type */
 /* eslint-disable react/function-component-definition */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import * as React from "react";
+import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 
 interface ITournamentListProps {}
@@ -74,7 +76,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = (
                 <td className="text text-center">{tournament.comment}</td>
                 <th>
                   <button className="btn btn-ghost btn-xs bg-slate-600">
-                    edytuj
+                    <Link to={`/tournaments/addoredit/edit${tournament.id}`}>
+                      edytuj
+                    </Link>
                   </button>
                 </th>
               </tr>

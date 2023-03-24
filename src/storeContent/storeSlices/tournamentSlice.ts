@@ -86,8 +86,35 @@ export const TournamentSlice = createSlice({
         },
       ];
     },
+    updateTournament: (
+      state,
+      action: PayloadAction<{
+        idToEdit: number;
+        type: string;
+        startDate: string;
+        endDate: string;
+        groupSize: number;
+        comment: string;
+      }>
+    ) => {
+      state.tournaments = state.tournaments.map((tournament) => {
+        if (tournament.id === action.payload.idToEdit) {
+          return {
+            id: tournament.id,
+            type: action.payload.type,
+            startDate: action.payload.startDate,
+            endDate: action.payload.endDate,
+            groupSize: action.payload.groupSize,
+            comment: action.payload.comment,
+          };
+        }
+        return {
+          ...tournament,
+        };
+      });
+    },
   },
 });
 
 export default TournamentSlice.reducer;
-export const { addTournament } = TournamentSlice.actions;
+export const { addTournament, updateTournament } = TournamentSlice.actions;

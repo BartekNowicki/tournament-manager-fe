@@ -2,13 +2,18 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/button-has-type */
 /* eslint-disable no-return-assign */
-import { useState } from "react";
-
+import { useCallback, useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
-import { addTournament } from "../storeContent/storeSlices/tournamentSlice";
-import { useAppDispatch } from "../storeContent/store";
+import {
+  addTournament,
+  updateTournament,
+  Tournament,
+} from "../storeContent/storeSlices/tournamentSlice";
+import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import { TournamentType } from "./Tournament";
 import "react-datepicker/dist/react-datepicker.css";
+import { UserActions } from "./AddOrEditPlayer";
 
 const serialize = (date: Date): string => date.toLocaleDateString();
 const deserialize = (dateString: string) => {
@@ -16,13 +21,58 @@ const deserialize = (dateString: string) => {
   return `"${dateArr[1]}.${dateArr[0]}.${dateArr[2]}"`;
 };
 
-function AddTournament() {
-  const [startDate, setStartDate] = useState(serialize(new Date()));
-  const [endDate, setEndDate] = useState(serialize(new Date()));
-  const [type, setType] = useState<string>(TournamentType.DOUBLES);
-  const [groupSize, setGroupSize] = useState(0);
-  const [comment, setComment] = useState<string>("");
+function AddOrEditTournament() {
+  // const [startDate, setStartDate] = useState(serialize(new Date()));
+  // const [endDate, setEndDate] = useState(serialize(new Date()));
+  // const [type, setType] = useState<string>(TournamentType.DOUBLES);
+  // const [groupSize, setGroupSize] = useState(0);
+  // const [comment, setComment] = useState<string>("");
+
   const dispatch = useAppDispatch();
+
+  const navigate = useNavigate();
+  const params = useParams() ?? {};
+  let idToEdit = -1;
+  if (params.action) {
+    idToEdit =
+      params.action !== "add"
+        ? parseInt(params.action.split("").slice(4).join(""), 10)
+        : -1;
+  }
+
+  const userAction: string = params.action ?? UserActions.NONE;
+  const tournaments = useAppSelector((state) => state.tournament.tournaments);
+  const findById = useCallback(
+    (id: number) => {
+      const dummyTournament: Tournament = {
+        id: -1,
+        startDate: serialize(new Date()),
+        endDate: serialize(new Date()),
+        type: TournamentType.SINGLES,
+        groupSize: 0,
+        comment: "",
+      };
+      if (id === -1) return dummyTournament;
+      return tournaments.filter((tournament) => tournament.id === id)[0];
+    },
+    [tournaments]
+  );
+
+  const initialDisplayedTournament: Tournament = findById(idToEdit);
+  const [displayedTournament, setDisplayedTournament] = useState(
+    initialDisplayedTournament
+  );
+  const [startDate, setStartDate] = useState(displayedTournament.startDate);
+  const [endDate, setEndDate] = useState(displayedTournament.endDate);
+  const [type, setType] = useState<string>(displayedTournament.type);
+  const [groupSize, setGroupSize] = useState(displayedTournament.groupSize);
+  const [comment, setComment] = useState<string>(displayedTournament.comment);
+
+  useEffect(() => {
+    if (userAction === UserActions.NONE) {
+      navigate("/nosuchpath");
+    }
+  }, [navigate, idToEdit, userAction]);
 
   return (
     <form>
@@ -78,6 +128,7 @@ function AddTournament() {
                   <label htmlFor="" />
                   <select
                     className="font-bold px-2"
+                    value={type}
                     onChange={(e) => setType(e.target.value)}
                   >
                     <option value="doubles">{TournamentType.DOUBLES}</option>
@@ -85,28 +136,26 @@ function AddTournament() {
                   </select>
                 </td>
                 <td className="text text-center">
-                  <td className="text text-center">
-                    <div className="font-bold">
-                      <label htmlFor="" />
-                      <select
-                        className="font-bold px-2"
-                        value={groupSize}
-                        onChange={(e) => setGroupSize(+e.target.value)}
-                      >
-                        <option value={0}>0</option>
-                        <option value={1}>1</option>
-                        <option value={2}>2</option>
-                        <option value={3}>3</option>
-                        <option value={4}>4</option>
-                        <option value={5}>5</option>
-                        <option value={6}>6</option>
-                        <option value={7}>7</option>
-                        <option value={8}>8</option>
-                        <option value={9}>9</option>
-                        <option value={10}>10</option>
-                      </select>
-                    </div>
-                  </td>
+                  <div className="font-bold">
+                    <label htmlFor="" />
+                    <select
+                      className="font-bold px-2"
+                      value={groupSize}
+                      onChange={(e) => setGroupSize(+e.target.value)}
+                    >
+                      <option value={0}>0</option>
+                      <option value={1}>1</option>
+                      <option value={2}>2</option>
+                      <option value={3}>3</option>
+                      <option value={4}>4</option>
+                      <option value={5}>5</option>
+                      <option value={6}>6</option>
+                      <option value={7}>7</option>
+                      <option value={8}>8</option>
+                      <option value={9}>9</option>
+                      <option value={10}>10</option>
+                    </select>
+                  </div>
                 </td>
                 <td className="text text-center">
                   <div className="font-bold">
@@ -124,18 +173,31 @@ function AddTournament() {
                     className="btn btn-ghost btn-xs bg-slate-600"
                     onClick={(e) => {
                       e.preventDefault();
-                      dispatch(
-                        addTournament({
-                          type,
-                          startDate,
-                          endDate,
-                          groupSize,
-                          comment,
-                        })
-                      );
+                      if (userAction === UserActions.ADD) {
+                        dispatch(
+                          addTournament({
+                            type,
+                            startDate,
+                            endDate,
+                            groupSize,
+                            comment,
+                          })
+                        );
+                      } else {
+                        dispatch(
+                          updateTournament({
+                            idToEdit,
+                            type,
+                            startDate,
+                            endDate,
+                            groupSize,
+                            comment,
+                          })
+                        );
+                      }
                     }}
                   >
-                    dodaj
+                    {userAction === UserActions.ADD ? "dodaj" : "zapisz"}
                   </button>
                 </th>
               </tr>
@@ -159,4 +221,4 @@ function AddTournament() {
   );
 }
 
-export default AddTournament;
+export default AddOrEditTournament;
