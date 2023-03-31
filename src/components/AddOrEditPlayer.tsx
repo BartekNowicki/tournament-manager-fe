@@ -9,6 +9,7 @@ import {
   Player,
   addPlayer,
   updatePlayer,
+  //savePlayer,
 } from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 
@@ -173,6 +174,7 @@ function AddOrEditPlayer() {
                             strength,
                             comment,
                           })
+                          // savePlayer(firstName)
                         );
                       } else {
                         dispatch(

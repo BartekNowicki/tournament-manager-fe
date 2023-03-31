@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
 import MainWrapper from "./components/mainWrapper/MainWrapper";
 import { Navbar } from "./components/Navbar";
 import { Home } from "./pages/Home";
@@ -12,8 +13,17 @@ import { PlayerLayout } from "./pages/PlayerLayout";
 import AddOrEditPlayer from "./components/AddOrEditPlayer";
 import AddOrEditTournament from "./components/AddOrEditTournament";
 import "./App.css";
+import { useAppDispatch } from "./storeContent/store";
+
+import { fetchPlayers } from "./storeContent/storeSlices/playerSlice";
 
 function App() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchPlayers());
+  });
+
   return (
     <MainWrapper>
       <Navbar />
