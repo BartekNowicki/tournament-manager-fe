@@ -11,7 +11,6 @@ import {
   checkPlayer,
   checkAllPlayers,
 } from "../storeContent/storeSlices/playerSlice";
-import Player from "./PlayerUnused";
 
 interface IPlayerListProps {}
 
@@ -27,7 +26,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = (props) => {
 
   const isChecked = useCallback(
     (id: number): boolean => {
-      return findById(id).isChecked;
+      const found = findById(id);
+      return found ? found.isChecked : false;
     },
     [findById]
   );
