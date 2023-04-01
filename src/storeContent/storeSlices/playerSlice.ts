@@ -18,10 +18,6 @@ export interface Player {
   comment: string;
 }
 
-// interface PlayerSliceState {
-//   players: Player[];
-// }
-
 interface RejectedAction extends Action {
   error: Error;
 }
@@ -41,13 +37,29 @@ export const fetchPlayers = createAsyncThunk(
   }
 );
 
-export const savePlayer = createAsyncThunk("players/save", async (thunkAPI) => {
-  const response = await fetch("http://localhost:8080/api/data/players", {
-    method: "PUT",
-  });
-  const data = response.json();
-  return data;
-});
+export const savePlayer = createAsyncThunk(
+  "players/save",
+  async (player: Player, { rejectWithValue }) => {
+    try {
+      const response = await fetch("http://localhost:8080/api/data/players", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(player),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 interface PlayerSliceState {
   players: Player[];

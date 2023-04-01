@@ -5,14 +5,8 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Player,
-  addPlayer,
-  updatePlayer,
-} from "../storeContent/storeSlices/playerSlice";
+import { savePlayer } from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
-
-// savePlayer,
 
 export enum UserActions {
   ADD = "add",
@@ -35,21 +29,23 @@ function AddOrEditPlayer() {
   const players = useAppSelector((state) => state.player.players);
   const findById = useCallback(
     (id: number) => {
-      const dummyPlayer: Player = {
-        id: -1,
+      // id = -2 => reserved for adding a new player
+      // id = -1 => reserved for allPlayers isChecked
+      const dummyPlayer = {
+        id: -2,
         isChecked: false,
         firstName: "",
         lastName: "",
         strength: 0,
         comment: "",
       };
-      if (id === -1) return dummyPlayer;
+      if (id === -2) return dummyPlayer;
       return players.filter((player) => player.id === id)[0];
     },
     [players]
   );
 
-  const initialDisplayedPlayer: Player = findById(idToEdit);
+  const initialDisplayedPlayer = findById(idToEdit);
   const [displayedPlayer, setDisplayedPlayer] = useState(
     initialDisplayedPlayer
   );
@@ -167,27 +163,16 @@ function AddOrEditPlayer() {
                     className="btn btn-ghost btn-xs bg-slate-600"
                     onClick={(e) => {
                       e.preventDefault();
-                      if (userAction === UserActions.ADD) {
-                        dispatch(
-                          addPlayer({
-                            firstName,
-                            lastName,
-                            strength,
-                            comment,
-                          })
-                          // savePlayer(firstName)
-                        );
-                      } else {
-                        dispatch(
-                          updatePlayer({
-                            idToEdit,
-                            firstName,
-                            lastName,
-                            strength,
-                            comment,
-                          })
-                        );
-                      }
+                      dispatch(
+                        savePlayer({
+                          id: idToEdit,
+                          isChecked: false,
+                          firstName,
+                          lastName,
+                          strength,
+                          comment,
+                        })
+                      );
                     }}
                   >
                     {userAction === UserActions.ADD ? "dodaj" : "zapisz"}
