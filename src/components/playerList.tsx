@@ -39,6 +39,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     },
     [findById]
   );
+
   const handleCheck = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const key: number = +e.target.id;
@@ -98,64 +99,68 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             </thead>
             <tbody>
               {/* rows */}
-              {players
-                .filter((player) => player.id !== -1)
-                .map((player) => (
-                  <tr key={player.id}>
-                    <th>
-                      <label>
-                        <input
-                          type="checkbox"
-                          className="checkbox"
-                          id={player.id.toString()}
-                          checked={isChecked(player.id) === true}
-                          onChange={handleCheck}
-                        />
-                      </label>
-                    </th>
-                    <td>
-                      <div className="flex items-center space-x-3">
-                        <div className="avatar">
-                          <div className="mask mask-squircle w-12 h-12">
-                            <img
-                              src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
-                              alt="Avatar"
-                            />
+              {players.length &&
+                players
+                  .filter((player) => player.id !== -1)
+                  .map((player) => (
+                    <tr key={player.id}>
+                      <th>
+                        <label>
+                          <input
+                            type="checkbox"
+                            className="checkbox"
+                            id={player.id.toString()}
+                            checked={isChecked(player.id) === true}
+                            onChange={handleCheck}
+                          />
+                        </label>
+                      </th>
+                      <td>
+                        <div className="flex items-center space-x-3">
+                          <div className="avatar">
+                            <div className="mask mask-squircle w-12 h-12">
+                              <img
+                                src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
+                                alt="Avatar"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <div className="font-bold">
+                              <p>
+                                {player.firstName} {player.lastName}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                        <div>
-                          <div className="font-bold">
-                            {player.firstName} {player.lastName}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="text text-center">{player.strength}</td>
-                    <td className="text text-center">{player.comment}</td>
-                    <th>
-                      <button
-                        className="btn btn-ghost btn-xs bg-slate-600"
-                        onClick={() => {
-                          if (displayedPlayerUpdater) displayedPlayerUpdater();
-                        }}
-                      >
-                        <Link to={`/players/addoredit/edit${player.id}`}>
-                          edytuj
-                        </Link>
-                      </button>
-                    </th>
-                    <th>
-                      <button
-                        className="btn btn-ghost btn-xs bg-slate-600"
-                        onClick={(e) => {
-                          dispatch(deletePlayer(player.id));
-                        }}
-                      >
-                        usuń
-                      </button>
-                    </th>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="text text-center">{player.strength}</td>
+                      <td className="text text-center">{player.comment}</td>
+                      <th>
+                        <button
+                          className="btn btn-ghost btn-xs bg-slate-600"
+                          onClick={() => {
+                            if (displayedPlayerUpdater)
+                              displayedPlayerUpdater();
+                          }}
+                        >
+                          <Link to={`/players/addoredit/edit${player.id}`}>
+                            edytuj
+                          </Link>
+                        </button>
+                      </th>
+                      <th>
+                        <button
+                          className="btn btn-ghost btn-xs bg-slate-600"
+                          onClick={(e) => {
+                            dispatch(deletePlayer(player.id));
+                          }}
+                        >
+                          usuń
+                        </button>
+                      </th>
+                    </tr>
+                  ))}
             </tbody>
             {/* foot */}
             <tfoot>

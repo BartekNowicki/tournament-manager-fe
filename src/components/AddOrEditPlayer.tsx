@@ -18,6 +18,7 @@ export enum UserActions {
 function AddOrEditPlayer() {
   const navigate = useNavigate();
   const params = useParams() ?? {};
+  const dispatch = useAppDispatch();
   // id = -2 => reserved for adding a new player
   // id = -1 => reserved for hidden allPlayers isChecked
 
@@ -59,7 +60,6 @@ function AddOrEditPlayer() {
   const [lastName, setLastName] = useState(displayedPlayer.lastName);
   const [strength, setStrength] = useState(displayedPlayer.strength);
   const [comment, setComment] = useState(displayedPlayer.comment);
-  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (getUserAction() === UserActions.NONE) {
@@ -78,12 +78,11 @@ function AddOrEditPlayer() {
       strength !== displayedPlayer.strength
     ) {
       const currentPlayerToDisplay = findById(getIdOfPlayerToSaveOrEdit());
-      setDisplayedPlayer(currentPlayerToDisplay);
-      setFirstName(currentPlayerToDisplay.firstName);
-      setLastName(currentPlayerToDisplay.lastName);
-      setStrength(currentPlayerToDisplay.strength);
-      setComment(currentPlayerToDisplay.comment);
-      console.log("currentPlayerToDisplay", currentPlayerToDisplay);
+      setDisplayedPlayer((prev) => currentPlayerToDisplay);
+      setFirstName((prev) => currentPlayerToDisplay.firstName);
+      setLastName((prev) => currentPlayerToDisplay.lastName);
+      setStrength((prev) => currentPlayerToDisplay.strength);
+      setComment((prev) => currentPlayerToDisplay.comment);
     }
   };
 
@@ -94,6 +93,7 @@ function AddOrEditPlayer() {
     }
   }, [currentAction, getUserAction, params.action, updateDiplayedPlayer]);
 
+  // is this not done already in the above useffect?
   useEffect(() => {
     updateDiplayedPlayer();
     // do not follow this gudeline or infinite loop ensues:

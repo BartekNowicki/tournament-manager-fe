@@ -16,12 +16,14 @@ import "./App.css";
 import { useAppDispatch } from "./storeContent/store";
 
 import { fetchPlayers } from "./storeContent/storeSlices/playerSlice";
+import { fetchTournaments } from "./storeContent/storeSlices/tournamentSlice";
 
 function App() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(fetchPlayers());
+    dispatch(fetchTournaments());
   });
 
   return (

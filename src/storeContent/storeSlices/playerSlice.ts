@@ -128,32 +128,32 @@ export const PlayerSlice = createSlice({
         isChecked: action.payload.isChecked,
       }));
     },
-    updatePlayer: (
-      state,
-      action: PayloadAction<{
-        idToEdit: number;
-        firstName: string;
-        lastName: string;
-        strength: number;
-        comment: string;
-      }>
-    ) => {
-      state.players = state.players.map((player) => {
-        if (player.id === action.payload.idToEdit) {
-          return {
-            id: player.id,
-            isChecked: player.isChecked,
-            firstName: action.payload.firstName,
-            lastName: action.payload.lastName,
-            strength: action.payload.strength,
-            comment: action.payload.comment,
-          };
-        }
-        return {
-          ...player,
-        };
-      });
-    },
+    // updatePlayer: (
+    //   state,
+    //   action: PayloadAction<{
+    //     idToEdit: number;
+    //     firstName: string;
+    //     lastName: string;
+    //     strength: number;
+    //     comment: string;
+    //   }>
+    // ) => {
+    //   state.players = state.players.map((player) => {
+    //     if (player.id === action.payload.idToEdit) {
+    //       return {
+    //         id: player.id,
+    //         isChecked: player.isChecked,
+    //         firstName: action.payload.firstName,
+    //         lastName: action.payload.lastName,
+    //         strength: action.payload.strength,
+    //         comment: action.payload.comment,
+    //       };
+    //     }
+    //     return {
+    //       ...player,
+    //     };
+    //   });
+    // },
   },
   extraReducers: (builder) => {
     builder
@@ -224,5 +224,4 @@ export const PlayerSlice = createSlice({
 });
 
 export default PlayerSlice.reducer;
-export const { addPlayer, checkPlayer, checkAllPlayers, updatePlayer } =
-  PlayerSlice.actions;
+export const { checkPlayer, checkAllPlayers } = PlayerSlice.actions;

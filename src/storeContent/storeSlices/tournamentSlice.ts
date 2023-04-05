@@ -1,5 +1,14 @@
 /* eslint-disable no-param-reassign */
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  PayloadAction,
+  Action,
+  AnyAction,
+  createAction,
+  isPending,
+} from "@reduxjs/toolkit";
+import axios from "axios";
 import { TournamentType } from "../../components/Tournament";
 
 export interface Tournament {
@@ -15,50 +24,92 @@ interface TournamentSliceState {
   tournaments: Tournament[];
 }
 
-const initialState: TournamentSliceState = {
-  tournaments: [
-    {
-      id: 0,
-      type: TournamentType.SINGLES,
-      startDate: new Date("January 10, 2023").toLocaleDateString(),
-      endDate: new Date("January 20, 2023").toLocaleDateString(),
-      groupSize: 0,
-      comment: "no comment0",
-    },
-    {
-      id: 1,
-      type: TournamentType.DOUBLES,
-      startDate: new Date("January 11, 2023").toLocaleDateString(),
-      endDate: new Date("January 21, 2023").toLocaleDateString(),
-      groupSize: 1,
-      comment: "no comment1",
-    },
-    {
-      id: 2,
-      type: TournamentType.SINGLES,
-      startDate: new Date("January 12, 2023").toLocaleDateString(),
-      endDate: new Date("January 22, 2023").toLocaleDateString(),
-      groupSize: 2,
-      comment: "no comment2",
-    },
-    {
-      id: 3,
-      type: TournamentType.DOUBLES,
-      startDate: new Date("January 13, 2023").toLocaleDateString(),
-      endDate: new Date("January 23, 2023").toLocaleDateString(),
-      groupSize: 3,
-      comment: "no comment3",
-    },
-    {
-      id: 4,
-      type: TournamentType.DOUBLES,
-      startDate: new Date("January 14, 2023").toLocaleDateString(),
-      endDate: new Date("January 24, 2023").toLocaleDateString(),
-      groupSize: 4,
-      comment: "no comment4",
-    },
-  ],
+interface RejectedAction extends Action {
+  error: Error;
+}
+
+function isRejectedAction(action: AnyAction): action is RejectedAction {
+  return action.type.endsWith("rejected");
+}
+
+export const fetchTournaments = createAsyncThunk(
+  "tournaments/get",
+  async (thunkAPI) => {
+    const response = await axios.get(
+      "http://localhost:8080/api/data/tournaments"
+    );
+    return response.data;
+  }
+);
+
+const getEnumKeyByValue = (val: string) =>
+  Object.keys(TournamentType)[Object.values(TournamentType).indexOf(val)];
+
+const convertToMysqlDatetime6 = (dateString: string) => {
+  // required by mysql: datetime(6)
+  // e.g. `java.util.Date` from String "5.04.2023"
+  const dateArr: string[] = dateString.split(".");
+  // return new Date(`"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`).getTime();
+  const convertedDate: Date = new Date(
+    `"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`
+  );
+  // need to set the date one day after as sql stores the date one day before
+  convertedDate.setDate(convertedDate.getDate() + 1);
+  return convertedDate;
 };
+
+export const saveTournament = createAsyncThunk(
+  "tournaments/save",
+  async (tournament: Tournament, { rejectWithValue }) => {
+    const tournamentWithTypeConvertedToEnumKey = {
+      ...tournament,
+      type: getEnumKeyByValue(tournament.type),
+    };
+
+    try {
+      const response = await axios.put(
+        "http://localhost:8080/api/data/tournaments",
+        {
+          ...tournamentWithTypeConvertedToEnumKey,
+          startDate: convertToMysqlDatetime6(tournament.startDate),
+          endDate: convertToMysqlDatetime6(tournament.endDate),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      // return rejectWithValue(error.message);
+      return rejectWithValue("error saving the tournament");
+    }
+  }
+);
+
+export const deleteTournament = createAsyncThunk(
+  "tournaments/delete",
+  async (tournamentId: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/data/tournaments/${tournamentId}`
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue("error deleting the tournament");
+    }
+  }
+);
+
+interface TournamentSliceState {
+  tournaments: Tournament[];
+  tournamentsChangeCount: number;
+  loading: "idle" | "pending" | "succeeded" | "failed";
+}
+
+const initialState = {
+  tournaments: [],
+  tournamentsChangeCount: 0,
+  loading: "idle",
+} as TournamentSliceState;
 
 export const TournamentSlice = createSlice({
   name: "tournament",
@@ -86,35 +137,100 @@ export const TournamentSlice = createSlice({
         },
       ];
     },
-    updateTournament: (
-      state,
-      action: PayloadAction<{
-        idToEdit: number;
-        type: string;
-        startDate: string;
-        endDate: string;
-        groupSize: number;
-        comment: string;
-      }>
-    ) => {
-      state.tournaments = state.tournaments.map((tournament) => {
-        if (tournament.id === action.payload.idToEdit) {
-          return {
-            id: tournament.id,
-            type: action.payload.type,
-            startDate: action.payload.startDate,
-            endDate: action.payload.endDate,
-            groupSize: action.payload.groupSize,
-            comment: action.payload.comment,
-          };
-        }
-        return {
-          ...tournament,
+    // updateTournament: (
+    //   state,
+    //   action: PayloadAction<{
+    //     idToEdit: number;
+    //     type: string;
+    //     startDate: string;
+    //     endDate: string;
+    //     groupSize: number;
+    //     comment: string;
+    //   }>
+    // ) => {
+    //   state.tournaments = state.tournaments.map((tournament) => {
+    //     if (tournament.id === action.payload.idToEdit) {
+    //       return {
+    //         id: tournament.id,
+    //         type: action.payload.type,
+    //         startDate: action.payload.startDate,
+    //         endDate: action.payload.endDate,
+    //         groupSize: action.payload.groupSize,
+    //         comment: action.payload.comment,
+    //       };
+    //     }
+    //     return {
+    //       ...tournament,
+    //     };
+    //   });
+    // },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTournaments.fulfilled, (state, action) => {
+        state.tournaments = action.payload;
+        console.info("tournament fetch promise fulfilled");
+      })
+      .addCase(fetchTournaments.pending, () => {
+        console.info("fetch promise pending...");
+      })
+      .addCase(saveTournament.fulfilled, (state, action) => {
+        const tournamentIdAlreadyInState = (id: number) => {
+          return state.tournaments.filter((t) => t.id === id).length > 0;
         };
+
+        if (tournamentIdAlreadyInState(action.payload.id)) {
+          state.tournaments = state.tournaments.map((tournament) => {
+            return tournament.id !== action.payload.id
+              ? tournament
+              : {
+                  id: action.payload.id,
+                  type: action.payload.type,
+                  startDate: action.payload.startDate,
+                  endDate: action.payload.endDate,
+                  groupSize: action.payload.groupSize,
+                  comment: action.payload.comment,
+                };
+          });
+        } else {
+          state.tournaments.push(action.payload);
+        }
+        console.info("save tournament promise fulfilled");
+        state.tournamentsChangeCount += 1;
+      })
+      .addCase(saveTournament.rejected, () => {
+        console.warn("save tournament promise rejected!");
+      })
+      .addCase(saveTournament.pending, () => {
+        console.info("save tournament promise pending...");
+      })
+      .addCase(deleteTournament.fulfilled, (state, action) => {
+        const tournamentIdNotInState = (id: number) => {
+          return state.tournaments.filter((t) => t.id === id).length === 0;
+        };
+        if (tournamentIdNotInState(action.payload.id)) {
+          console.warn("invalid tournament id for deletion");
+        } else {
+          state.tournaments = state.tournaments.filter(
+            (t) => t.id !== action.payload.id
+          );
+        }
+        console.info("delete tournament promise fulfilled");
+        state.tournamentsChangeCount += 1;
+      })
+      .addCase(deleteTournament.rejected, () => {
+        console.warn("delete tournament promise rejected!");
+      })
+      .addCase(deleteTournament.pending, () => {
+        console.info("delete tournament promise pending...");
+      })
+      .addMatcher(isRejectedAction, () => {
+        console.info("promise rejected");
+      })
+      .addDefaultCase(() => {
+        console.log("thunk in default mode");
       });
-    },
   },
 });
 
 export default TournamentSlice.reducer;
-export const { addTournament, updateTournament } = TournamentSlice.actions;

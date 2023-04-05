@@ -14,7 +14,7 @@ export function Players(props: IPlayersProps) {
       <button className="btn btn-wide m-2 mb-12 mx-auto">
         <Link to="/players/addoredit/add">nowy uczestnik</Link>
       </button>
-      <PlayerList />
+      <PlayerList displayedPlayerUpdater={() => {}} />
     </div>
   );
 }

@@ -7,12 +7,14 @@ export interface ITournamentsProps {}
 
 export function Tournaments(props: ITournamentsProps) {
   return (
-    <>
-      <p className="prose prose-2xl font font-bold mx-auto mt-12">Turnieje</p>
-      <button className="btn btn-wide m-2 mb-12">
-        <Link to="/tournaments/addOrEdit/add">Dodaj nowy</Link>
+    <div className="flex flex-col">
+      <p className="prose prose-2xl font font-bold mx-auto mt-12 text text-center">
+        Turnieje
+      </p>
+      <button className="btn btn-wide m-2 mb-12 mx-auto">
+        <Link to="/tournaments/addOrEdit/add">Nowy turniej</Link>
       </button>
-      <TournamentList />
-    </>
+      <TournamentList displayedTournamentUpdater={() => {}} />
+    </div>
   );
 }
