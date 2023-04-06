@@ -8,6 +8,7 @@ import { useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import { deleteTournament } from "../storeContent/storeSlices/tournamentSlice";
+import { getAdjustedDates } from "../utils/dates";
 
 interface ITournamentListProps {
   displayedTournamentUpdater: () => void;
@@ -16,35 +17,8 @@ interface ITournamentListProps {
 const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   displayedTournamentUpdater,
 }) => {
-  const changeCount = useAppSelector(
-    (state) => state.tournament.tournamentsChangeCount
-  );
-  // const tournaments = useAppSelector((state) => state.tournament.tournaments);
-  // const dispatch = useAppDispatch();
-  // const findById = (id: number) =>
-  //   tournaments.filter((tournament) => tournament.id === id)[0];
-
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
   const dispatch = useAppDispatch();
-  const findById = useCallback(
-    (id: number) => {
-      return tournaments.filter((tournament) => tournament.id === id)[0];
-    },
-    [tournaments]
-  );
-
-  // const handleClick = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const key: number = +e.target.id;
-  //   const tournament = findById(key);
-  //   if (key !== -1) {
-  //     // dispatch(
-  //     //   checkPlayer({
-  //     //     id: player.id,
-  //     //     isChecked: opposite,
-  //     //   })
-  //     // );
-  //   }
-  // };
 
   return (
     <>
@@ -87,7 +61,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         <div>
                           <div className="font-bold">
                             <td>
-                              {tournament.startDate} - {tournament.endDate}
+                              {getAdjustedDates(
+                                tournament.startDate,
+                                tournament.endDate
+                              )}
                             </td>
                           </div>
                         </div>
@@ -97,7 +74,13 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     <td className="text text-center">{tournament.groupSize}</td>
                     <td className="text text-center">{tournament.comment}</td>
                     <th>
-                      <button className="btn btn-ghost btn-xs bg-slate-600">
+                      <button
+                        className="btn btn-ghost btn-xs bg-slate-600"
+                        onClick={() => {
+                          if (displayedTournamentUpdater)
+                            displayedTournamentUpdater();
+                        }}
+                      >
                         <Link
                           to={`/tournaments/addoredit/edit${tournament.id}`}
                         >

@@ -101,13 +101,11 @@ export const deleteTournament = createAsyncThunk(
 
 interface TournamentSliceState {
   tournaments: Tournament[];
-  tournamentsChangeCount: number;
   loading: "idle" | "pending" | "succeeded" | "failed";
 }
 
 const initialState = {
   tournaments: [],
-  tournamentsChangeCount: 0,
   loading: "idle",
 } as TournamentSliceState;
 
@@ -137,33 +135,6 @@ export const TournamentSlice = createSlice({
         },
       ];
     },
-    // updateTournament: (
-    //   state,
-    //   action: PayloadAction<{
-    //     idToEdit: number;
-    //     type: string;
-    //     startDate: string;
-    //     endDate: string;
-    //     groupSize: number;
-    //     comment: string;
-    //   }>
-    // ) => {
-    //   state.tournaments = state.tournaments.map((tournament) => {
-    //     if (tournament.id === action.payload.idToEdit) {
-    //       return {
-    //         id: tournament.id,
-    //         type: action.payload.type,
-    //         startDate: action.payload.startDate,
-    //         endDate: action.payload.endDate,
-    //         groupSize: action.payload.groupSize,
-    //         comment: action.payload.comment,
-    //       };
-    //     }
-    //     return {
-    //       ...tournament,
-    //     };
-    //   });
-    // },
   },
   extraReducers: (builder) => {
     builder
@@ -176,6 +147,7 @@ export const TournamentSlice = createSlice({
       })
       .addCase(saveTournament.fulfilled, (state, action) => {
         const tournamentIdAlreadyInState = (id: number) => {
+          if (!state.tournaments.length) return false;
           return state.tournaments.filter((t) => t.id === id).length > 0;
         };
 
@@ -193,10 +165,9 @@ export const TournamentSlice = createSlice({
                 };
           });
         } else {
-          state.tournaments.push(action.payload);
+          state.tournaments = [...state.tournaments, action.payload];
         }
         console.info("save tournament promise fulfilled");
-        state.tournamentsChangeCount += 1;
       })
       .addCase(saveTournament.rejected, () => {
         console.warn("save tournament promise rejected!");
@@ -216,7 +187,6 @@ export const TournamentSlice = createSlice({
           );
         }
         console.info("delete tournament promise fulfilled");
-        state.tournamentsChangeCount += 1;
       })
       .addCase(deleteTournament.rejected, () => {
         console.warn("delete tournament promise rejected!");

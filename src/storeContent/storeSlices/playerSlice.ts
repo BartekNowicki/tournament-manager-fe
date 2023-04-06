@@ -166,6 +166,7 @@ export const PlayerSlice = createSlice({
       })
       .addCase(savePlayer.fulfilled, (state, action) => {
         const playerIdAlreadyInState = (id: number) => {
+          if (!state.players.length) return false;
           return state.players.filter((p) => p.id === id).length > 0;
         };
 

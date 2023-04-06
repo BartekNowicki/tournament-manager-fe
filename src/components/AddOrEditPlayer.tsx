@@ -68,7 +68,7 @@ function AddOrEditPlayer() {
   }, [navigate, getUserAction]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const updateDiplayedPlayer = () => {
+  const updateDisplayedPlayer = () => {
     if (
       getUserAction() === UserActions.ADD ||
       getIdOfPlayerToSaveOrEdit() !== displayedPlayer.id ||
@@ -89,13 +89,13 @@ function AddOrEditPlayer() {
   useEffect(() => {
     if (currentAction !== getUserAction()) {
       setCurrentAction((prev) => getUserAction());
-      updateDiplayedPlayer();
+      updateDisplayedPlayer();
     }
-  }, [currentAction, getUserAction, params.action, updateDiplayedPlayer]);
+  }, [currentAction, getUserAction, params.action, updateDisplayedPlayer]);
 
   // is this not done already in the above useffect?
   useEffect(() => {
-    updateDiplayedPlayer();
+    updateDisplayedPlayer();
     // do not follow this gudeline or infinite loop ensues:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -137,7 +137,9 @@ function AddOrEditPlayer() {
                             style={{ paddingLeft: "10px" }}
                             placeholder="imię"
                             value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
+                            onChange={(e) =>
+                              setFirstName((prev) => e.target.value)
+                            }
                           />
                         </div>
                       </div>
@@ -160,7 +162,9 @@ function AddOrEditPlayer() {
                             style={{ paddingLeft: "10px" }}
                             placeholder="nazwisko"
                             value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
+                            onChange={(e) =>
+                              setLastName((prev) => e.target.value)
+                            }
                           />
                         </div>
                       </div>
@@ -171,7 +175,7 @@ function AddOrEditPlayer() {
                       <label htmlFor="" />
                       <select
                         value={strength}
-                        onChange={(e) => setStrength(+e.target.value)}
+                        onChange={(e) => setStrength((prev) => +e.target.value)}
                       >
                         <option value={0}>0</option>
                         <option value={1}>1</option>
@@ -194,7 +198,7 @@ function AddOrEditPlayer() {
                         style={{ paddingLeft: "10px" }}
                         placeholder="uwagi"
                         value={comment}
-                        onChange={(e) => setComment(e.target.value)}
+                        onChange={(e) => setComment((prev) => e.target.value)}
                       />
                     </div>
                   </td>
@@ -235,7 +239,7 @@ function AddOrEditPlayer() {
           </div>
         </div>
       </form>
-      <PlayerList displayedPlayerUpdater={updateDiplayedPlayer} />;
+      <PlayerList displayedPlayerUpdater={updateDisplayedPlayer} />;
     </>
   );
 }

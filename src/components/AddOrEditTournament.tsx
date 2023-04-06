@@ -11,6 +11,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { UserActions } from "./AddOrEditPlayer";
 import { TournamentType } from "./Tournament";
 import TournamentList from "./TournamentList";
+import { getDateOneDayBefore } from "../utils/dates";
 
 // these functions are only to communicate the date from the date picker to component state and back, not with redux and db
 // redux and db date conversion takes place in the tournamentSlice
@@ -53,7 +54,21 @@ function AddOrEditTournament() {
       comment: "",
     };
     if (id === -2) return placeholderTournament;
-    return tournaments.filter((tournament) => tournament.id === id)[0];
+
+    const foundTournament = tournaments.filter(
+      (tournament) => tournament.id === id
+    )[0];
+
+    return {
+      ...foundTournament,
+      type: foundTournament.type,
+      startDate: serialize(
+        getDateOneDayBefore(new Date(`${foundTournament.startDate}`))
+      ),
+      endDate: serialize(
+        getDateOneDayBefore(new Date(`${foundTournament.endDate}`))
+      ),
+    };
   };
 
   const initialDisplayedTournament = findById(getIdOfTournamentToSaveOrEdit());
@@ -61,8 +76,10 @@ function AddOrEditTournament() {
     initialDisplayedTournament
   );
   const [currentAction, setCurrentAction] = useState<string>();
-  const [startDate, setStartDate] = useState(displayedTournament.startDate);
-  const [endDate, setEndDate] = useState(displayedTournament.endDate);
+  const [startDate, setStartDate] = useState<string>(
+    displayedTournament.startDate
+  );
+  const [endDate, setEndDate] = useState<string>(displayedTournament.endDate);
   const [type, setType] = useState<string>(displayedTournament.type);
   const [groupSize, setGroupSize] = useState(displayedTournament.groupSize);
   const [comment, setComment] = useState<string>(displayedTournament.comment);
@@ -74,7 +91,13 @@ function AddOrEditTournament() {
   }, [navigate, getUserAction]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const updateDiplayedTournament = () => {
+  const updateDisplayedTournament = () => {
+    console.log(
+      type,
+      displayedTournament.type,
+      type === displayedTournament.type
+    );
+
     if (
       getUserAction() === UserActions.ADD ||
       getIdOfTournamentToSaveOrEdit() !== displayedTournament.id ||
@@ -87,34 +110,44 @@ function AddOrEditTournament() {
       const currentTournamentToDisplay = findById(
         getIdOfTournamentToSaveOrEdit()
       );
+
       setDisplayedTournament((prev) => currentTournamentToDisplay);
       setStartDate((prev) => currentTournamentToDisplay.startDate);
       setEndDate((prev) => currentTournamentToDisplay.endDate);
       setType((prev) => currentTournamentToDisplay.type);
       setGroupSize((prev) => currentTournamentToDisplay.groupSize);
       setComment((prev) => currentTournamentToDisplay.comment);
+      console.log("SWITCHING TO ", currentTournamentToDisplay.type);
+      // console.log("SWITCHING TO ", currentTournamentToDisplay);
     }
   };
 
   useEffect(() => {
     if (currentAction !== getUserAction()) {
       setCurrentAction((prev) => getUserAction());
-      updateDiplayedTournament();
+      updateDisplayedTournament();
     }
-  }, [currentAction, getUserAction, params.action, updateDiplayedTournament]);
+  }, [currentAction, getUserAction, params.action, updateDisplayedTournament]);
 
-  // is this not done already in the above useffect?
-  useEffect(() => {
-    updateDiplayedTournament();
-    // do not follow this gudeline or infinite loop ensues:
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const updateType = (): TournamentType => {
+    if (!type) throw new Error("Function not implemented.");
+    return type === TournamentType.DOUBLES
+      ? TournamentType.DOUBLES
+      : TournamentType.SINGLES;
+  };
+
+  // // is this not done already in the above useffect?
+  // useEffect(() => {
+  //   updateDisplayedTournament();
+  //   // do not follow this gudeline or infinite loop ensues:
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   return (
     <>
-      <form>
+      <form className="border border-red-500">
         <div className="m-8 border border-sky-500">
-          <div className="overflow-x-scroll overflow-y-visible w-full">
+          <div className="overflow-x-scroll overflow-y-visible w-full mb-20 pb-60">
             <table className="table w-full">
               {/* head */}
               <thead>
@@ -156,7 +189,7 @@ function AddOrEditTournament() {
                         dateFormat="dd/MM/yyyy"
                         selected={new Date(deserialize(endDate))}
                         onChange={(date) =>
-                          date ? setEndDate(serialize(date)) : {}
+                          date ? setEndDate((prev) => serialize(date)) : {}
                         }
                       />
                     </div>
@@ -165,11 +198,16 @@ function AddOrEditTournament() {
                     <label htmlFor="" />
                     <select
                       className="font-bold px-2"
-                      value={type}
-                      onChange={(e) => setType(e.target.value)}
+                      // value={type}
+                      value={updateType()}
+                      onChange={(e) => setType((prev) => e.target.value)}
                     >
-                      <option value="doubles">{TournamentType.DOUBLES}</option>
-                      <option value="singles">{TournamentType.SINGLES}</option>
+                      <option value={TournamentType.DOUBLES}>
+                        {TournamentType.DOUBLES}
+                      </option>
+                      <option value={TournamentType.SINGLES}>
+                        {TournamentType.SINGLES}
+                      </option>
                     </select>
                   </td>
                   <td className="text text-center">
@@ -178,7 +216,9 @@ function AddOrEditTournament() {
                       <select
                         className="font-bold px-2"
                         value={groupSize}
-                        onChange={(e) => setGroupSize(+e.target.value)}
+                        onChange={(e) =>
+                          setGroupSize((prev) => +e.target.value)
+                        }
                       >
                         <option value={0}>0</option>
                         <option value={1}>1</option>
@@ -201,7 +241,7 @@ function AddOrEditTournament() {
                         style={{ paddingLeft: "10px" }}
                         placeholder=""
                         value={comment}
-                        onChange={(e) => setComment(e.target.value)}
+                        onChange={(e) => setComment((prev) => e.target.value)}
                       />
                     </div>
                   </td>
@@ -247,7 +287,7 @@ function AddOrEditTournament() {
           </div>
         </div>
       </form>
-      <TournamentList displayedTournamentUpdater={updateDiplayedTournament} />;
+      <TournamentList displayedTournamentUpdater={updateDisplayedTournament} />;
     </>
   );
 }
