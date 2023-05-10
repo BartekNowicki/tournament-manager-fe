@@ -239,7 +239,10 @@ function AddOrEditPlayer() {
           </div>
         </div>
       </form>
-      <PlayerList displayedPlayerUpdater={updateDisplayedPlayer} />;
+      <PlayerList
+        isEditingTournament={false}
+        displayedPlayerUpdater={updateDisplayedPlayer}
+      />
     </>
   );
 }

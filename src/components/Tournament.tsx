@@ -25,11 +25,14 @@ const Tournament: React.FunctionComponent<ITournamentProps> = ({
   comment,
 }) => {
   return (
-    <div key={id}>
-      {id} {type} {startDate}
-      {endDate} {groupSize}
-      {comment}
-    </div>
+    <>
+      {console.log("RENDERING TOURNAMENT ITEM")}
+      <div key={id}>
+        {id} {type} {startDate}
+        {endDate} {groupSize}
+        {comment}
+      </div>
+    </>
   );
 };
 
