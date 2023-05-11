@@ -7,7 +7,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import { deleteTournament } from "../storeContent/storeSlices/tournamentSlice";
 import { getAdjustedDates } from "../utils/dates";
@@ -22,16 +22,14 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 }) => {
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
   const dispatch = useAppDispatch();
-  const [isAddingOrEditingTournament, setIsAddingOrEditingTournament] =
-    useState<boolean>(false);
-  const [
-    isAddingOrEditingAssignedPlayers,
-    setIsAddingOrEditingAssignedPlayers,
-  ] = useState<boolean>(false);
+  const [displayedTournamentId, setDisplayedTournamentId] =
+    useState<number>(-1);
 
   return (
     <>
-      {console.log("RENDERING TOURNAMENT LIST")}
+      {console.log(
+        `RENDERING TOURNAMENT LIST with displayed tournament: ${displayedTournamentId}`
+      )}
       <div className="m-8 border border-sky-500">
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
@@ -105,9 +103,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     <th>
                       <button
                         className="btn btn-ghost btn-xs bg-slate-600"
-                        onClick={() =>
-                          setIsAddingOrEditingAssignedPlayers((prev) => !prev)
-                        }
+                        onClick={(e) => {
+                          setDisplayedTournamentId((prev) => tournament.id);
+                        }}
                       >
                         uczestnicy
                       </button>
@@ -130,17 +128,124 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           </table>
         </div>
       </div>
-      {isAddingOrEditingAssignedPlayers &&
+
+      {displayedTournamentId > -1 &&
         createPortal(
           <div className="darkModal">
             <button
               className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMe"
-              onClick={() =>
-                setIsAddingOrEditingAssignedPlayers((prev) => !prev)
-              }
+              onClick={() => setDisplayedTournamentId((prev) => -1)}
             >
               x
             </button>
+
+            <div className="m-8 border border-sky-500">
+              <div className="overflow-x-auto w-full">
+                <table className="table w-full">
+                  {/* head */}
+                  <thead>
+                    <tr>
+                      <th className="text text-center">Data</th>
+                      <th className="text text-center">Rodzaj</th>
+                      <th className="text text-center">Rozmiar grupy</th>
+                      <th className="text text-center">Uwagi</th>
+                      <th />
+                      <th />
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* rows */}
+                    {Boolean(tournaments.length) &&
+                      tournaments.map((tournament) => (
+                        <tr key={tournament.id}>
+                          <td>
+                            <div className="flex items-center space-x-3">
+                              <div className="avatar">
+                                <div className="mask mask-squircle w-12 h-12">
+                                  <img
+                                    src="https://img.icons8.com/fluency/96/null/medal.png"
+                                    alt="Avatar"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="font-bold">
+                                  <td>
+                                    {getAdjustedDates(
+                                      tournament.startDate,
+                                      tournament.endDate
+                                    )}
+                                  </td>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="text text-center">
+                            {tournament.type}
+                          </td>
+                          <td className="text text-center">
+                            {tournament.groupSize}
+                          </td>
+                          <td className="text text-center">
+                            {tournament.comment}
+                          </td>
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={() => {
+                                if (displayedTournamentUpdater)
+                                  displayedTournamentUpdater();
+                              }}
+                            >
+                              <Link
+                                to={`/tournaments/addoredit/edit${tournament.id}`}
+                              >
+                                edytuj
+                              </Link>
+                            </button>
+                          </th>
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={(e) => {
+                                dispatch(deleteTournament(tournament.id));
+                              }}
+                            >
+                              usuń
+                            </button>
+                          </th>
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={() =>
+                                setDisplayedTournamentId(
+                                  (prev) => tournament.id
+                                )
+                              }
+                            >
+                              uczestnicy
+                            </button>
+                          </th>
+                        </tr>
+                      ))}
+                  </tbody>
+                  {/* foot */}
+                  <tfoot>
+                    <tr>
+                      <th />
+                      <th />
+                      <th />
+                      <th />
+                      <th />
+                      <th />
+                      <th />
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
             <PlayerList
               isEditingTournament={true}
               displayedPlayerUpdater={() => {

@@ -4,7 +4,7 @@
 /* eslint-disable no-return-assign */
 import { useEffect, useState } from "react";
 
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { savePlayer } from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import PlayerList from "./PlayerList";
@@ -101,7 +101,7 @@ function AddOrEditPlayer() {
   }, []);
 
   return (
-    <>
+    <div className="darkModal">
       <form className="mx-auto">
         <div className="m-8 border border-sky-500">
           <div className="overflow-x-auto w-full">
@@ -243,7 +243,10 @@ function AddOrEditPlayer() {
         isEditingTournament={false}
         displayedPlayerUpdater={updateDisplayedPlayer}
       />
-    </>
+      <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMe">
+        <Link to="/players">x</Link>
+      </button>
+    </div>
   );
 }
 
