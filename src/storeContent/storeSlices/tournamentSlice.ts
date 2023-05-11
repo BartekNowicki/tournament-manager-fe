@@ -9,7 +9,6 @@ import {
   isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
-import { TournamentType } from "../../components/Tournament";
 
 export interface Tournament {
   id: number;
@@ -42,8 +41,11 @@ export const fetchTournaments = createAsyncThunk(
   }
 );
 
-const getEnumKeyByValue = (val: string) =>
-  Object.keys(TournamentType)[Object.values(TournamentType).indexOf(val)];
+const getEnumKeyByValue = (val: string) => {
+console.log("DDDDD", val, typeof val);
+  return val === "singles" ? "SINGLES" : "DOUBLES";
+}
+  
 
 const convertToMysqlDatetime6 = (dateString: string) => {
   // required by mysql: datetime(6)
@@ -65,7 +67,6 @@ export const saveTournament = createAsyncThunk(
       ...tournament,
       type: getEnumKeyByValue(tournament.type),
     };
-
     try {
       const response = await axios.put(
         "http://localhost:8080/api/data/tournaments",

@@ -3,7 +3,7 @@
 /* eslint-disable react/button-has-type */
 /* eslint-disable no-return-assign */
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import { saveTournament } from "../storeContent/storeSlices/tournamentSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
@@ -83,6 +83,8 @@ function AddOrEditTournament() {
   const [type, setType] = useState<string>(displayedTournament.type);
   const [groupSize, setGroupSize] = useState(displayedTournament.groupSize);
   const [comment, setComment] = useState<string>(displayedTournament.comment);
+  const [isAddingOrEditingTournament, setIsAddingOrEditingTournament] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (getUserAction() === UserActions.NONE) {
@@ -92,12 +94,6 @@ function AddOrEditTournament() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateDisplayedTournament = () => {
-    console.log(
-      type,
-      displayedTournament.type,
-      type === displayedTournament.type
-    );
-
     if (
       getUserAction() === UserActions.ADD ||
       getIdOfTournamentToSaveOrEdit() !== displayedTournament.id ||
@@ -117,8 +113,7 @@ function AddOrEditTournament() {
       setType((prev) => currentTournamentToDisplay.type);
       setGroupSize((prev) => currentTournamentToDisplay.groupSize);
       setComment((prev) => currentTournamentToDisplay.comment);
-      console.log("SWITCHING TO ", currentTournamentToDisplay.type);
-      // console.log("SWITCHING TO ", currentTournamentToDisplay);
+      // console.log("SWITCHING TO ", currentTournamentToDisplay.type);
     }
   };
 
@@ -129,22 +124,9 @@ function AddOrEditTournament() {
     }
   }, [currentAction, getUserAction, params.action, updateDisplayedTournament]);
 
-  const updateType = (): TournamentType => {
-    if (!type) throw new Error("Function not implemented.");
-    return type === TournamentType.DOUBLES
-      ? TournamentType.DOUBLES
-      : TournamentType.SINGLES;
-  };
-
-  // // is this not done already in the above useffect?
-  // useEffect(() => {
-  //   updateDisplayedTournament();
-  //   // do not follow this gudeline or infinite loop ensues:
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
   return (
-    <>
+    <div className="darkModal">
+      {console.log("RENDERING TOURNAMENT ADDorEDIT FORM with type: ", type)}
       <form className="border border-red-500">
         <div className="m-8 border border-sky-500">
           <div className="overflow-x-scroll overflow-y-visible w-full mb-20 pb-60">
@@ -198,8 +180,11 @@ function AddOrEditTournament() {
                     <label htmlFor="" />
                     <select
                       className="font-bold px-2"
-                      // value={type}
-                      value={updateType()}
+                      value={
+                        type === "DOUBLES"
+                          ? TournamentType.DOUBLES
+                          : TournamentType.SINGLES
+                      }
                       onChange={(e) => setType((prev) => e.target.value)}
                     >
                       <option value={TournamentType.DOUBLES}>
@@ -250,10 +235,11 @@ function AddOrEditTournament() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        console.log(
-                          "idToEdit: ",
-                          getIdOfTournamentToSaveOrEdit()
-                        );
+                        // console.log(
+                        //   "idToEdit: ",
+                        //   getIdOfTournamentToSaveOrEdit()
+                        // );
+                        // console.log("TYPE: ", type);
                         dispatch(
                           saveTournament({
                             id: getIdOfTournamentToSaveOrEdit(),
@@ -288,7 +274,10 @@ function AddOrEditTournament() {
         </div>
       </form>
       <TournamentList displayedTournamentUpdater={updateDisplayedTournament} />;
-    </>
+      <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMe">
+        <Link to="/tournaments">x</Link>
+      </button>
+    </div>
   );
 }
 

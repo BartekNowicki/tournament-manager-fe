@@ -22,8 +22,12 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 }) => {
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
   const dispatch = useAppDispatch();
-  const [isEditingTournament, setIsEditingTournament] =
+  const [isAddingOrEditingTournament, setIsAddingOrEditingTournament] =
     useState<boolean>(false);
+  const [
+    isAddingOrEditingAssignedPlayers,
+    setIsAddingOrEditingAssignedPlayers,
+  ] = useState<boolean>(false);
 
   return (
     <>
@@ -101,7 +105,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     <th>
                       <button
                         className="btn btn-ghost btn-xs bg-slate-600"
-                        onClick={() => setIsEditingTournament((prev) => !prev)}
+                        onClick={() =>
+                          setIsAddingOrEditingAssignedPlayers((prev) => !prev)
+                        }
                       >
                         uczestnicy
                       </button>
@@ -124,12 +130,14 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           </table>
         </div>
       </div>
-      {isEditingTournament &&
+      {isAddingOrEditingAssignedPlayers &&
         createPortal(
-          <div className="portal">
+          <div className="darkModal">
             <button
               className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMe"
-              onClick={() => setIsEditingTournament((prev) => !prev)}
+              onClick={() =>
+                setIsAddingOrEditingAssignedPlayers((prev) => !prev)
+              }
             >
               x
             </button>

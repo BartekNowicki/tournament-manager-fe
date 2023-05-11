@@ -27,7 +27,7 @@ img {
 
 /* -------------------------------------------------------------------------- */
 
-.portal {
+.darkModal {
   background-color: rgba(0, 0, 0, 0.8);
   position:absolute;
   top:0px;
@@ -37,7 +37,7 @@ img {
   z-index: 1000000000000000000000;
 }
 
-.portal .positionMe {
+.darkModal .positionMe {
   position: absolute;
   top: 0;
   right: 0;
