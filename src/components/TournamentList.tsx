@@ -7,28 +7,41 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import { deleteTournament } from "../storeContent/storeSlices/tournamentSlice";
 import { getAdjustedDates } from "../utils/dates";
 import PlayerList from "./PlayerList";
 
 interface ITournamentListProps {
+  isAddingOrEditingMode: boolean;
   displayedTournamentUpdater: () => void;
 }
 
 const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
+  isAddingOrEditingMode,
   displayedTournamentUpdater,
 }) => {
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
   const dispatch = useAppDispatch();
-  const [displayedTournamentId, setDisplayedTournamentId] =
-    useState<number>(-1);
+  const [
+    idOfTournamentDisplayedForEditing,
+    setIdOfTournamentDisplayedForEditing,
+  ] = useState<number>(-1);
+
+  const injectHeaders = () => (
+    <>
+      <th className="text text-center">Data</th>
+      <th className="text text-center">Rodzaj</th>
+      <th className="text text-center">Rozmiar grupy</th>
+      <th className="text text-center">Uwagi</th>
+    </>
+  );
 
   return (
     <>
       {console.log(
-        `RENDERING TOURNAMENT LIST with displayed tournament: ${displayedTournamentId}`
+        `RENDERING TOURNAMENT LIST, idOfTournamentDisplayedForEditing: ${idOfTournamentDisplayedForEditing}`
       )}
       <div className="m-8 border border-sky-500">
         <div className="overflow-x-auto w-full">
@@ -36,11 +49,8 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             {/* head */}
             <thead>
               <tr>
-                <th className="text text-center">Data</th>
-                <th className="text text-center">Rodzaj</th>
-                <th className="text text-center">Rozmiar grupy</th>
-                <th className="text text-center">Uwagi</th>
-                <th />
+                {injectHeaders()}
+                {!isAddingOrEditingMode && <th />}
                 <th />
                 <th />
               </tr>
@@ -100,23 +110,27 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         usuń
                       </button>
                     </th>
-                    <th>
-                      <button
-                        className="btn btn-ghost btn-xs bg-slate-600"
-                        onClick={(e) => {
-                          setDisplayedTournamentId((prev) => tournament.id);
-                        }}
-                      >
-                        uczestnicy
-                      </button>
-                    </th>
+                    {!isAddingOrEditingMode && (
+                      <th>
+                        <button
+                          className="btn btn-ghost btn-xs bg-slate-600"
+                          onClick={(e) => {
+                            setIdOfTournamentDisplayedForEditing(
+                              (prev) => tournament.id
+                            );
+                          }}
+                        >
+                          uczestnicy
+                        </button>
+                      </th>
+                    )}
                   </tr>
                 ))}
             </tbody>
             {/* foot */}
             <tfoot>
               <tr>
-                <th />
+                {!isAddingOrEditingMode && <th />}
                 <th />
                 <th />
                 <th />
@@ -129,12 +143,12 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
         </div>
       </div>
 
-      {displayedTournamentId > -1 &&
+      {idOfTournamentDisplayedForEditing > -1 &&
         createPortal(
           <div className="darkModal">
             <button
               className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMe"
-              onClick={() => setDisplayedTournamentId((prev) => -1)}
+              onClick={() => setIdOfTournamentDisplayedForEditing((prev) => -1)}
             >
               x
             </button>
@@ -145,13 +159,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                   {/* head */}
                   <thead>
                     <tr>
-                      <th className="text text-center">Data</th>
-                      <th className="text text-center">Rodzaj</th>
-                      <th className="text text-center">Rozmiar grupy</th>
-                      <th className="text text-center">Uwagi</th>
-                      <th />
-                      <th />
-                      <th />
+                      {injectHeaders()}{isAddingOrEditingMode && <th />}
                     </tr>
                   </thead>
                   <tbody>
@@ -190,52 +198,13 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                           <td className="text text-center">
                             {tournament.comment}
                           </td>
-                          <th>
-                            <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
-                              onClick={() => {
-                                if (displayedTournamentUpdater)
-                                  displayedTournamentUpdater();
-                              }}
-                            >
-                              <Link
-                                to={`/tournaments/addoredit/edit${tournament.id}`}
-                              >
-                                edytuj
-                              </Link>
-                            </button>
-                          </th>
-                          <th>
-                            <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
-                              onClick={(e) => {
-                                dispatch(deleteTournament(tournament.id));
-                              }}
-                            >
-                              usuń
-                            </button>
-                          </th>
-                          <th>
-                            <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
-                              onClick={() =>
-                                setDisplayedTournamentId(
-                                  (prev) => tournament.id
-                                )
-                              }
-                            >
-                              uczestnicy
-                            </button>
-                          </th>
                         </tr>
                       ))}
                   </tbody>
                   {/* foot */}
                   <tfoot>
                     <tr>
-                      <th />
-                      <th />
-                      <th />
+                      {isAddingOrEditingMode && <th />}
                       <th />
                       <th />
                       <th />
@@ -248,9 +217,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
             <PlayerList
               isEditingTournament={true}
-              displayedPlayerUpdater={() => {
-                console.log("SHOULD CHECK PLAYER ONLY NOT MORE");
-              }}
+              displayedPlayerUpdater={() => {}}
             />
           </div>,
           document.body
