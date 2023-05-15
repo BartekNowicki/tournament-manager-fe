@@ -62,12 +62,12 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         </div>
                         <div>
                           <div className="font-bold">
-                            <td>
+                            <div>
                               {getAdjustedDates(
                                 tournament.startDate,
                                 tournament.endDate
                               )}
-                            </td>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -171,12 +171,12 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                               </div>
                               <div>
                                 <div className="font-bold">
-                                  <td>
+                                  <div>
                                     {getAdjustedDates(
                                       tournament.startDate,
                                       tournament.endDate
                                     )}
-                                  </td>
+                                  </div>
                                 </div>
                               </div>
                             </div>
