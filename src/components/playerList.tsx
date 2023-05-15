@@ -15,16 +15,16 @@ import {
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
-  isEditingTournament: boolean;
+  isEditingTournamentParticipants: boolean;
 }
 
 const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   displayedPlayerUpdater,
-  isEditingTournament,
+  isEditingTournamentParticipants,
 }) => {
-  const changeCount = useAppSelector(
-    (state) => state.player.playersChangeCount
-  );
+  // const changeCount = useAppSelector(
+  //   (state) => state.player.playersChangeCount
+  // );
   const players = useAppSelector((state) => state.player.players);
   const dispatch = useAppDispatch();
   const findById = useCallback(
@@ -68,20 +68,13 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   return (
     <>
       {console.log("RENDERING PLAYER LIST")}
-      {/* <p>Count: {changeCount}</p> */}
-
-      {/* <div>
-        {players.map((pl) => (
-          <div key={pl.id}>{pl.id}</div>
-        ))}
-      </div> */}
-      <div className="m-8 border border-sky-500">
+      <div className="m-8 border border-sky-500 addPlayersPanel">
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
             {/* head */}
             <thead>
               <tr>
-                {isEditingTournament && (
+                {isEditingTournamentParticipants && (
                   <th>
                     <label>
                       <input
@@ -97,8 +90,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                 <th className="text text-center">Imię i Nazwisko</th>
                 <th className="text text-center">Siła</th>
                 <th className="text text-center">Uwagi</th>
-                {!isEditingTournament && <th />}
-                {!isEditingTournament && <th />}
+                {!isEditingTournamentParticipants && <th />}
+                {!isEditingTournamentParticipants && <th />}
               </tr>
             </thead>
             <tbody>
@@ -108,7 +101,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                   .filter((player) => player.id !== -1)
                   .map((player) => (
                     <tr key={player.id}>
-                      {isEditingTournament && (
+                      {isEditingTournamentParticipants && (
                         <th>
                           <label>
                             <input
@@ -142,7 +135,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                       </td>
                       <td className="text text-center">{player.strength}</td>
                       <td className="text text-center">{player.comment}</td>
-                      {!isEditingTournament && (
+                      {!isEditingTournamentParticipants && (
                         <>
                           <th>
                             <button
@@ -175,15 +168,29 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             {/* foot */}
             <tfoot>
               <tr>
-                {!isEditingTournament && <th />}
-                {!isEditingTournament && <th />}
+                {!isEditingTournamentParticipants && <th />}
+                {!isEditingTournamentParticipants && <th />}
                 <th />
                 <th />
                 <th />
-                {isEditingTournament && <th />}
+                {isEditingTournamentParticipants && <th />}
               </tr>
             </tfoot>
           </table>
+
+          {isEditingTournamentParticipants && (
+            <div>
+              <button
+                className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
+                onClick={(e) => {
+                  // dispatch(deletePlayer(player.id));
+                  console.log("OK");
+                }}
+              >
+                zapisz uczestników
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -191,5 +198,3 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 };
 
 export default PlayerList;
-
-// {isEditingTournament &&

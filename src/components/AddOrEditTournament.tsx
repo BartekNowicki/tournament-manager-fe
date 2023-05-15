@@ -277,8 +277,7 @@ function AddOrEditTournament() {
         displayedTournamentUpdater={updateDisplayedTournament}
         isAddingOrEditingMode={displayedTournament.id !== -1}
       />
-      ;
-      <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMe">
+      <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/tournaments">x</Link>
       </button>
     </div>

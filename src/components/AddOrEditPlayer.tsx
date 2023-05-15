@@ -240,10 +240,10 @@ function AddOrEditPlayer() {
         </div>
       </form>
       <PlayerList
-        isEditingTournament={false}
+        isEditingTournamentParticipants={false}
         displayedPlayerUpdater={updateDisplayedPlayer}
       />
-      <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMe">
+      <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/players">x</Link>
       </button>
     </div>

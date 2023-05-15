@@ -25,8 +25,8 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
   const dispatch = useAppDispatch();
   const [
-    idOfTournamentDisplayedForEditing,
-    setIdOfTournamentDisplayedForEditing,
+    idOfTournamentDisplayedForEditingParticipants,
+    setIdOfTournamentDisplayedForEditingParticipants,
   ] = useState<number>(-1);
 
   const injectHeaders = () => (
@@ -38,10 +38,12 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     </>
   );
 
+  const highlighted = () => "border-solid border-2 border-sky-500";
+
   return (
     <>
       {console.log(
-        `RENDERING TOURNAMENT LIST, idOfTournamentDisplayedForEditing: ${idOfTournamentDisplayedForEditing}`
+        `RENDERING TOURNAMENT LIST, idOfTournamentDisplayedForEditing: ${idOfTournamentDisplayedForEditingParticipants}`
       )}
       <div className="m-8 border border-sky-500">
         <div className="overflow-x-auto w-full">
@@ -115,7 +117,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         <button
                           className="btn btn-ghost btn-xs bg-slate-600"
                           onClick={(e) => {
-                            setIdOfTournamentDisplayedForEditing(
+                            setIdOfTournamentDisplayedForEditingParticipants(
                               (prev) => tournament.id
                             );
                           }}
@@ -143,12 +145,14 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
         </div>
       </div>
 
-      {idOfTournamentDisplayedForEditing > -1 &&
+      {idOfTournamentDisplayedForEditingParticipants > -1 &&
         createPortal(
           <div className="darkModal">
             <button
-              className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMe"
-              onClick={() => setIdOfTournamentDisplayedForEditing((prev) => -1)}
+              className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight"
+              onClick={() =>
+                setIdOfTournamentDisplayedForEditingParticipants((prev) => -1)
+              }
             >
               x
             </button>
@@ -159,14 +163,23 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                   {/* head */}
                   <thead>
                     <tr>
-                      {injectHeaders()}{isAddingOrEditingMode && <th />}
+                      {injectHeaders()}
+                      {!isAddingOrEditingMode && <th />}
                     </tr>
                   </thead>
                   <tbody>
                     {/* rows */}
                     {Boolean(tournaments.length) &&
                       tournaments.map((tournament) => (
-                        <tr key={tournament.id}>
+                        <tr
+                          key={tournament.id}
+                          className={
+                            tournament.id ===
+                            idOfTournamentDisplayedForEditingParticipants
+                              ? highlighted()
+                              : ""
+                          }
+                        >
                           <td>
                             <div className="flex items-center space-x-3">
                               <div className="avatar">
@@ -198,13 +211,28 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                           <td className="text text-center">
                             {tournament.comment}
                           </td>
+
+                          {!isAddingOrEditingMode && (
+                            <th>
+                              <button
+                                className="btn btn-ghost btn-xs bg-slate-600"
+                                onClick={(e) => {
+                                  setIdOfTournamentDisplayedForEditingParticipants(
+                                    (prev) => tournament.id
+                                  );
+                                }}
+                              >
+                                uczestnicy
+                              </button>
+                            </th>
+                          )}
                         </tr>
                       ))}
                   </tbody>
                   {/* foot */}
                   <tfoot>
                     <tr>
-                      {isAddingOrEditingMode && <th />}
+                      {!isAddingOrEditingMode && <th />}
                       <th />
                       <th />
                       <th />
@@ -216,7 +244,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             </div>
 
             <PlayerList
-              isEditingTournament={true}
+              isEditingTournamentParticipants={true}
               displayedPlayerUpdater={() => {}}
             />
           </div>,

@@ -37,7 +37,7 @@ img {
   z-index: 1000000000000000000000;
 }
 
-.darkModal .positionMe {
+.darkModal .positionMeTopRight {
   position: absolute;
   top: 0;
   right: 0;
@@ -47,6 +47,23 @@ img {
   z-index: 1000000000000000000001;
   margin: 10px 10px;
   font-size: large;
+}
+
+.addPlayersPanel {  
+  position: relative;
+  
+}
+
+.positionMeBottomRight {
+  display: block;
+  width: 200px;
+  height: 40px !important;  
+  position: absolute;
+  border: 1px solid red !important;  
+  bottom: -50px;
+  right: 0px;
+  color: rgba(73, 233, 73, 0.559) !important;
+  font-size: 1em !important;    
 }
 
 
