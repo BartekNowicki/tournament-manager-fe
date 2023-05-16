@@ -16,15 +16,14 @@ import {
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
   isEditingTournamentParticipants: boolean;
+  assignPlayersToTournament: () => void;
 }
 
 const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   displayedPlayerUpdater,
   isEditingTournamentParticipants,
+  assignPlayersToTournament,
 }) => {
-  // const changeCount = useAppSelector(
-  //   (state) => state.player.playersChangeCount
-  // );
   const players = useAppSelector((state) => state.player.players);
   const dispatch = useAppDispatch();
   const findById = useCallback(
@@ -47,6 +46,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       const key: number = +e.target.id;
       const opposite: boolean = isChecked(key) !== true;
       const player = findById(key);
+
       if (key !== -1) {
         dispatch(
           checkPlayer({
@@ -182,10 +182,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             <div>
               <button
                 className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
-                onClick={(e) => {
-                  // dispatch(deletePlayer(player.id));
-                  console.log("OK");
-                }}
+                onClick={() => assignPlayersToTournament()}
               >
                 zapisz uczestników
               </button>

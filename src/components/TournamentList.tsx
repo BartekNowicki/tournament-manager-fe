@@ -9,7 +9,10 @@ import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
-import { deleteTournament } from "../storeContent/storeSlices/tournamentSlice";
+import {
+  assignPlayersToTournament,
+  deleteTournament,
+} from "../storeContent/storeSlices/tournamentSlice";
 import { getAdjustedDates } from "../utils/dates";
 import PlayerList from "./PlayerList";
 
@@ -246,6 +249,13 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             <PlayerList
               isEditingTournamentParticipants={true}
               displayedPlayerUpdater={() => {}}
+              assignPlayersToTournament={() => {
+                dispatch(
+                  assignPlayersToTournament(
+                    idOfTournamentDisplayedForEditingParticipants
+                  )
+                );
+              }}
             />
           </div>,
           document.body

@@ -17,6 +17,8 @@ export interface Tournament {
   endDate: string;
   groupSize: number;
   comment: string;
+  // unlike BE, FE uses a lighter structure, only player IDs are stored in redux
+  participatingPlayerIds?: number[];
 }
 
 interface TournamentSliceState {
@@ -42,10 +44,8 @@ export const fetchTournaments = createAsyncThunk(
 );
 
 const getEnumKeyByValue = (val: string) => {
-console.log("DDDDD", val, typeof val);
   return val === "singles" ? "SINGLES" : "DOUBLES";
-}
-  
+};
 
 const convertToMysqlDatetime6 = (dateString: string) => {
   // required by mysql: datetime(6)
@@ -77,6 +77,22 @@ export const saveTournament = createAsyncThunk(
         }
       );
 
+      return response.data;
+    } catch (error) {
+      // return rejectWithValue(error.message);
+      return rejectWithValue("error saving the tournament");
+    }
+  }
+);
+
+export const assignPlayersToTournament = createAsyncThunk(
+  "tournaments/assignPlayers",
+  async (tournamentId: number, { rejectWithValue }) => {
+    try {
+      console.log("ASSIGNING!!!!!!!!!!!!!!!!!!!!!!!!!!", tournamentId);
+      const response = await axios.post(
+        `http://localhost:8080/api/data/tournaments?tournamentId=${tournamentId}`
+      );
       return response.data;
     } catch (error) {
       // return rejectWithValue(error.message);
