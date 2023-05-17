@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
   checkPlayer,
-  checkAllPlayers,
   deletePlayer,
 } from "../storeContent/storeSlices/playerSlice";
 

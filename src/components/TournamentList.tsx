@@ -17,12 +17,12 @@ import { getAdjustedDates } from "../utils/dates";
 import PlayerList from "./PlayerList";
 
 interface ITournamentListProps {
-  isAddingOrEditingMode: boolean;
+  idOfTournamentDisplayedForEditingData: number;
   displayedTournamentUpdater: () => void;
 }
 
 const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
-  isAddingOrEditingMode,
+  idOfTournamentDisplayedForEditingData,
   displayedTournamentUpdater,
 }) => {
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
@@ -31,6 +31,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     idOfTournamentDisplayedForEditingParticipants,
     setIdOfTournamentDisplayedForEditingParticipants,
   ] = useState<number>(-1);
+
+  const isAddingOrEditingTournamentMode = () =>
+    idOfTournamentDisplayedForEditingData !== -1;
 
   const injectHeaders = () => (
     <>
@@ -46,8 +49,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   return (
     <>
       {console.log(
-        `RENDERING TOURNAMENT LIST, idOfTournamentDisplayedForEditing: ${idOfTournamentDisplayedForEditingParticipants}`
+        `RENDERING TOURNAMENT LIST, idOfTournamentDisplayedForEditingParticipants: ${idOfTournamentDisplayedForEditingParticipants} / idOfTournamentDisplayedForEditingData: ${idOfTournamentDisplayedForEditingData}`
       )}
+
       <div className="m-8 border border-sky-500">
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
@@ -55,7 +59,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             <thead>
               <tr>
                 {injectHeaders()}
-                {!isAddingOrEditingMode && <th />}
+                {!isAddingOrEditingTournamentMode() && <th />}
                 <th />
                 <th />
               </tr>
@@ -64,7 +68,14 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
               {/* rows */}
               {Boolean(tournaments.length) &&
                 tournaments.map((tournament) => (
-                  <tr key={tournament.id}>
+                  <tr
+                    key={tournament.id}
+                    className={
+                      tournament.id === idOfTournamentDisplayedForEditingData
+                        ? highlighted()
+                        : ""
+                    }
+                  >
                     <td>
                       <div className="flex items-center space-x-3">
                         <div className="avatar">
@@ -97,6 +108,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                           if (displayedTournamentUpdater)
                             displayedTournamentUpdater();
                         }}
+                        disabled={
+                          tournament.id ===
+                          idOfTournamentDisplayedForEditingData
+                        }
                       >
                         <Link
                           to={`/tournaments/addoredit/edit${tournament.id}`}
@@ -111,11 +126,15 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         onClick={(e) => {
                           dispatch(deleteTournament(tournament.id));
                         }}
+                        disabled={
+                          tournament.id ===
+                          idOfTournamentDisplayedForEditingData
+                        }
                       >
                         usuń
                       </button>
                     </th>
-                    {!isAddingOrEditingMode && (
+                    {!isAddingOrEditingTournamentMode() && (
                       <th>
                         <button
                           className="btn btn-ghost btn-xs bg-slate-600"
@@ -135,7 +154,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             {/* foot */}
             <tfoot>
               <tr>
-                {!isAddingOrEditingMode && <th />}
+                {!isAddingOrEditingTournamentMode() && <th />}
                 <th />
                 <th />
                 <th />
@@ -167,7 +186,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                   <thead>
                     <tr>
                       {injectHeaders()}
-                      {!isAddingOrEditingMode && <th />}
+                      {!isAddingOrEditingTournamentMode() && <th />}
                     </tr>
                   </thead>
                   <tbody>
@@ -215,7 +234,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                             {tournament.comment}
                           </td>
 
-                          {!isAddingOrEditingMode && (
+                          {!isAddingOrEditingTournamentMode() && (
                             <th>
                               <button
                                 className="btn btn-ghost btn-xs bg-slate-600"
@@ -235,7 +254,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                   {/* foot */}
                   <tfoot>
                     <tr>
-                      {!isAddingOrEditingMode && <th />}
+                      {!isAddingOrEditingTournamentMode() && <th />}
                       <th />
                       <th />
                       <th />

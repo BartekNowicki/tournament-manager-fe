@@ -14,7 +14,10 @@ export function Tournaments(props: ITournamentsProps) {
       <button className="btn btn-wide m-2 mb-12 mx-auto">
         <Link to="/tournaments/addOrEdit/add">Nowy turniej</Link>
       </button>
-      <TournamentList displayedTournamentUpdater={() => {}} />
+      <TournamentList
+        displayedTournamentUpdater={() => {}}
+        idOfTournamentDisplayedForEditingData={-1}
+      />
     </div>
   );
 }

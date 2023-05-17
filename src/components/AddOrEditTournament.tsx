@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/button-has-type */
@@ -83,8 +84,8 @@ function AddOrEditTournament() {
   const [type, setType] = useState<string>(displayedTournament.type);
   const [groupSize, setGroupSize] = useState(displayedTournament.groupSize);
   const [comment, setComment] = useState<string>(displayedTournament.comment);
-  const [isAddingOrEditingTournament, setIsAddingOrEditingTournament] =
-    useState<boolean>(false);
+  // const [isAddingOrEditingTournament, setIsAddingOrEditingTournament] =
+  //   useState<boolean>(false);
 
   useEffect(() => {
     if (getUserAction() === UserActions.NONE) {
@@ -126,7 +127,6 @@ function AddOrEditTournament() {
 
   return (
     <div className="darkModal">
-      {console.log("RENDERING TOURNAMENT ADDorEDIT FORM with type: ", type)}
       <form className="border border-red-500">
         <div className="m-8 border border-sky-500">
           <div className="overflow-x-scroll overflow-y-visible w-full mb-20 pb-60">
@@ -235,11 +235,6 @@ function AddOrEditTournament() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        // console.log(
-                        //   "idToEdit: ",
-                        //   getIdOfTournamentToSaveOrEdit()
-                        // );
-                        // console.log("TYPE: ", type);
                         dispatch(
                           saveTournament({
                             id: getIdOfTournamentToSaveOrEdit(),
@@ -275,7 +270,7 @@ function AddOrEditTournament() {
       </form>
       <TournamentList
         displayedTournamentUpdater={updateDisplayedTournament}
-        isAddingOrEditingMode={displayedTournament.id !== -1}
+        idOfTournamentDisplayedForEditingData={displayedTournament.id}
       />
       <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/tournaments">x</Link>
