@@ -4,7 +4,7 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import * as React from "react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
@@ -25,6 +25,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   assignPlayersToTournament,
 }) => {
   const players = useAppSelector((state) => state.player.players);
+  const forceRenderCount = useAppSelector(
+    (state) => state.player.forceRerenderPlayerListCount
+  );
   const dispatch = useAppDispatch();
   const findById = useCallback(
     (id: number) => {
@@ -36,7 +39,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const isChecked = useCallback(
     (id: number): boolean => {
       const found = findById(id);
-      return found ? found.isChecked : false;
+      // BE has "isChecked" but probably the response entity mutates it to "checked"
+      // explicit comparison is required as isChecked is initially undefined and once you check it becomes defined and checked becomes undefined
+      return found.checked ? found.checked === true : found.isChecked === true;
     },
     [findById]
   );
@@ -44,30 +49,48 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const handleCheck = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const key: number = +e.target.id;
-      const opposite: boolean = isChecked(key) !== true;
       const player = findById(key);
-
       if (key !== -1) {
         dispatch(
           checkPlayer({
             id: player.id,
-            isChecked: opposite,
+            isChecked: !isChecked(player.id),
+            firstName: player.firstName,
+            lastName: player.lastName,
+            strength: player.strength,
+            comment: player.comment,
           })
         );
       } else {
-        dispatch(
-          checkAllPlayers({
-            isChecked: opposite,
-          })
-        );
+        const commonOppositeStateForAll = !isChecked(-1);
+        // eslint-disable-next-line no-restricted-syntax
+        for (const p of players) {
+          dispatch(
+            checkPlayer({
+              id: p.id,
+              isChecked: commonOppositeStateForAll,
+              firstName: p.firstName,
+              lastName: p.lastName,
+              strength: p.strength,
+              comment: p.comment,
+            })
+          );
+        }
       }
     },
-    [dispatch, findById, isChecked]
+    [dispatch, findById, isChecked, players]
   );
+  // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
+  useEffect(() => {}, [forceRenderCount]);
 
   return (
     <>
-      {console.log("RENDERING PLAYER LIST")}
+      {console.log(
+        "RENDERING PLAYER LIST FOR PLAYERS:",
+        players,
+        forceRenderCount
+      )}
+
       <div className="m-8 border border-sky-500 addPlayersPanel">
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
@@ -108,7 +131,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                               type="checkbox"
                               className="checkbox"
                               id={player.id.toString()}
-                              checked={isChecked(player.id) === true}
+                              checked={isChecked(player.id)}
                               onChange={handleCheck}
                             />
                           </label>

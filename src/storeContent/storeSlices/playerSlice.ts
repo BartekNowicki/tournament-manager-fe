@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
 import {
   createAsyncThunk,
@@ -52,6 +53,24 @@ export const savePlayer = createAsyncThunk(
   }
 );
 
+export const checkPlayer = createAsyncThunk(
+  "players/check",
+  async (player: Player, { rejectWithValue }) => {
+    try {
+      console.log("SENDING : ", player.isChecked);
+      const response = await axios.put(
+        "http://localhost:8080/api/data/players",
+        player
+      );
+
+      return response.data;
+    } catch (error) {
+      // return rejectWithValue(error.message);
+      return rejectWithValue("error saving the player");
+    }
+  }
+);
+
 export const deletePlayer = createAsyncThunk(
   "players/delete",
   async (playerId: number, { rejectWithValue }) => {
@@ -69,13 +88,13 @@ export const deletePlayer = createAsyncThunk(
 
 interface PlayerSliceState {
   players: Player[];
-  playersChangeCount: number;
+  forceRerenderPlayerListCount: number;
   loading: "idle" | "pending" | "succeeded" | "failed";
 }
 
 const initialState = {
   players: [],
-  playersChangeCount: 0,
+  forceRerenderPlayerListCount: 0,
   loading: "idle",
 } as PlayerSliceState;
 
@@ -86,6 +105,7 @@ export const PlayerSlice = createSlice({
     addPlayer: (
       state,
       action: PayloadAction<{
+        isChecked: false;
         firstName: string;
         lastName: string;
         strength: number;
@@ -109,12 +129,16 @@ export const PlayerSlice = createSlice({
       action: PayloadAction<{
         id: number;
         isChecked: boolean;
+        firstName: string;
+        lastName: string;
+        strength: number;
+        comment: string;
       }>
     ) => {
       state.players = state.players.map((player) =>
         player.id !== action.payload.id
           ? player
-          : { ...player, isChecked: action.payload.isChecked }
+          : { ...player, isChecked: action.payload.isChecked || false }
       );
     },
     checkAllPlayers: (
@@ -128,38 +152,13 @@ export const PlayerSlice = createSlice({
         isChecked: action.payload.isChecked,
       }));
     },
-    // updatePlayer: (
-    //   state,
-    //   action: PayloadAction<{
-    //     idToEdit: number;
-    //     firstName: string;
-    //     lastName: string;
-    //     strength: number;
-    //     comment: string;
-    //   }>
-    // ) => {
-    //   state.players = state.players.map((player) => {
-    //     if (player.id === action.payload.idToEdit) {
-    //       return {
-    //         id: player.id,
-    //         isChecked: player.isChecked,
-    //         firstName: action.payload.firstName,
-    //         lastName: action.payload.lastName,
-    //         strength: action.payload.strength,
-    //         comment: action.payload.comment,
-    //       };
-    //     }
-    //     return {
-    //       ...player,
-    //     };
-    //   });
-    // },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPlayers.fulfilled, (state, action) => {
         state.players = action.payload;
         console.info("players fetch promise fulfilled");
+        state.forceRerenderPlayerListCount += 1;
       })
       .addCase(fetchPlayers.pending, () => {
         console.info("fetch promise pending...");
@@ -187,13 +186,38 @@ export const PlayerSlice = createSlice({
           state.players.push(action.payload);
         }
         console.info("save player promise fulfilled");
-        state.playersChangeCount += 1;
+        state.forceRerenderPlayerListCount += 1;
       })
       .addCase(savePlayer.rejected, () => {
         console.warn("save player promise rejected!");
       })
       .addCase(savePlayer.pending, () => {
         console.info("save player promise pending...");
+      })
+      .addCase(checkPlayer.fulfilled, (state, action) => {
+        state.players = state.players.map((player) => {
+          return player.id !== action.payload.id
+            ? player
+            : {
+                id: action.payload.id,
+                firstName: action.payload.firstName,
+                lastName: action.payload.lastName,
+                // BE has "isChecked" but probably the response entity mutates it to "checked"
+                // isChecked: action.payload.isChecked,
+                isChecked: action.payload.checked,
+                strength: action.payload.strength,
+                comment: action.payload.comment,
+              };
+        });
+
+        console.info("check player promise fulfilled", state.players[1]);
+        state.forceRerenderPlayerListCount += 1;
+      })
+      .addCase(checkPlayer.rejected, () => {
+        console.warn("check player promise rejected!");
+      })
+      .addCase(checkPlayer.pending, () => {
+        console.info("check player promise pending...");
       })
       .addCase(deletePlayer.fulfilled, (state, action) => {
         const playerIdNotInState = (id: number) => {
@@ -207,7 +231,7 @@ export const PlayerSlice = createSlice({
           );
         }
         console.info("delete player promise fulfilled");
-        state.playersChangeCount += 1;
+        state.forceRerenderPlayerListCount += 1;
       })
       .addCase(deletePlayer.rejected, () => {
         console.warn("delete player promise rejected!");
@@ -225,4 +249,3 @@ export const PlayerSlice = createSlice({
 });
 
 export default PlayerSlice.reducer;
-export const { checkPlayer, checkAllPlayers } = PlayerSlice.actions;
