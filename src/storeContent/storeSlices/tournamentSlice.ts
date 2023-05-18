@@ -155,10 +155,13 @@ export const TournamentSlice = createSlice({
     builder
       .addCase(fetchTournaments.fulfilled, (state, action) => {
         state.tournaments = action.payload;
-        console.info("tournament fetch promise fulfilled");
+        console.info("fetch tournaments promise fulfilled");
       })
       .addCase(fetchTournaments.pending, () => {
-        console.info("fetch promise pending...");
+        console.info("fetch tournaments promise pending...");
+      })
+      .addCase(fetchTournaments.rejected, () => {
+        console.warn("fetch tournaments promise rejected!");
       })
       .addCase(saveTournament.fulfilled, (state, action) => {
         const tournamentIdAlreadyInState = (id: number) => {
@@ -208,6 +211,12 @@ export const TournamentSlice = createSlice({
       })
       .addCase(deleteTournament.pending, () => {
         console.info("delete tournament promise pending...");
+      })
+      .addCase(assignPlayersToTournament.fulfilled, (state, action) => {
+        console.info("assignPlayersToTournament promise fulfilled");
+      })     
+      .addCase(assignPlayersToTournament.rejected, () => {
+        console.warn("assignPlayersToTournament promise rejected!");
       })
       .addMatcher(isRejectedAction, () => {
         console.info("promise rejected");

@@ -28,7 +28,7 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
-export const fetchPlayers = createAsyncThunk(
+export const fetchAllPlayers = createAsyncThunk(
   "players/get",
   async (thunkAPI) => {
     const response = await axios.get("http://localhost:8080/api/data/players");
@@ -155,12 +155,12 @@ export const PlayerSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchPlayers.fulfilled, (state, action) => {
+      .addCase(fetchAllPlayers.fulfilled, (state, action) => {
         state.players = action.payload;
         console.info("players fetch promise fulfilled");
         state.forceRerenderPlayerListCount += 1;
       })
-      .addCase(fetchPlayers.pending, () => {
+      .addCase(fetchAllPlayers.pending, () => {
         console.info("fetch promise pending...");
       })
       .addCase(savePlayer.fulfilled, (state, action) => {
