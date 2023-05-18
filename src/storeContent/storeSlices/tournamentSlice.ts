@@ -79,8 +79,7 @@ export const saveTournament = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      // return rejectWithValue(error.message);
-      return rejectWithValue("error saving the tournament");
+      return rejectWithValue(`error saving the tournament: ${error.message}`);
     }
   }
 );
@@ -89,14 +88,13 @@ export const assignPlayersToTournament = createAsyncThunk(
   "tournaments/assignPlayers",
   async (tournamentId: number, { rejectWithValue }) => {
     try {
-      console.log("ASSIGNING!!!!!!!!!!!!!!!!!!!!!!!!!!", tournamentId);
+      // console.log("ASSIGNING!!!!!!!!!!!!!!!!!!!!!!!!!!", tournamentId);
       const response = await axios.post(
         `http://localhost:8080/api/data/tournaments?tournamentId=${tournamentId}`
       );
       return response.data;
     } catch (error) {
-      // return rejectWithValue(error.message);
-      return rejectWithValue("error saving the tournament");
+      return rejectWithValue(`error saving the tournament: ${error.message}`);
     }
   }
 );
@@ -111,7 +109,7 @@ export const deleteTournament = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return rejectWithValue("error deleting the tournament");
+      return rejectWithValue(`error deleting the tournament: ${error.message}`);
     }
   }
 );
