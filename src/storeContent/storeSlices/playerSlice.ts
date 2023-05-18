@@ -157,11 +157,11 @@ export const PlayerSlice = createSlice({
     builder
       .addCase(fetchAllPlayers.fulfilled, (state, action) => {
         state.players = action.payload;
-        console.info("players fetch promise fulfilled");
+        console.info("fetch players promise fulfilled");
         state.forceRerenderPlayerListCount += 1;
       })
       .addCase(fetchAllPlayers.pending, () => {
-        console.info("fetch promise pending...");
+        // console.info("fetch promise pending...");
       })
       .addCase(savePlayer.fulfilled, (state, action) => {
         const playerIdAlreadyInState = (id: number) => {
@@ -217,7 +217,7 @@ export const PlayerSlice = createSlice({
         console.warn("check player promise rejected!");
       })
       .addCase(checkPlayer.pending, () => {
-        console.info("check player promise pending...");
+        // console.info("check player promise pending...");
       })
       .addCase(deletePlayer.fulfilled, (state, action) => {
         const playerIdNotInState = (id: number) => {
@@ -237,13 +237,13 @@ export const PlayerSlice = createSlice({
         console.warn("delete player promise rejected!");
       })
       .addCase(deletePlayer.pending, () => {
-        console.info("delete player promise pending...");
+        // console.info("delete player promise pending...");
       })
       .addMatcher(isRejectedAction, () => {
         console.info("promise rejected");
       })
       .addDefaultCase(() => {
-        console.log("thunk in default mode");
+        // console.log("thunk in default mode");
       });
   },
 });

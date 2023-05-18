@@ -82,137 +82,133 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
 
-  return (
-    <>
-      {console.log(
-        "RENDERING PLAYER LIST FOR PLAYERS:",
-        players,
-        forceRenderCount
-      )}
+  useEffect(() => {
+    console.log(`PlayerList showing players`, players, forceRenderCount);
+  });
 
-      <div className="m-8 border border-sky-500 addPlayersPanel">
-        <div className="overflow-x-auto w-full">
-          <table className="table w-full">
-            {/* head */}
-            <thead>
-              <tr>
-                {isEditingTournamentParticipants && (
-                  <th>
-                    <label>
-                      <input
-                        type="checkbox"
-                        className="checkbox"
-                        id="-1"
-                        checked={isChecked(-1) === true}
-                        onChange={handleCheck}
-                      />
-                    </label>
-                  </th>
-                )}
-                <th className="text text-center">Imię i Nazwisko</th>
-                <th className="text text-center">Siła</th>
-                <th className="text text-center">Uwagi</th>
-                {!isEditingTournamentParticipants && <th />}
-                {!isEditingTournamentParticipants && <th />}
-              </tr>
-            </thead>
-            <tbody>
-              {/* rows */}
-              {Boolean(players.length) &&
-                players
-                  .filter((player) => player.id !== -1)
-                  .map((player) => (
-                    <tr key={player.id}>
-                      {isEditingTournamentParticipants && (
-                        <th>
-                          <label>
-                            <input
-                              type="checkbox"
-                              className="checkbox"
-                              id={player.id.toString()}
-                              checked={isChecked(player.id)}
-                              onChange={handleCheck}
+  return (
+    <div className="m-8 border border-sky-500 addPlayersPanel">
+      <div className="overflow-x-auto w-full">
+        <table className="table w-full">
+          {/* head */}
+          <thead>
+            <tr>
+              {isEditingTournamentParticipants && (
+                <th>
+                  <label>
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      id="-1"
+                      checked={isChecked(-1) === true}
+                      onChange={handleCheck}
+                    />
+                  </label>
+                </th>
+              )}
+              <th className="text text-center">Imię i Nazwisko</th>
+              <th className="text text-center">Siła</th>
+              <th className="text text-center">Uwagi</th>
+              {!isEditingTournamentParticipants && <th />}
+              {!isEditingTournamentParticipants && <th />}
+            </tr>
+          </thead>
+          <tbody>
+            {/* rows */}
+            {Boolean(players.length) &&
+              players
+                .filter((player) => player.id !== -1)
+                .map((player) => (
+                  <tr key={player.id}>
+                    {isEditingTournamentParticipants && (
+                      <th>
+                        <label>
+                          <input
+                            type="checkbox"
+                            className="checkbox"
+                            id={player.id.toString()}
+                            checked={isChecked(player.id)}
+                            onChange={handleCheck}
+                          />
+                        </label>
+                      </th>
+                    )}
+                    <td>
+                      <div className="flex items-center space-x-3">
+                        <div className="avatar">
+                          <div className="mask mask-squircle w-12 h-12">
+                            <img
+                              src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
+                              alt="Avatar"
                             />
-                          </label>
-                        </th>
-                      )}
-                      <td>
-                        <div className="flex items-center space-x-3">
-                          <div className="avatar">
-                            <div className="mask mask-squircle w-12 h-12">
-                              <img
-                                src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
-                                alt="Avatar"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-bold">
-                              <p>
-                                {player.firstName} {player.lastName}
-                              </p>
-                            </div>
                           </div>
                         </div>
-                      </td>
-                      <td className="text text-center">{player.strength}</td>
-                      <td className="text text-center">{player.comment}</td>
-                      {!isEditingTournamentParticipants && (
-                        <>
-                          <th>
-                            <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
-                              onClick={() => {
-                                if (displayedPlayerUpdater)
-                                  displayedPlayerUpdater();
-                              }}
-                            >
-                              <Link to={`/players/addoredit/edit${player.id}`}>
-                                edytuj
-                              </Link>
-                            </button>
-                          </th>
-                          <th>
-                            <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
-                              onClick={(e) => {
-                                dispatch(deletePlayer(player.id));
-                              }}
-                            >
-                              usuń
-                            </button>
-                          </th>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-            </tbody>
-            {/* foot */}
-            <tfoot>
-              <tr>
-                {!isEditingTournamentParticipants && <th />}
-                {!isEditingTournamentParticipants && <th />}
-                <th />
-                <th />
-                <th />
-                {isEditingTournamentParticipants && <th />}
-              </tr>
-            </tfoot>
-          </table>
+                        <div>
+                          <div className="font-bold">
+                            <p>
+                              {player.firstName} {player.lastName}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="text text-center">{player.strength}</td>
+                    <td className="text text-center">{player.comment}</td>
+                    {!isEditingTournamentParticipants && (
+                      <>
+                        <th>
+                          <button
+                            className="btn btn-ghost btn-xs bg-slate-600"
+                            onClick={() => {
+                              if (displayedPlayerUpdater)
+                                displayedPlayerUpdater();
+                            }}
+                          >
+                            <Link to={`/players/addoredit/edit${player.id}`}>
+                              edytuj
+                            </Link>
+                          </button>
+                        </th>
+                        <th>
+                          <button
+                            className="btn btn-ghost btn-xs bg-slate-600"
+                            onClick={(e) => {
+                              dispatch(deletePlayer(player.id));
+                            }}
+                          >
+                            usuń
+                          </button>
+                        </th>
+                      </>
+                    )}
+                  </tr>
+                ))}
+          </tbody>
+          {/* foot */}
+          <tfoot>
+            <tr>
+              {!isEditingTournamentParticipants && <th />}
+              {!isEditingTournamentParticipants && <th />}
+              <th />
+              <th />
+              <th />
+              {isEditingTournamentParticipants && <th />}
+            </tr>
+          </tfoot>
+        </table>
 
-          {isEditingTournamentParticipants && (
-            <div>
-              <button
-                className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
-                onClick={() => assignPlayersToTournament()}
-              >
-                zapisz uczestników
-              </button>
-            </div>
-          )}
-        </div>
+        {isEditingTournamentParticipants && (
+          <div>
+            <button
+              className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
+              onClick={() => assignPlayersToTournament()}
+            >
+              zapisz uczestników
+            </button>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

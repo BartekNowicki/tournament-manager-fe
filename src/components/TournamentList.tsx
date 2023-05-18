@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable react/jsx-boolean-value */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
@@ -7,14 +8,16 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
   assignPlayersToTournament,
   deleteTournament,
+  fetchAllTournaments,
 } from "../storeContent/storeSlices/tournamentSlice";
 import { getAdjustedDates } from "../utils/dates";
 import PlayerList from "./PlayerList";
+import { fetchAllPlayers } from "../storeContent/storeSlices/playerSlice";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -46,12 +49,14 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
   const highlighted = () => "border-solid border-2 border-sky-500";
 
+  useEffect(() => {
+    console.log(
+      `TournamentList showing participant: ${idOfTournamentDisplayedForEditingParticipants} data: ${idOfTournamentDisplayedForEditingData}`
+    );
+  });
+
   return (
     <>
-      {console.log(
-        `RENDERING TOURNAMENT LIST, idOfTournamentDisplayedForEditingParticipants: ${idOfTournamentDisplayedForEditingParticipants} / idOfTournamentDisplayedForEditingData: ${idOfTournamentDisplayedForEditingData}`
-      )}
-
       <div className="m-8 border border-sky-500">
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
@@ -268,12 +273,21 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             <PlayerList
               isEditingTournamentParticipants={true}
               displayedPlayerUpdater={() => {}}
-              assignPlayersToTournament={() => {
-                dispatch(
+              // assignPlayersToTournament={() => {
+              //   dispatch(
+              //     assignPlayersToTournament(
+              //       idOfTournamentDisplayedForEditingParticipants
+              //     )
+              //   );
+              // }}
+              assignPlayersToTournament={async () => {
+                await dispatch(
                   assignPlayersToTournament(
                     idOfTournamentDisplayedForEditingParticipants
                   )
                 );
+                await dispatch(fetchAllPlayers());
+                dispatch(fetchAllTournaments());
               }}
             />
           </div>,

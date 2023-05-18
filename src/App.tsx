@@ -16,14 +16,14 @@ import "./App.css";
 import { useAppDispatch } from "./storeContent/store";
 
 import { fetchAllPlayers } from "./storeContent/storeSlices/playerSlice";
-import { fetchTournaments } from "./storeContent/storeSlices/tournamentSlice";
+import { fetchAllTournaments } from "./storeContent/storeSlices/tournamentSlice";
 
 function App() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(fetchAllPlayers());
-    dispatch(fetchTournaments());
+    dispatch(fetchAllTournaments());
   });
 
   return (

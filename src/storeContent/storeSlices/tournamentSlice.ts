@@ -9,6 +9,7 @@ import {
   isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
+import { fetchAllPlayers } from "./playerSlice";
 
 export interface Tournament {
   id: number;
@@ -33,7 +34,7 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
-export const fetchTournaments = createAsyncThunk(
+export const fetchAllTournaments = createAsyncThunk(
   "tournaments/get",
   async (thunkAPI) => {
     const response = await axios.get(
@@ -88,7 +89,7 @@ export const assignPlayersToTournament = createAsyncThunk(
   "tournaments/assignPlayers",
   async (tournamentId: number, { rejectWithValue }) => {
     try {
-      // console.log("ASSIGNING!!!!!!!!!!!!!!!!!!!!!!!!!!", tournamentId);
+      // console.log("ASSIGNING: ", tournamentId);
       const response = await axios.post(
         `http://localhost:8080/api/data/tournaments?tournamentId=${tournamentId}`
       );
@@ -153,14 +154,14 @@ export const TournamentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTournaments.fulfilled, (state, action) => {
+      .addCase(fetchAllTournaments.fulfilled, (state, action) => {
         state.tournaments = action.payload;
         console.info("fetch tournaments promise fulfilled");
       })
-      .addCase(fetchTournaments.pending, () => {
-        console.info("fetch tournaments promise pending...");
+      .addCase(fetchAllTournaments.pending, () => {
+        // console.info("fetch tournaments promise pending...");
       })
-      .addCase(fetchTournaments.rejected, () => {
+      .addCase(fetchAllTournaments.rejected, () => {
         console.warn("fetch tournaments promise rejected!");
       })
       .addCase(saveTournament.fulfilled, (state, action) => {
@@ -191,7 +192,7 @@ export const TournamentSlice = createSlice({
         console.warn("save tournament promise rejected!");
       })
       .addCase(saveTournament.pending, () => {
-        console.info("save tournament promise pending...");
+        // console.info("save tournament promise pending...");
       })
       .addCase(deleteTournament.fulfilled, (state, action) => {
         const tournamentIdNotInState = (id: number) => {
@@ -210,11 +211,13 @@ export const TournamentSlice = createSlice({
         console.warn("delete tournament promise rejected!");
       })
       .addCase(deleteTournament.pending, () => {
-        console.info("delete tournament promise pending...");
+        // console.info("delete tournament promise pending...");
       })
       .addCase(assignPlayersToTournament.fulfilled, (state, action) => {
-        console.info("assignPlayersToTournament promise fulfilled");
-      })     
+        console.info(
+          "assignPlayersToTournament promise fulfilled, fetching updates..."
+        );
+      })
       .addCase(assignPlayersToTournament.rejected, () => {
         console.warn("assignPlayersToTournament promise rejected!");
       })
@@ -222,7 +225,7 @@ export const TournamentSlice = createSlice({
         console.info("promise rejected");
       })
       .addDefaultCase(() => {
-        console.log("thunk in default mode");
+        // console.log("thunk in default mode");
       });
   },
 });
