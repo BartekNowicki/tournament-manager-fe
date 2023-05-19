@@ -17,7 +17,10 @@ import {
 } from "../storeContent/storeSlices/tournamentSlice";
 import { getAdjustedDates } from "../utils/dates";
 import PlayerList from "./PlayerList";
-import { fetchAllPlayers } from "../storeContent/storeSlices/playerSlice";
+import {
+  checkPlayer,
+  fetchAllPlayers,
+} from "../storeContent/storeSlices/playerSlice";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -29,6 +32,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   displayedTournamentUpdater,
 }) => {
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
+  const players = useAppSelector((state) => state.player.players);
   const dispatch = useAppDispatch();
   const [
     idOfTournamentDisplayedForEditingParticipants,
@@ -49,9 +53,51 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
   const highlighted = () => "border-solid border-2 border-sky-500";
 
+  const matchPlayerIsCheckedDBStatusToTournamentParticipation = (
+    tournamentId: number
+  ) => {
+    console.log(
+      "MATCHING!!!",
+      "idOfTournamentDisplayedForEditingParticipants:",
+      idOfTournamentDisplayedForEditingParticipants,
+      "tournamentId: ",
+      tournamentId
+    );
+
+    const selectedTournament = tournaments.filter((t) => t.id === tournamentId);
+
+    if (
+      selectedTournament &&
+      selectedTournament[0] &&
+      selectedTournament[0].participatingPlayers
+    ) {
+      const participants = selectedTournament[0].participatingPlayers;
+      const participantIds = participants.map((p) => p.id);
+
+      players.forEach((player) => {
+        dispatch(
+          checkPlayer({
+            id: player.id,
+            isChecked: participantIds.includes(player.id),
+            firstName: player.firstName,
+            lastName: player.lastName,
+            strength: player.strength,
+            comment: player.comment,
+          })
+        );
+      });
+    }
+  };
+
+  const handleParticipantsClick = (tournamentId: number) => {
+    console.log("CLICK");
+    matchPlayerIsCheckedDBStatusToTournamentParticipation(tournamentId);
+    setIdOfTournamentDisplayedForEditingParticipants((prev) => tournamentId);
+  };
+
   useEffect(() => {
     console.log(
-      `TournamentList showing participant: ${idOfTournamentDisplayedForEditingParticipants} data: ${idOfTournamentDisplayedForEditingData}`
+      `TournamentList showing participants of: ${idOfTournamentDisplayedForEditingParticipants} data: ${idOfTournamentDisplayedForEditingData}`
     );
   });
 
@@ -143,10 +189,8 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                       <th>
                         <button
                           className="btn btn-ghost btn-xs bg-slate-600"
-                          onClick={(e) => {
-                            setIdOfTournamentDisplayedForEditingParticipants(
-                              (prev) => tournament.id
-                            );
+                          onClick={() => {
+                            handleParticipantsClick(tournament.id);
                           }}
                         >
                           uczestnicy
@@ -243,10 +287,8 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                             <th>
                               <button
                                 className="btn btn-ghost btn-xs bg-slate-600"
-                                onClick={(e) => {
-                                  setIdOfTournamentDisplayedForEditingParticipants(
-                                    (prev) => tournament.id
-                                  );
+                                onClick={() => {
+                                  handleParticipantsClick(tournament.id);
                                 }}
                               >
                                 uczestnicy
@@ -273,13 +315,6 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             <PlayerList
               isEditingTournamentParticipants={true}
               displayedPlayerUpdater={() => {}}
-              // assignPlayersToTournament={() => {
-              //   dispatch(
-              //     assignPlayersToTournament(
-              //       idOfTournamentDisplayedForEditingParticipants
-              //     )
-              //   );
-              // }}
               assignPlayersToTournament={async () => {
                 await dispatch(
                   assignPlayersToTournament(

@@ -10,6 +10,8 @@ import {
   isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
+// eslint-disable-next-line import/no-cycle
+import { Tournament } from "./tournamentSlice";
 
 export interface Player {
   id: number;
@@ -18,6 +20,7 @@ export interface Player {
   lastName: string;
   strength: number;
   comment: string;
+  playedTournaments?: Tournament[];
 }
 
 interface RejectedAction extends Action {

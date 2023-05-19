@@ -9,7 +9,7 @@ import {
   isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
-import { fetchAllPlayers } from "./playerSlice";
+import { Player, fetchAllPlayers } from "./playerSlice";
 
 export interface Tournament {
   id: number;
@@ -18,8 +18,8 @@ export interface Tournament {
   endDate: string;
   groupSize: number;
   comment: string;
-  // unlike BE, FE uses a lighter structure, only player IDs are stored in redux
   participatingPlayerIds?: number[];
+  participatingPlayers?: Player[];
 }
 
 interface TournamentSliceState {
