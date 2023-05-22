@@ -126,7 +126,7 @@ function AddOrEditTournament() {
   }, [currentAction, getUserAction, params.action, updateDisplayedTournament]);
 
   return (
-    <div className="darkModal">
+    <div className="darkModal max-w-7xl mx-auto">
       <form className="border border-red-500">
         <div className="m-8 border border-sky-500">
           <div className="overflow-x-scroll overflow-y-visible w-full mb-20 pb-60">

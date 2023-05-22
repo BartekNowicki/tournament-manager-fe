@@ -220,7 +220,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
       {idOfTournamentDisplayedForEditingParticipants > -1 &&
         createPortal(
-          <div className="darkModal">
+          <div className="darkModal max-w-7xl mx-auto">
             <button
               className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight"
               onClick={() =>

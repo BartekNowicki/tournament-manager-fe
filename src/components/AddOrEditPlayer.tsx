@@ -101,7 +101,7 @@ function AddOrEditPlayer() {
   }, []);
 
   return (
-    <div className="darkModal">
+    <div className="darkModal max-w-7xl mx-auto">
       <form className="mx-auto">
         <div className="m-8 border border-sky-500">
           <div className="overflow-x-auto w-full">
@@ -242,6 +242,7 @@ function AddOrEditPlayer() {
       <PlayerList
         isEditingTournamentParticipants={false}
         displayedPlayerUpdater={updateDisplayedPlayer}
+        assignPlayersToTournament={() => {}} // meet ts requirement
       />
       <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/players">x</Link>

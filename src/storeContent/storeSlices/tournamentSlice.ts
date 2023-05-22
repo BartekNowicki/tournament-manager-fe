@@ -79,7 +79,7 @@ export const saveTournament = createAsyncThunk(
       );
 
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(`error saving the tournament: ${error.message}`);
     }
   }
@@ -94,8 +94,8 @@ export const assignPlayersToTournament = createAsyncThunk(
         `http://localhost:8080/api/data/tournaments?tournamentId=${tournamentId}`
       );
       return response.data;
-    } catch (error) {
-      return rejectWithValue(`error saving the tournament: ${error.message}`);
+    } catch (error: any) {
+      return rejectWithValue(`error saving the tournament: ${error?.message}`);
     }
   }
 );
@@ -109,8 +109,10 @@ export const deleteTournament = createAsyncThunk(
       );
 
       return response.data;
-    } catch (error) {
-      return rejectWithValue(`error deleting the tournament: ${error.message}`);
+    } catch (error: any) {
+      return rejectWithValue(
+        `error deleting the tournament: ${error?.message}`
+      );
     }
   }
 );

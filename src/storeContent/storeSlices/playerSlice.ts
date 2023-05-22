@@ -16,6 +16,7 @@ import { Tournament } from "./tournamentSlice";
 export interface Player {
   id: number;
   isChecked: boolean;
+  checked?: unknown; // meet ts requirement
   firstName: string;
   lastName: string;
   strength: number;
