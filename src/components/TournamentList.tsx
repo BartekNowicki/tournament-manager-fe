@@ -75,16 +75,18 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
       const participantIds = participants.map((p) => p.id);
 
       players.forEach((player) => {
-        dispatch(
-          checkPlayer({
-            id: player.id,
-            isChecked: participantIds.includes(player.id),
-            firstName: player.firstName,
-            lastName: player.lastName,
-            strength: player.strength,
-            comment: player.comment,
-          })
-        );
+        if (player.id !== -1) {
+          dispatch(
+            checkPlayer({
+              id: player.id,
+              isChecked: participantIds.includes(player.id),
+              firstName: player.firstName,
+              lastName: player.lastName,
+              strength: player.strength,
+              comment: player.comment,
+            })
+          );
+        }
       });
     }
   };
