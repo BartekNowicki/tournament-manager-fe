@@ -9,7 +9,7 @@ import {
   isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Player, fetchAllPlayers } from "./playerSlice";
+import { Player, baseUrl, fetchAllPlayers } from "./playerSlice";
 
 export interface Tournament {
   id: number;
@@ -37,9 +37,7 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 export const fetchAllTournaments = createAsyncThunk(
   "tournaments/get",
   async (thunkAPI) => {
-    const response = await axios.get(
-      "http://localhost:8080/api/data/tournaments"
-    );
+    const response = await axios.get(`${baseUrl}/api/data/tournaments`);
     return response.data;
   }
 );
@@ -69,14 +67,11 @@ export const saveTournament = createAsyncThunk(
       type: getEnumKeyByValue(tournament.type),
     };
     try {
-      const response = await axios.put(
-        "http://localhost:8080/api/data/tournaments",
-        {
-          ...tournamentWithTypeConvertedToEnumKey,
-          startDate: convertToMysqlDatetime6(tournament.startDate),
-          endDate: convertToMysqlDatetime6(tournament.endDate),
-        }
-      );
+      const response = await axios.put(`${baseUrl}/api/data/tournaments`, {
+        ...tournamentWithTypeConvertedToEnumKey,
+        startDate: convertToMysqlDatetime6(tournament.startDate),
+        endDate: convertToMysqlDatetime6(tournament.endDate),
+      });
 
       return response.data;
     } catch (error: any) {
@@ -91,7 +86,7 @@ export const assignPlayersToTournament = createAsyncThunk(
     try {
       // console.log("ASSIGNING: ", tournamentId);
       const response = await axios.post(
-        `http://localhost:8080/api/data/tournaments?tournamentId=${tournamentId}`
+        `${baseUrl}/api/data/tournaments?tournamentId=${tournamentId}`
       );
       return response.data;
     } catch (error: any) {
@@ -105,7 +100,7 @@ export const deleteTournament = createAsyncThunk(
   async (tournamentId: number, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/data/tournaments/${tournamentId}`
+        `${baseUrl}/api/data/tournaments/${tournamentId}`
       );
 
       return response.data;

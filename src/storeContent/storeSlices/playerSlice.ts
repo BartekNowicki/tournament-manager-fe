@@ -16,7 +16,8 @@ import { Tournament } from "./tournamentSlice";
 export interface Player {
   id: number;
   isChecked: boolean;
-  checked?: unknown; // meet ts requirement
+  // removing this after be upgrade:
+  // checked?: unknown; // meet ts requirement
   firstName: string;
   lastName: string;
   strength: number;
@@ -32,10 +33,12 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
+export const baseUrl = "http://localhost:8080";
+
 export const fetchAllPlayers = createAsyncThunk(
   "players/get",
   async (thunkAPI) => {
-    const response = await axios.get("http://localhost:8080/api/data/players");
+    const response = await axios.get(`${baseUrl}/api/data/players`);
     return response.data;
   }
 );
@@ -44,10 +47,7 @@ export const savePlayer = createAsyncThunk(
   "players/save",
   async (player: Player, { rejectWithValue }) => {
     try {
-      const response = await axios.put(
-        "http://localhost:8080/api/data/players",
-        player
-      );
+      const response = await axios.put(`${baseUrl}/api/data/players`, player);
 
       return response.data;
     } catch (error) {
@@ -62,10 +62,7 @@ export const checkPlayer = createAsyncThunk(
   async (player: Player, { rejectWithValue }) => {
     try {
       console.log("SENDING : ", player.isChecked);
-      const response = await axios.put(
-        "http://localhost:8080/api/data/players",
-        player
-      );
+      const response = await axios.put(`${baseUrl}/api/data/players`, player);
 
       return response.data;
     } catch (error) {
@@ -80,7 +77,7 @@ export const deletePlayer = createAsyncThunk(
   async (playerId: number, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/data/players/${playerId}`
+        `${baseUrl}/api/data/players/${playerId}`
       );
 
       return response.data;
