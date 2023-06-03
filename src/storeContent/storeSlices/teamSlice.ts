@@ -157,7 +157,7 @@ export const TeamSlice = createSlice({
         state.forceRerenderTeamListCount += 1;
       })
       .addCase(fetchAllTeams.pending, () => {
-        console.info("fetch teams promise pending...");
+//        console.info("fetch teams promise pending...");
       })
       .addCase(saveTeam.fulfilled, (state, action) => {
         const teamIdAlreadyInState = (id: number) => {
@@ -188,7 +188,7 @@ export const TeamSlice = createSlice({
         console.warn("save team promise rejected!");
       })
       .addCase(saveTeam.pending, () => {
-        console.info("save team promise pending...");
+        //console.info("save team promise pending...");
       })
       .addCase(checkTeam.fulfilled, (state, action) => {
         state.teams = state.teams.map((team) => {

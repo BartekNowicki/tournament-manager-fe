@@ -193,7 +193,7 @@ export const PlayerSlice = createSlice({
         console.warn("save player promise rejected!");
       })
       .addCase(savePlayer.pending, () => {
-        console.info("save player promise pending...");
+        //console.info("save player promise pending...");
       })
       .addCase(checkPlayer.fulfilled, (state, action) => {
         state.players = state.players.map((player) => {

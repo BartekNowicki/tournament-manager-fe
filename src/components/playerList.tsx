@@ -11,10 +11,8 @@ import {
   checkPlayer,
   deletePlayer,
 } from "../storeContent/storeSlices/playerSlice";
-import {
-  checkTeam,
-  deleteTeam,
-} from "../storeContent/storeSlices/teamSlice";
+import { checkTeam } from "../storeContent/storeSlices/teamSlice";
+import CheckPlayerRow from "./CheckPlayerRow";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -128,17 +126,22 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                 .map((player) => (
                   <tr key={player.id + player.firstName + player.lastName}>
                     {isEditingTournamentParticipants && (
-                      <th>
-                        <label>
-                          <input
-                            type="checkbox"
-                            className="checkbox"
-                            id={player.id.toString()}
-                            checked={isChecked(player.id)}
-                            onChange={handleCheck}
-                          />
-                        </label>
-                      </th>
+                      // <th>
+                      //   <label>
+                      //     <input
+                      //       type="checkbox"
+                      //       className="checkbox"
+                      //       id={player.id.toString()}
+                      //       checked={isChecked(player.id)}
+                      //       onChange={handleCheck}
+                      //     />
+                      //   </label>
+                      // </th>
+                      <CheckPlayerRow
+                        handleCheck={handleCheck}
+                        id={player.id}
+                        isChecked={isChecked}
+                      />
                     )}
                     <td>
                       <div className="flex items-center space-x-3">
