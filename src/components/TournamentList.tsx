@@ -245,7 +245,11 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     {Boolean(tournaments.length) &&
                       tournaments.map((tournament) => (
                         <tr
-                          key={tournament.id}
+                          key={
+                            tournament.id +
+                            tournament.type +
+                            tournament.startDate
+                          }
                           className={
                             tournament.id ===
                             idOfTournamentDisplayedForEditingParticipants

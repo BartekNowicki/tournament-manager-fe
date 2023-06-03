@@ -9,7 +9,8 @@ import {
   isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Player, baseUrl, fetchAllPlayers } from "./playerSlice";
+// eslint-disable-next-line import/no-cycle
+import { Player, baseUrl } from "./playerSlice";
 
 export interface Tournament {
   id: number;
@@ -20,6 +21,8 @@ export interface Tournament {
   comment: string;
   participatingPlayerIds?: number[];
   participatingPlayers?: Player[];
+  participatingTeamIds?: number[];
+  participatingTeams?: Player[];
 }
 
 interface TournamentSliceState {
