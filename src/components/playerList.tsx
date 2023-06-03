@@ -11,6 +11,10 @@ import {
   checkPlayer,
   deletePlayer,
 } from "../storeContent/storeSlices/playerSlice";
+import {
+  checkTeam,
+  deleteTeam,
+} from "../storeContent/storeSlices/teamSlice";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -24,6 +28,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   assignPlayersToTournament,
 }) => {
   const players = useAppSelector((state) => state.player.players);
+  const teams = useAppSelector((state) => state.team.teams);
   const forceRenderCount = useAppSelector(
     (state) => state.player.forceRerenderPlayerListCount
   );
@@ -40,7 +45,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       const found = findById(id);
       // BE has "isChecked" but probably the response entity mutates it to "checked"
       // explicit comparison is required as isChecked is initially undefined and once you check it becomes defined and checked becomes undefined
-      return found.checked ? found.checked === true : found.isChecked === true;
+      // return found.checked ? found.checked === true : found.isChecked === true;
+      return found && found.isChecked === true;
     },
     [findById]
   );
@@ -84,6 +90,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   useEffect(() => {
     console.log(`PlayerList showing players`, players, forceRenderCount);
+    console.log(`I GOT TEAMS TOO! `, teams);
   });
 
   return (
@@ -119,7 +126,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
               players
                 .filter((player) => player.id !== -1)
                 .map((player) => (
-                  <tr key={player.id}>
+                  <tr key={player.id + player.firstName + player.lastName}>
                     {isEditingTournamentParticipants && (
                       <th>
                         <label>

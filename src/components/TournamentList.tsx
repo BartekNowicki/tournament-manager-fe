@@ -74,6 +74,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
       const participants = selectedTournament[0].participatingPlayers;
       const participantIds = participants.map((p) => p.id);
 
+      // TODO: OPTIMIZE
       players.forEach((player) => {
         if (player.id !== -1) {
           dispatch(
@@ -122,7 +123,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
               {Boolean(tournaments.length) &&
                 tournaments.map((tournament) => (
                   <tr
-                    key={tournament.id}
+                    key={
+                      tournament.id + tournament.startDate + tournament.comment
+                    }
                     className={
                       tournament.id === idOfTournamentDisplayedForEditingData
                         ? highlighted()
