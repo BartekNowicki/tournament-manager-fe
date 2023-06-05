@@ -21,23 +21,32 @@ import {
   checkPlayer,
   fetchAllPlayers,
 } from "../storeContent/storeSlices/playerSlice";
+import { TournamentType } from "./Tournament";
+import { checkTeam } from "../storeContent/storeSlices/teamSlice";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
+  typeOfTournamentDisplayedForEditingData: string;
   displayedTournamentUpdater: () => void;
 }
 
 const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   idOfTournamentDisplayedForEditingData,
+  typeOfTournamentDisplayedForEditingData,
   displayedTournamentUpdater,
 }) => {
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
   const players = useAppSelector((state) => state.player.players);
+  const teams = useAppSelector((state) => state.team.teams);
   const dispatch = useAppDispatch();
   const [
     idOfTournamentDisplayedForEditingParticipants,
     setIdOfTournamentDisplayedForEditingParticipants,
   ] = useState<number>(-1);
+  const [
+    typeOfTournamentDisplayedForEditingParticipants,
+    setTypeOfTournamentDisplayedForEditingParticipants,
+  ] = useState<string>(typeOfTournamentDisplayedForEditingData);
 
   const isAddingOrEditingTournamentMode = () =>
     idOfTournamentDisplayedForEditingData !== -1;
@@ -51,13 +60,25 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     </>
   );
 
+  const isToBeHighlightedForEditingParticipants = (
+    id: number,
+    type: string
+  ): boolean =>
+    id === idOfTournamentDisplayedForEditingParticipants &&
+    type === typeOfTournamentDisplayedForEditingParticipants;
+
+  const isToBeHighlightedForEditingData = (id: number, type: string): boolean =>
+    id === idOfTournamentDisplayedForEditingData &&
+    type === typeOfTournamentDisplayedForEditingData;
+
   const highlighted = () => "border-solid border-2 border-sky-500";
 
   const matchPlayerIsCheckedDBStatusToTournamentParticipation = (
     tournamentId: number
   ) => {
     console.log(
-      "MATCHING!!!",
+      "matching for tournament type: ",
+      typeOfTournamentDisplayedForEditingParticipants,
       "idOfTournamentDisplayedForEditingParticipants:",
       idOfTournamentDisplayedForEditingParticipants,
       "tournamentId: ",
@@ -71,31 +92,61 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
       selectedTournament[0] &&
       selectedTournament[0].participatingPlayers
     ) {
-      const participants = selectedTournament[0].participatingPlayers;
-      const participantIds = participants.map((p) => p.id);
+      const participants =
+        typeOfTournamentDisplayedForEditingParticipants === "SINGLES"
+          ? selectedTournament[0].participatingPlayers
+          : selectedTournament[0].participatingTeams;
+      const participantIds = participants && participants.map((p) => p.id);
 
       // TODO: OPTIMIZE
-      players.forEach((player) => {
-        if (player.id !== -1) {
-          dispatch(
-            checkPlayer({
-              id: player.id,
-              isChecked: participantIds.includes(player.id),
-              firstName: player.firstName,
-              lastName: player.lastName,
-              strength: player.strength,
-              comment: player.comment,
-            })
-          );
-        }
-      });
+      // if (typeOfTournamentDisplayedForEditingParticipants === "SINGLES") {
+      //   players.forEach((player) => {
+      //     const isIncluded: boolean =
+      //       (participantIds && participantIds.includes(player.id)) || false;
+      //     if (player.id !== -1) {
+      //       dispatch(
+      //         checkPlayer({
+      //           id: player.id,
+      //           isChecked: isIncluded,
+      //           firstName: player.firstName,
+      //           lastName: player.lastName,
+      //           strength: player.strength,
+      //           comment: player.comment,
+      //         })
+      //       );
+      //     }
+      //   });
+      // } else {
+      //   teams.forEach((team) => {
+      //     const isIncluded: boolean =
+      //       (participantIds && participantIds.includes(team.id)) || false;
+      //     if (team.id !== -1) {
+      //       dispatch(
+      //         checkTeam({
+      //           id: team.id,
+      //           isChecked: isIncluded,
+      //           playerOneId: team.playerOneId,
+      //           playerTwoId: team.playerTwoId,
+      //           strength: team.strength,
+      //           comment: team.comment,
+      //         })
+      //       );
+      //     }
+      //   });
+      // }
     }
   };
 
-  const handleParticipantsClick = (tournamentId: number) => {
-    console.log("CLICK");
-    matchPlayerIsCheckedDBStatusToTournamentParticipation(tournamentId);
+  const handleParticipantsClick = (
+    tournamentId: number,
+    tournamentType: string
+  ) => {
+    console.log("click uczestnicy: ", tournamentId, tournamentType);
     setIdOfTournamentDisplayedForEditingParticipants((prev) => tournamentId);
+    setTypeOfTournamentDisplayedForEditingParticipants(
+      (prev) => tournamentType
+    );
+    matchPlayerIsCheckedDBStatusToTournamentParticipation(tournamentId);
   };
 
   useEffect(() => {
@@ -127,7 +178,14 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                       tournament.id + tournament.startDate + tournament.comment
                     }
                     className={
-                      tournament.id === idOfTournamentDisplayedForEditingData
+                      isToBeHighlightedForEditingParticipants(
+                        tournament.id,
+                        tournament.type
+                      ) ||
+                      isToBeHighlightedForEditingData(
+                        tournament.id,
+                        tournament.type
+                      )
                         ? highlighted()
                         : ""
                     }
@@ -164,10 +222,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                           if (displayedTournamentUpdater)
                             displayedTournamentUpdater();
                         }}
-                        disabled={
-                          tournament.id ===
-                          idOfTournamentDisplayedForEditingData
-                        }
+                        disabled={isToBeHighlightedForEditingData(
+                          tournament.id,
+                          tournament.type
+                        )}
                       >
                         <Link
                           to={`/tournaments/addoredit/edit${tournament.id}`}
@@ -182,10 +240,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         onClick={(e) => {
                           dispatch(deleteTournament(tournament.id));
                         }}
-                        disabled={
-                          tournament.id ===
-                          idOfTournamentDisplayedForEditingData
-                        }
+                        disabled={isToBeHighlightedForEditingData(
+                          tournament.id,
+                          tournament.type
+                        )}
                       >
                         usuń
                       </button>
@@ -195,7 +253,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         <button
                           className="btn btn-ghost btn-xs bg-slate-600"
                           onClick={() => {
-                            handleParticipantsClick(tournament.id);
+                            handleParticipantsClick(
+                              tournament.id,
+                              tournament.type
+                            );
                           }}
                         >
                           uczestnicy
@@ -234,7 +295,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             </button>
 
             <div className="m-8 border border-sky-500">
-              <div className="overflow-x-auto w-full">
+              <div
+                style={{ maxHeight: "25vh" }}
+                className="overflow-x-auto w-full"
+              >
                 <table className="table w-full">
                   {/* head */}
                   <thead>
@@ -254,8 +318,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                             tournament.startDate
                           }
                           className={
-                            tournament.id ===
-                            idOfTournamentDisplayedForEditingParticipants
+                            isToBeHighlightedForEditingParticipants(
+                              tournament.id,
+                              tournament.type
+                            )
                               ? highlighted()
                               : ""
                           }
@@ -297,7 +363,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                               <button
                                 className="btn btn-ghost btn-xs bg-slate-600"
                                 onClick={() => {
-                                  handleParticipantsClick(tournament.id);
+                                  handleParticipantsClick(
+                                    tournament.id,
+                                    tournament.type
+                                  );
                                 }}
                               >
                                 uczestnicy
@@ -323,6 +392,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
             <PlayerList
               isEditingTournamentParticipants={true}
+              isParticipantsSingles={
+                typeOfTournamentDisplayedForEditingParticipants === "SINGLES"
+              }
               displayedPlayerUpdater={() => {}}
               assignPlayersToTournament={async () => {
                 await dispatch(

@@ -18,6 +18,7 @@ export function Players(props: IPlayersProps) {
         displayedPlayerUpdater={() => {}}
         assignPlayersToTournament={() => {}}
         isEditingTournamentParticipants={false}
+        isParticipantsSingles = {true}
       />
     </div>
   );

@@ -1,20 +1,24 @@
 import { Player } from "../storeContent/storeSlices/playerSlice";
+import { Team } from "../storeContent/storeSlices/teamSlice";
 import PlayerInfoColumns from "./PlayerInfoColumns";
+import TeamInfoColumns from "./TeamInfoColumns";
 
-interface ICheckPlayerRowProps {
+interface ICheckTeamRowProps {
   handleCheck(e: React.ChangeEvent<HTMLInputElement>): void;
   id: number;
   isChecked: (id: number) => boolean;
-  player: Player;
+  team: Team;
+  findPlayerById(id: number): Player;
 }
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/function-component-definition */
-const CheckPlayerRow: React.FC<ICheckPlayerRowProps> = ({
+const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
   handleCheck,
   id,
   isChecked,
-  player,
+  team,
+  findPlayerById,
 }): JSX.Element => {
   return (
     <>
@@ -29,9 +33,13 @@ const CheckPlayerRow: React.FC<ICheckPlayerRowProps> = ({
           />
         </label>
       </th>
-      <PlayerInfoColumns player={player} />
+      <TeamInfoColumns
+        playerOne={findPlayerById(team.playerOneId)}
+        playerTwo={findPlayerById(team.playerTwoId)}
+        team={team}
+      />
     </>
   );
 };
 
-export default CheckPlayerRow;
+export default CheckTeamRow;

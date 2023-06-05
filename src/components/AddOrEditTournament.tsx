@@ -271,6 +271,7 @@ function AddOrEditTournament() {
       <TournamentList
         displayedTournamentUpdater={updateDisplayedTournament}
         idOfTournamentDisplayedForEditingData={displayedTournament.id}
+        typeOfTournamentDisplayedForEditingData={displayedTournament.type}
       />
       <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/tournaments">x</Link>
