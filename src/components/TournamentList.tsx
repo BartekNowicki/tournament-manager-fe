@@ -74,29 +74,37 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   const highlighted = () => "border-solid border-2 border-sky-500";
 
   const matchPlayerIsCheckedDBStatusToTournamentParticipation = (
-    tournamentId: number
+    tournamentId: number,
+    tournamentType: string
   ) => {
     console.log(
       "matching for tournament type: ",
-      typeOfTournamentDisplayedForEditingParticipants,
-      "idOfTournamentDisplayedForEditingParticipants:",
-      idOfTournamentDisplayedForEditingParticipants,
+      tournamentType,
       "tournamentId: ",
       tournamentId
     );
 
-    const selectedTournament = tournaments.filter((t) => t.id === tournamentId);
+    const selectedTournament = tournaments.find(
+      (t) =>
+        t.id === tournamentId &&
+        t.type === typeOfTournamentDisplayedForEditingParticipants
+    );
 
-    if (
-      selectedTournament &&
-      selectedTournament[0] &&
-      selectedTournament[0].participatingPlayers
-    ) {
+    if (selectedTournament) {
       const participants =
         typeOfTournamentDisplayedForEditingParticipants === "SINGLES"
-          ? selectedTournament[0].participatingPlayers
-          : selectedTournament[0].participatingTeams;
+          ? selectedTournament.participatingPlayers
+          : selectedTournament.participatingTeams;
       const participantIds = participants && participants.map((p) => p.id);
+
+      console.log(
+        "matching for tournament type: ",
+        typeOfTournamentDisplayedForEditingParticipants,
+        "id: ",
+        idOfTournamentDisplayedForEditingParticipants,
+        "participants: ",
+        participantIds
+      );
 
       // TODO: OPTIMIZE
       // if (typeOfTournamentDisplayedForEditingParticipants === "SINGLES") {
@@ -146,13 +154,21 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     setTypeOfTournamentDisplayedForEditingParticipants(
       (prev) => tournamentType
     );
-    matchPlayerIsCheckedDBStatusToTournamentParticipation(tournamentId);
   };
 
   useEffect(() => {
     console.log(
       `TournamentList showing participants of: ${idOfTournamentDisplayedForEditingParticipants} data: ${idOfTournamentDisplayedForEditingData}`
     );
+    if (
+      idOfTournamentDisplayedForEditingParticipants &&
+      idOfTournamentDisplayedForEditingParticipants > -1
+    ) {
+      matchPlayerIsCheckedDBStatusToTournamentParticipation(
+        idOfTournamentDisplayedForEditingParticipants,
+        typeOfTournamentDisplayedForEditingParticipants
+      );
+    }
   });
 
   return (
@@ -396,11 +412,12 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                 typeOfTournamentDisplayedForEditingParticipants === "SINGLES"
               }
               displayedPlayerUpdater={() => {}}
-              assignPlayersToTournament={async () => {
+              assignPlayersToTournament={async (type: string) => {
                 await dispatch(
-                  assignPlayersToTournament(
-                    idOfTournamentDisplayedForEditingParticipants
-                  )
+                  assignPlayersToTournament({
+                    tournamentId: idOfTournamentDisplayedForEditingParticipants,
+                    type,
+                  })
                 );
                 await dispatch(fetchAllPlayers());
                 dispatch(fetchAllTournaments());

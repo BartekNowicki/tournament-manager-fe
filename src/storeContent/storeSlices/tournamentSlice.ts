@@ -82,16 +82,32 @@ export const saveTournament = createAsyncThunk(
     }
   }
 );
+interface TData {
+  tournamentId: number;
+  type: string;
+}
 
 export const assignPlayersToTournament = createAsyncThunk(
   "tournaments/assignPlayers",
-  async (tournamentId: number, { rejectWithValue }) => {
+  async (tdata: TData, { rejectWithValue }) => {
     try {
-      // console.log("ASSIGNING: ", tournamentId);
-      const response = await axios.post(
-        `${baseUrl}/api/data/tournaments?tournamentId=${tournamentId}`
-      );
-      return response.data;
+      const { tournamentId, type } = tdata;
+      console.log("ASSIGNING: ", tournamentId, type);
+      if (type === "singles") {
+        const response = await axios.post(
+          // `${baseUrl}/api/data/tournaments?tournamentId=${tournamentId}`
+          `${baseUrl}/api/data/tournaments/assignToSingles?tournamentId=${tournamentId}`
+        );
+        return response.data;
+      }
+      if (type === "doubles") {
+        const response = await axios.post(
+          // `${baseUrl}/api/data/tournaments?tournamentId=${tournamentId}`
+          `${baseUrl}/api/data/tournaments/assignToDoubles?tournamentId=${tournamentId}`
+        );
+        return response.data;
+      }
+      throw new Error("Invalid tournament type for assignment");
     } catch (error: any) {
       return rejectWithValue(`error saving the tournament: ${error?.message}`);
     }

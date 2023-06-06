@@ -22,7 +22,7 @@ interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
   isEditingTournamentParticipants: boolean;
   isParticipantsSingles: boolean;
-  assignPlayersToTournament: () => void;
+  assignPlayersToTournament: (type: string) => void;
 }
 
 const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
@@ -244,7 +244,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
           <div>
             <button
               className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
-              onClick={() => assignPlayersToTournament()}
+              onClick={
+                isParticipantsSingles
+                  ? () => assignPlayersToTournament("singles")
+                  : () => assignPlayersToTournament("doubles")
+              }
             >
               zapisz uczestników
             </button>
