@@ -25,6 +25,8 @@ export interface Player {
   playedTournaments?: Tournament[];
 }
 
+export type IdToCheckStatusMapping = Map<string, boolean>;
+
 interface RejectedAction extends Action {
   error: Error;
 }
@@ -57,17 +59,20 @@ export const savePlayer = createAsyncThunk(
   }
 );
 
-export const checkPlayer = createAsyncThunk(
+export const checkPlayers = createAsyncThunk(
   "players/check",
-  async (player: Player, { rejectWithValue }) => {
+  async (mapping: IdToCheckStatusMapping, { rejectWithValue }) => {
     try {
-      console.log("SENDING : ", player.isChecked);
-      const response = await axios.put(`${baseUrl}/api/data/players`, player);
+      console.log("SENDING : ", Object.fromEntries(mapping));
+      const response = await axios.patch(
+        `${baseUrl}/api/data/players`,
+        Object.fromEntries(mapping)
+      );
 
       return response.data;
     } catch (error) {
       // return rejectWithValue(error.message);
-      return rejectWithValue("error saving the player");
+      return rejectWithValue("error checking or unchecking the players");
     }
   }
 );
@@ -193,31 +198,32 @@ export const PlayerSlice = createSlice({
         console.warn("save player promise rejected!");
       })
       .addCase(savePlayer.pending, () => {
-        //console.info("save player promise pending...");
+        // console.info("save player promise pending...");
       })
-      .addCase(checkPlayer.fulfilled, (state, action) => {
+      .addCase(checkPlayers.fulfilled, (state, action) => {
+        console.log("PAYLOAD: ", action.payload);
+        const newIdToCheckStatusMapping: IdToCheckStatusMapping = new Map(
+          Object.entries(action.payload)
+        );
         state.players = state.players.map((player) => {
-          return player.id !== action.payload.id
+          return !newIdToCheckStatusMapping.has(String(player.id))
             ? player
             : {
-                id: action.payload.id,
-                firstName: action.payload.firstName,
-                lastName: action.payload.lastName,
-                // BE has "isChecked" but probably the response entity mutates it to "checked"
-                // isChecked: action.payload.isChecked,
-                isChecked: action.payload.checked,
-                strength: action.payload.strength,
-                comment: action.payload.comment,
+                id: player.id,
+                firstName: player.firstName,
+                lastName: player.lastName,
+                isChecked: newIdToCheckStatusMapping.get(String(player.id)),
+                strength: player.strength,
+                comment: player.comment,
               };
         });
-
         console.info("check player promise fulfilled", state.players[1]);
         state.forceRerenderPlayerListCount += 1;
       })
-      .addCase(checkPlayer.rejected, () => {
+      .addCase(checkPlayers.rejected, () => {
         console.warn("check player promise rejected!");
       })
-      .addCase(checkPlayer.pending, () => {
+      .addCase(checkPlayers.pending, () => {
         // console.info("check player promise pending...");
       })
       .addCase(deletePlayer.fulfilled, (state, action) => {

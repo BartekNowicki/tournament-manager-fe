@@ -8,11 +8,12 @@ import { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
+  IdToCheckStatusMapping,
   Player,
-  checkPlayer,
+  checkPlayers,
   deletePlayer,
 } from "../storeContent/storeSlices/playerSlice";
-import { Team, checkTeam } from "../storeContent/storeSlices/teamSlice";
+import { Team, checkTeams } from "../storeContent/storeSlices/teamSlice";
 import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
 import PlayerInfoColumns from "./PlayerInfoColumns";
@@ -52,9 +53,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const isPlayerChecked = useCallback(
     (id: number): boolean => {
       const found = findPlayerById(id);
-      // BE has "isChecked" but probably the response entity mutates it to "checked"
-      // explicit comparison is required as isChecked is initially undefined and once you check it becomes defined and checked becomes undefined
-      // return found.checked ? found.checked === true : found.isChecked === true;
       return found && found.isChecked === true;
     },
     [findPlayerById]
@@ -68,74 +66,52 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     [findTeamById]
   );
 
-  const handlePlayerCheck = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheck = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
       const key: number = +e.target.id;
-      const player = findPlayerById(key);
+      const newIdToCheckStatusMapping = new Map();
       if (key !== -1) {
-        dispatch(
-          checkPlayer({
-            id: player.id,
-            isChecked: !isPlayerChecked(player.id),
-            firstName: player.firstName,
-            lastName: player.lastName,
-            strength: player.strength,
-            comment: player.comment,
-          })
-        );
-      } else {
-        const commonOppositeStateForAll = !isPlayerChecked(-1);
-        // eslint-disable-next-line no-restricted-syntax
-        for (const p of players) {
-          dispatch(
-            checkPlayer({
-              id: p.id,
-              isChecked: commonOppositeStateForAll,
-              firstName: p.firstName,
-              lastName: p.lastName,
-              strength: p.strength,
-              comment: p.comment,
-            })
-          );
+        if (type === "player") {
+          const player = findPlayerById(key);
+          newIdToCheckStatusMapping.set(player.id, !isPlayerChecked(player.id));
+          dispatch(checkPlayers(newIdToCheckStatusMapping));
+        } else if (type === "team") {
+          const team = findTeamById(key);
+          newIdToCheckStatusMapping.set(team.id, !isTeamChecked(team.id));
+          dispatch(checkTeams(newIdToCheckStatusMapping));
+        }
+        // need this redundant if otherwise the linter goes crazy changing code
+      } else if (key === -1) {
+        if (type === "player") {
+          const commonOppositeStateForAll = !isPlayerChecked(-1) || false;
+          // eslint-disable-next-line no-restricted-syntax
+          for (const p of players) {
+            newIdToCheckStatusMapping.set(p.id, commonOppositeStateForAll);
+          }
+          if (newIdToCheckStatusMapping) {
+            dispatch(checkPlayers(newIdToCheckStatusMapping));
+          }
+        } else if (type === "team") {
+          const commonOppositeStateForAll = !isTeamChecked(-1) || false;
+          // eslint-disable-next-line no-restricted-syntax
+          for (const t of teams) {
+            newIdToCheckStatusMapping.set(t.id, commonOppositeStateForAll);
+          }
+          if (newIdToCheckStatusMapping) {
+            dispatch(checkTeams(newIdToCheckStatusMapping));
+          }
         }
       }
     },
-    [dispatch, findPlayerById, isPlayerChecked, players]
-  );
-
-  const handleTeamCheck = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const key: number = +e.target.id;
-      const team = findTeamById(key);
-      if (key !== -1) {
-        dispatch(
-          checkTeam({
-            id: team.id,
-            isChecked: !isTeamChecked(team.id),
-            playerOneId: team.playerOneId,
-            playerTwoId: team.playerTwoId,
-            strength: team.strength,
-            comment: team.comment,
-          })
-        );
-      } else {
-        const commonOppositeStateForAll = !isTeamChecked(-1);
-        // eslint-disable-next-line no-restricted-syntax
-        for (const t of teams) {
-          dispatch(
-            checkTeam({
-              id: t.id,
-              isChecked: commonOppositeStateForAll,
-              playerOneId: t.playerOneId,
-              playerTwoId: t.playerTwoId,
-              strength: t.strength,
-              comment: t.comment,
-            })
-          );
-        }
-      }
-    },
-    [dispatch, findTeamById, isTeamChecked, teams]
+    [
+      dispatch,
+      findPlayerById,
+      findTeamById,
+      isPlayerChecked,
+      isTeamChecked,
+      players,
+      teams,
+    ]
   );
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
@@ -168,8 +144,16 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                       type="checkbox"
                       className="checkbox"
                       id="-1"
-                      checked={isPlayerChecked(-1) === true}
-                      onChange={handlePlayerCheck}
+                      checked={
+                        isParticipantsSingles
+                          ? isPlayerChecked(-1) === true
+                          : isTeamChecked(-1)
+                      }
+                      onChange={
+                        isParticipantsSingles
+                          ? (e) => handleCheck(e, "player")
+                          : (e) => handleCheck(e, "team")
+                      }
                     />
                   </label>
                 </th>
@@ -197,14 +181,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                     {isEditingTournamentParticipants &&
                       (isParticipantsSingles ? (
                         <CheckPlayerRow
-                          handleCheck={handlePlayerCheck}
+                          handleCheck={(e) => handleCheck(e, "player")}
                           id={item.id}
                           isChecked={isPlayerChecked}
                           player={item}
                         />
                       ) : (
                         <CheckTeamRow
-                          handleCheck={handleTeamCheck}
+                          handleCheck={(e) => handleCheck(e, "team")}
                           id={item.id}
                           isChecked={isTeamChecked}
                           team={item}

@@ -18,7 +18,7 @@ import {
 import { getAdjustedDates } from "../utils/dates";
 import PlayerList from "./PlayerList";
 import {
-  checkPlayer,
+  checkPlayers,
   fetchAllPlayers,
 } from "../storeContent/storeSlices/playerSlice";
 import { TournamentType } from "./Tournament";

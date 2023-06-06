@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
 import { Tournament } from "./tournamentSlice";
+import { IdToCheckStatusMapping } from "./playerSlice";
 
 export interface Team {
   id: number;
@@ -52,17 +53,19 @@ export const saveTeam = createAsyncThunk(
   }
 );
 
-export const checkTeam = createAsyncThunk(
+export const checkTeams = createAsyncThunk(
   "teams/check",
-  async (team: Team, { rejectWithValue }) => {
+  async (mapping: IdToCheckStatusMapping, { rejectWithValue }) => {
     try {
-      console.log("SENDING : ", team.isChecked);
-      const response = await axios.put(`${baseUrl}/api/data/teams`, team);
-
+      console.log("SENDING : ", Object.fromEntries(mapping));
+      const response = await axios.patch(
+        `${baseUrl}/api/data/teams`,
+        Object.fromEntries(mapping)
+      );
       return response.data;
     } catch (error) {
       // return rejectWithValue(error.message);
-      return rejectWithValue("error saving the player");
+      return rejectWithValue("error checking or unchecking the teams");
     }
   }
 );
@@ -72,7 +75,7 @@ export const deleteTeam = createAsyncThunk(
   async (teamId: number, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${baseUrl}/api/data/players/${teamId}`
+        `${baseUrl}/api/data/teams/${teamId}`
       );
 
       return response.data;
@@ -157,7 +160,7 @@ export const TeamSlice = createSlice({
         state.forceRerenderTeamListCount += 1;
       })
       .addCase(fetchAllTeams.pending, () => {
-//        console.info("fetch teams promise pending...");
+        //        console.info("fetch teams promise pending...");
       })
       .addCase(saveTeam.fulfilled, (state, action) => {
         const teamIdAlreadyInState = (id: number) => {
@@ -188,30 +191,33 @@ export const TeamSlice = createSlice({
         console.warn("save team promise rejected!");
       })
       .addCase(saveTeam.pending, () => {
-        //console.info("save team promise pending...");
+        // console.info("save team promise pending...");
       })
-      .addCase(checkTeam.fulfilled, (state, action) => {
+      .addCase(checkTeams.fulfilled, (state, action) => {
+        console.log("PAYLOAD: ", action.payload);
+        const newIdToCheckStatusMapping: IdToCheckStatusMapping = new Map(
+          Object.entries(action.payload)
+        );
         state.teams = state.teams.map((team) => {
-          return team.id !== action.payload.id
+          return !newIdToCheckStatusMapping.has(String(team.id))
             ? team
             : {
-                id: action.payload.id,
-                playerOneId: action.payload.playerOneId,
-                playerTwoId: action.payload.playerTwoId,
-                isChecked: action.payload.is_checked,
-                strength: action.payload.strength,
-                comment: action.payload.comment,
+                id: team.id,
+                playerOneId: team.playerOneId,
+                playerTwoId: team.playerTwoId,
+                isChecked: newIdToCheckStatusMapping.get(String(team.id)),
+                strength: team.strength,
+                comment: team.comment,
               };
         });
-
-        console.info("check team promise fulfilled", state.teams[1]);
+        console.info("check teams promise fulfilled", state.teams[1]);
         state.forceRerenderTeamListCount += 1;
       })
-      .addCase(checkTeam.rejected, () => {
-        console.warn("check team promise rejected!");
+      .addCase(checkTeams.rejected, () => {
+        console.warn("check teams promise rejected!");
       })
-      .addCase(checkTeam.pending, () => {
-        // console.info("check player promise pending...");
+      .addCase(checkTeams.pending, () => {
+        // console.info("check teams promise pending...");
       })
       .addCase(deleteTeam.fulfilled, (state, action) => {
         const teamIdNotInState = (id: number) => {
@@ -229,7 +235,7 @@ export const TeamSlice = createSlice({
         console.warn("delete team promise rejected!");
       })
       .addCase(deleteTeam.pending, () => {
-        // console.info("delete player promise pending...");
+        // console.info("delete team promise pending...");
       })
       .addMatcher(isRejectedAction, () => {
         console.info("promise rejected");
