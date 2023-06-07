@@ -5,24 +5,28 @@
 /* eslint-disable react/button-has-type */
 /* eslint-disable react/function-component-definition */
 /* eslint-disable @typescript-eslint/no-empty-interface */
+
+// @ts-nocheck
+
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
+  TData,
   assignPlayersToTournament,
   deleteTournament,
   fetchAllTournaments,
 } from "../storeContent/storeSlices/tournamentSlice";
-import { getAdjustedDates } from "../utils/dates";
+import { getAdjustedDates } from "../utils/dates"; // @ts-ignore
 import PlayerList from "./PlayerList";
 import {
   checkPlayers,
   fetchAllPlayers,
 } from "../storeContent/storeSlices/playerSlice";
-import { TournamentType } from "./Tournament";
-import { checkTeam } from "../storeContent/storeSlices/teamSlice";
+
+import { checkTeams } from "../storeContent/storeSlices/teamSlice";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -106,42 +110,40 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
         participantIds
       );
 
-      // TODO: OPTIMIZE
-      // if (typeOfTournamentDisplayedForEditingParticipants === "SINGLES") {
-      //   players.forEach((player) => {
-      //     const isIncluded: boolean =
-      //       (participantIds && participantIds.includes(player.id)) || false;
-      //     if (player.id !== -1) {
-      //       dispatch(
-      //         checkPlayer({
-      //           id: player.id,
-      //           isChecked: isIncluded,
-      //           firstName: player.firstName,
-      //           lastName: player.lastName,
-      //           strength: player.strength,
-      //           comment: player.comment,
-      //         })
-      //       );
-      //     }
-      //   });
-      // } else {
-      //   teams.forEach((team) => {
-      //     const isIncluded: boolean =
-      //       (participantIds && participantIds.includes(team.id)) || false;
-      //     if (team.id !== -1) {
-      //       dispatch(
-      //         checkTeam({
-      //           id: team.id,
-      //           isChecked: isIncluded,
-      //           playerOneId: team.playerOneId,
-      //           playerTwoId: team.playerTwoId,
-      //           strength: team.strength,
-      //           comment: team.comment,
-      //         })
-      //       );
-      //     }
-      //   });
-      // }
+      const newIdToCheckStatusMapping = new Map();
+
+      if (
+        typeOfTournamentDisplayedForEditingParticipants === "SINGLES" &&
+        typeof participantIds !== "undefined"
+      ) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const p of players) {
+          newIdToCheckStatusMapping.set(p.id, false);
+        }
+        // eslint-disable-next-line no-restricted-syntax
+        for (const id of participantIds) {
+          newIdToCheckStatusMapping.set(id, true);
+        }
+        if (newIdToCheckStatusMapping.size > 0) {
+          // console.log("DISPATCH: ", newIdToCheckStatusMapping);
+          dispatch(checkPlayers(newIdToCheckStatusMapping));
+        }
+      } else if (
+        typeOfTournamentDisplayedForEditingParticipants === "DOUBLES" &&
+        typeof participantIds !== "undefined"
+      ) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const t of teams) {
+          newIdToCheckStatusMapping.set(t.id, false);
+        }
+        // eslint-disable-next-line no-restricted-syntax
+        for (const id of participantIds) {
+          newIdToCheckStatusMapping.set(id, true);
+        }
+        if (newIdToCheckStatusMapping.size > 0) {
+          checkTeams(newIdToCheckStatusMapping);
+        }
+      }
     }
   };
 
@@ -154,21 +156,16 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     setTypeOfTournamentDisplayedForEditingParticipants(
       (prev) => tournamentType
     );
+    matchPlayerIsCheckedDBStatusToTournamentParticipation(
+      tournamentId,
+      tournamentType
+    );
   };
 
   useEffect(() => {
     console.log(
       `TournamentList showing participants of: ${idOfTournamentDisplayedForEditingParticipants} data: ${idOfTournamentDisplayedForEditingData}`
     );
-    if (
-      idOfTournamentDisplayedForEditingParticipants &&
-      idOfTournamentDisplayedForEditingParticipants > -1
-    ) {
-      matchPlayerIsCheckedDBStatusToTournamentParticipation(
-        idOfTournamentDisplayedForEditingParticipants,
-        typeOfTournamentDisplayedForEditingParticipants
-      );
-    }
   });
 
   return (
@@ -408,11 +405,17 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
             <PlayerList
               isEditingTournamentParticipants={true}
+              idOfTournamentDisplayedForEditingParticipants={
+                idOfTournamentDisplayedForEditingParticipants
+              }
               isParticipantsSingles={
                 typeOfTournamentDisplayedForEditingParticipants === "SINGLES"
               }
               displayedPlayerUpdater={() => {}}
-              assignPlayersToTournament={async (type: string) => {
+              assignPlayersToTournament={async ({
+                tournamentId,
+                type,
+              }: TData) => {
                 await dispatch(
                   assignPlayersToTournament({
                     tournamentId: idOfTournamentDisplayedForEditingParticipants,

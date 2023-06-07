@@ -241,8 +241,9 @@ function AddOrEditPlayer() {
       </form>
       <PlayerList
         isEditingTournamentParticipants={false}
+        isParticipantsSingles={false}
         displayedPlayerUpdater={updateDisplayedPlayer}
-        assignPlayersToTournament={() => {}} // meet ts requirement
+        assignPlayersToTournament={() => {}}
       />
       <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/players">x</Link>

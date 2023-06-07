@@ -18,7 +18,8 @@ export function Players(props: IPlayersProps) {
         displayedPlayerUpdater={() => {}}
         assignPlayersToTournament={() => {}}
         isEditingTournamentParticipants={false}
-        isParticipantsSingles = {true}
+        // eslint-disable-next-line react/jsx-boolean-value
+        isParticipantsSingles={true}
       />
     </div>
   );

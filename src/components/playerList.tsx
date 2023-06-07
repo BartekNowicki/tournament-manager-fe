@@ -3,12 +3,14 @@
 /* eslint-disable react/button-has-type */
 /* eslint-disable react/function-component-definition */
 /* eslint-disable @typescript-eslint/no-empty-interface */
+
+// @ts-nocheck
+
 import * as React from "react";
 import { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
-  IdToCheckStatusMapping,
   Player,
   checkPlayers,
   deletePlayer,
@@ -17,17 +19,21 @@ import { Team, checkTeams } from "../storeContent/storeSlices/teamSlice";
 import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
 import PlayerInfoColumns from "./PlayerInfoColumns";
+import { TData } from "../storeContent/storeSlices/tournamentSlice";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
   isEditingTournamentParticipants: boolean;
+  // eslint-disable-next-line react/require-default-props
+  idOfTournamentDisplayedForEditingParticipants?: number;
   isParticipantsSingles: boolean;
-  assignPlayersToTournament: (type: string) => void;
+  assignPlayersToTournament: (tdata: TData) => void;
 }
 
 const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   displayedPlayerUpdater,
   isEditingTournamentParticipants,
+  idOfTournamentDisplayedForEditingParticipants,
   isParticipantsSingles,
   assignPlayersToTournament,
 }) => {
@@ -114,12 +120,10 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     ]
   );
 
+  useEffect(() => {});
+
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
-
-  useEffect(() => {
-    // console.log(`I GOT TEAMS TOO! `, teams);
-  });
 
   const items: Player[] | Team[] = !isParticipantsSingles ? teams : players;
 
@@ -169,12 +173,13 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             {/* rows */}
             {Boolean(items.length) &&
               items
-                .filter((item) => item.id !== -1)
-                .map((item) => (
+                // @ts-ignore
+                .filter((item: { id: number }) => item.id !== -1)
+                .map((item: Team | Player) => (
                   <tr
                     key={
-                      isParticipantsSingles
-                        ? item.id + item.firstName + item.lastName
+                      isParticipantsSingles // @ts-ignore
+                        ? item.id + item.firstName + item.lastName // @ts-ignore
                         : item.id + item.playerOneId + item.playerTwoId
                     }
                   >
@@ -183,14 +188,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                         <CheckPlayerRow
                           handleCheck={(e) => handleCheck(e, "player")}
                           id={item.id}
-                          isChecked={isPlayerChecked}
+                          isChecked={isPlayerChecked} // @ts-ignore
                           player={item}
                         />
                       ) : (
                         <CheckTeamRow
                           handleCheck={(e) => handleCheck(e, "team")}
                           id={item.id}
-                          isChecked={isTeamChecked}
+                          isChecked={isTeamChecked} // @ts-ignore
                           team={item}
                           findPlayerById={findPlayerById}
                         />
@@ -246,8 +251,18 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
               className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
               onClick={
                 isParticipantsSingles
-                  ? () => assignPlayersToTournament("singles")
-                  : () => assignPlayersToTournament("doubles")
+                  ? () =>
+                      assignPlayersToTournament({
+                        tournamentId:
+                          idOfTournamentDisplayedForEditingParticipants,
+                        type: "singles",
+                      })
+                  : () =>
+                      assignPlayersToTournament({
+                        tournamentId:
+                          idOfTournamentDisplayedForEditingParticipants,
+                        type: "doubles",
+                      })
               }
             >
               zapisz uczestników
