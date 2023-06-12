@@ -173,13 +173,12 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             {/* rows */}
             {Boolean(items.length) &&
               items
-                // @ts-ignore
                 .filter((item: { id: number }) => item.id !== -1)
                 .map((item: Team | Player) => (
                   <tr
                     key={
-                      isParticipantsSingles // @ts-ignore
-                        ? item.id + item.firstName + item.lastName // @ts-ignore
+                      isParticipantsSingles
+                        ? item.id + item.firstName + item.lastName
                         : item.id + item.playerOneId + item.playerTwoId
                     }
                   >
@@ -188,14 +187,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                         <CheckPlayerRow
                           handleCheck={(e) => handleCheck(e, "player")}
                           id={item.id}
-                          isChecked={isPlayerChecked} // @ts-ignore
+                          isChecked={isPlayerChecked}
                           player={item}
                         />
                       ) : (
                         <CheckTeamRow
                           handleCheck={(e) => handleCheck(e, "team")}
                           id={item.id}
-                          isChecked={isTeamChecked} // @ts-ignore
+                          isChecked={isTeamChecked}
                           team={item}
                           findPlayerById={findPlayerById}
                         />

@@ -19,7 +19,7 @@ import {
   deleteTournament,
   fetchAllTournaments,
 } from "../storeContent/storeSlices/tournamentSlice";
-import { getAdjustedDates } from "../utils/dates"; // @ts-ignore
+import { getAdjustedDates } from "../utils/dates";
 import PlayerList from "./PlayerList";
 import {
   checkPlayers,
