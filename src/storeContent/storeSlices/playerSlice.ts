@@ -63,7 +63,7 @@ export const checkPlayers = createAsyncThunk(
   "players/check",
   async (mapping: IdToCheckStatusMapping, { rejectWithValue }) => {
     try {
-      console.log("SENDING : ", Object.fromEntries(mapping));
+      //console.log("SENDING : ", Object.fromEntries(mapping));
       const response = await axios.patch(
         `${baseUrl}/api/data/players`,
         Object.fromEntries(mapping)
@@ -201,7 +201,7 @@ export const PlayerSlice = createSlice({
         // console.info("save player promise pending...");
       })
       .addCase(checkPlayers.fulfilled, (state, action) => {
-        console.log("PAYLOAD: ", action.payload);
+        //console.log("PAYLOAD: ", action.payload);
         const newIdToCheckStatusMapping: IdToCheckStatusMapping = new Map(
           Object.entries(action.payload)
         );

@@ -15,7 +15,7 @@ export enum UserActions {
   NONE = "none",
 }
 
-function AddOrEditPlayer() {
+function AddOrEditTeam() {
   const navigate = useNavigate();
   const params = useParams() ?? {};
   const dispatch = useAppDispatch();
@@ -241,6 +241,7 @@ function AddOrEditPlayer() {
       </form>
       <PlayerList
         isEditingTournamentParticipants={false}
+        // eslint-disable-next-line react/jsx-boolean-value
         isParticipantsSingles={true}
         displayedPlayerUpdater={updateDisplayedPlayer}
         assignPlayersToTournament={() => {}}
@@ -252,4 +253,4 @@ function AddOrEditPlayer() {
   );
 }
 
-export default AddOrEditPlayer;
+export default AddOrEditTeam;

@@ -18,6 +18,9 @@ import { useAppDispatch } from "./storeContent/store";
 import { fetchAllPlayers } from "./storeContent/storeSlices/playerSlice";
 import { fetchAllTournaments } from "./storeContent/storeSlices/tournamentSlice";
 import { fetchAllTeams } from "./storeContent/storeSlices/teamSlice";
+import AddOrEditTeam from "./components/AddOrEditTeam";
+import { TeamLayout } from "./pages/TeamLayout";
+import { Teams } from "./pages/Teams";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -40,6 +43,10 @@ function App() {
         <Route path="/players" element={<PlayerLayout />}>
           <Route index element={<Players />} />
           <Route path="addoredit/:action" element={<AddOrEditPlayer />} />
+        </Route>
+        <Route path="/teams" element={<TeamLayout />}>
+          <Route index element={<Teams />} />
+          <Route path="addoredit/:action" element={<AddOrEditTeam />} />
         </Route>
         <Route path="/location" element={<Location />} />
         <Route path="/contact" element={<Contact />} />

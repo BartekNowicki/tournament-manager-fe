@@ -11,6 +11,7 @@ export function Navbar(props: INavbarProps) {
     "Home",
     "Turnieje",
     "Uczestnicy",
+    "Pary",
     "Lokalizacja",
     "Kontakt",
   ];
@@ -18,6 +19,7 @@ export function Navbar(props: INavbarProps) {
   routeToDestinationMapping.set("Home", "/");
   routeToDestinationMapping.set("Turnieje", "/tournaments");
   routeToDestinationMapping.set("Uczestnicy", "/players");
+  routeToDestinationMapping.set("Pary", "/teams");
   routeToDestinationMapping.set("Lokalizacja", "/location");
   routeToDestinationMapping.set("Kontakt", "/contact");
 

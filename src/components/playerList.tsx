@@ -18,6 +18,7 @@ import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
 import PlayerInfoColumns from "./PlayerInfoColumns";
 import { TData, Tournament } from "../storeContent/storeSlices/tournamentSlice";
+import TeamInfoColumns from "./TeamInfoColumns";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -118,7 +119,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     ]
   );
 
-  useEffect(() => {});
+  // useEffect(() => {});
+
+  useEffect(() => {
+    console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
+  });
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
@@ -193,6 +198,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                         : item.id + item.playerOneId + item.playerTwoId
                     }
                   >
+                    {/* player to tournament assignment mode, singles : doubles */}
                     {isEditingTournamentParticipants &&
                       (isParticipantsSingles ? (
                         <CheckPlayerRow
@@ -211,34 +217,71 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                         />
                       ))}
 
-                    {!isEditingTournamentParticipants && (
-                      <>
-                        <PlayerInfoColumns player={item} />
-                        <th>
-                          <button
-                            className="btn btn-ghost btn-xs bg-slate-600"
-                            onClick={() => {
-                              if (displayedPlayerUpdater)
-                                displayedPlayerUpdater();
-                            }}
-                          >
-                            <Link to={`/players/addoredit/edit${item.id}`}>
-                              edytuj
-                            </Link>
-                          </button>
-                        </th>
-                        <th>
-                          <button
-                            className="btn btn-ghost btn-xs bg-slate-600"
-                            onClick={(e) => {
-                              dispatch(deletePlayer(item.id));
-                            }}
-                          >
-                            usuń
-                          </button>
-                        </th>
-                      </>
-                    )}
+                    {/* read only mode, singles */}
+                    {!isEditingTournamentParticipants &&
+                      isParticipantsSingles && (
+                        <>
+                          <PlayerInfoColumns player={item} />
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={() => {
+                                if (displayedPlayerUpdater)
+                                  displayedPlayerUpdater();
+                              }}
+                            >
+                              <Link to={`/players/addoredit/edit${item.id}`}>
+                                edytuj
+                              </Link>
+                            </button>
+                          </th>
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={(e) => {
+                                dispatch(deletePlayer(item.id));
+                              }}
+                            >
+                              usuń
+                            </button>
+                          </th>
+                        </>
+                      )}
+
+                    {/* read only mode, doubles */}
+                    {!isEditingTournamentParticipants &&
+                      !isParticipantsSingles && (
+                        <>
+                          <TeamInfoColumns
+                            playerOne={findPlayerById(item.playerOneId)}
+                            playerTwo={findPlayerById(item.playerTwoId)}
+                            team={item}
+                          />
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={() => {
+                                if (displayedPlayerUpdater)
+                                  displayedPlayerUpdater();
+                              }}
+                            >
+                              <Link to={`/players/addoredit/edit${item.id}`}>
+                                edytuj
+                              </Link>
+                            </button>
+                          </th>
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={(e) => {
+                                dispatch(deletePlayer(item.id));
+                              }}
+                            >
+                              usuń
+                            </button>
+                          </th>
+                        </>
+                      )}
                   </tr>
                 ))}
           </tbody>
