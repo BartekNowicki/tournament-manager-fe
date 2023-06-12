@@ -4,8 +4,6 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
-// @ts-nocheck
-
 import * as React from "react";
 import { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -19,7 +17,7 @@ import { Team, checkTeams } from "../storeContent/storeSlices/teamSlice";
 import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
 import PlayerInfoColumns from "./PlayerInfoColumns";
-import { TData } from "../storeContent/storeSlices/tournamentSlice";
+import { TData, Tournament } from "../storeContent/storeSlices/tournamentSlice";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -125,7 +123,20 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
 
-  const items: Player[] | Team[] = !isParticipantsSingles ? teams : players;
+  interface PlayerOrTeam {
+    id: number;
+    isChecked: boolean;
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    playerOneId?: number | undefined;
+    playerTwoId?: number | undefined;
+    strength: number;
+    comment: string;
+    playedTournaments?: Tournament[];
+  }
+
+  // const items: Player[] | Team[] = !isParticipantsSingles ? teams : players; OR:
+  const items: Array<PlayerOrTeam> = !isParticipantsSingles ? teams : players;
 
   return (
     <div className="m-8 border border-sky-500 addPlayersPanel">
@@ -174,7 +185,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             {Boolean(items.length) &&
               items
                 .filter((item: { id: number }) => item.id !== -1)
-                .map((item: Team | Player) => (
+                .map((item) => (
                   <tr
                     key={
                       isParticipantsSingles

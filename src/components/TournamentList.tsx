@@ -6,8 +6,6 @@
 /* eslint-disable react/function-component-definition */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
-// @ts-nocheck
-
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";

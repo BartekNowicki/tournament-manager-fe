@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n TAILWIND-WATCH, VITE -c yellow,green \"npx tailwindcss -i ./src/index.css -o ./dist/output.css --watch\" \"vite\"",
+    "dev": "concurrently -k -n TAILWIND-WATCH, VITE -c yellow,green \"npx tailwindcss -i ./src/index.css -o ./dist/output.css --watch\" \"vite\"",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest"

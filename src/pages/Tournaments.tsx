@@ -1,8 +1,6 @@
 /* eslint-disable react/button-has-type */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
-// @ts-nocheck
-
 import { Link } from "react-router-dom";
 import TournamentList from "../components/TournamentList";
 
