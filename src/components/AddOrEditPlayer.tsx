@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link, Params } from "react-router-dom";
 import { Player, savePlayer } from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
+// eslint-disable-next-line import/no-cycle
 import PlayerList from "./PlayerList";
 
 export enum UserActions {
@@ -54,23 +55,7 @@ function AddOrEditPlayer() {
   // id = -2 => reserved for adding a new player
   // id = -1 => reserved for hidden allPlayers isChecked (shown only on assignment)
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // export const getUserAction = (): string => {
-  //   return params.action ?? UserActions.NONE;
-  // };
   const players = useAppSelector((state) => state.player.players);
-  // const findPlayerById = (id: number) => {
-  //   const placeholderPlayer = {
-  //     id: -2,
-  //     isChecked: false,
-  //     firstName: "",
-  //     lastName: "",
-  //     strength: 0,
-  //     comment: "",
-  //   };
-  //   if (id === -2) return placeholderPlayer;
-  //   return players.filter((player) => player.id === id)[0];
-  // };
 
   const initialDisplayedPlayer = findPlayerById(
     players,
@@ -204,7 +189,7 @@ function AddOrEditPlayer() {
                         value={strength}
                         onChange={(e) => setStrength((prev) => +e.target.value)}
                       >
-                        <option value={0}>0</option>
+                        {/* <option value={0}>0</option>
                         <option value={1}>1</option>
                         <option value={2}>2</option>
                         <option value={3}>3</option>
@@ -214,7 +199,12 @@ function AddOrEditPlayer() {
                         <option value={7}>7</option>
                         <option value={8}>8</option>
                         <option value={9}>9</option>
-                        <option value={10}>10</option>
+                        <option value={10}>10</option> */}
+                        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </td>

@@ -107,13 +107,13 @@ function AddOrEditTeam() {
               <thead>
                 <tr>
                   {displayedTeam.id === -2 && <th />}
-                  {/* {displayedTeam.id === -2 && <th />} */}
-                  <th className="text text-center">gracz 1</th>
-                  <th className="text text-center">gracz 2</th>
+                  {displayedTeam.id === -2 && <th className="text text-center">gracz 1</th>}                  
+                  {displayedTeam.id === -2 && <th className="text text-center">gracz 2</th>}                  
+                  {displayedTeam.id !== -2 && <th className="text text-center">gracz 1 + gracz 2</th>}               
+                  
                   <th className="text text-center">Siła drużyny</th>
-
                   <th className="text text-center">Uwagi</th>
-                  <th />
+                   {<th />}
                   <th />
                 </tr>
               </thead>
@@ -148,6 +148,7 @@ function AddOrEditTeam() {
                           </div>
                         </div>
                       )}
+
                     </div>
                   </td>
 

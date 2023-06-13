@@ -32,6 +32,8 @@ interface ITournamentListProps {
   displayedTournamentUpdater: () => void;
 }
 
+export const highlighted = () => "border-solid border-2 border-sky-500";
+
 const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   idOfTournamentDisplayedForEditingData,
   typeOfTournamentDisplayedForEditingData,
@@ -72,8 +74,6 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   const isToBeHighlightedForEditingData = (id: number, type: string): boolean =>
     id === idOfTournamentDisplayedForEditingData &&
     type === typeOfTournamentDisplayedForEditingData;
-
-  const highlighted = () => "border-solid border-2 border-sky-500";
 
   const matchPlayerIsCheckedDBStatusToTournamentParticipation = (
     tournamentId: number,

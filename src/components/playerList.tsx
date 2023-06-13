@@ -6,7 +6,7 @@
 
 import * as React from "react";
 import { useCallback, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
   Player,
@@ -24,9 +24,10 @@ import PlayerInfoColumns from "./PlayerInfoColumns";
 import { TData, Tournament } from "../storeContent/storeSlices/tournamentSlice";
 import TeamInfoColumns from "./TeamInfoColumns";
 // eslint-disable-next-line import/no-cycle
-import { findPlayerById } from "./AddOrEditPlayer";
+import { findPlayerById, getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
 // eslint-disable-next-line import/no-cycle
 import { findTeamById } from "./AddOrEditTeam";
+import { highlighted } from "./TournamentList";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -50,18 +51,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     (state) => state.player.forceRerenderPlayerListCount
   );
   const dispatch = useAppDispatch();
-  // const findPlayerById = useCallback(
-  //   (id: number) => {
-  //     return players.filter((player) => player.id === id)[0];
-  //   },
-  //   [players]
-  // );
-  // const findTeamById = useCallback(
-  //   (id: number) => {
-  //     return teams.filter((team) => team.id === id)[0];
-  //   },
-  //   [teams]
-  // );
+
+  const params = useParams() ?? {};
 
   const isPlayerChecked = useCallback(
     (id: number): boolean => {
@@ -78,6 +69,12 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     },
     [teams]
   );
+
+  const isToBeHighlightedForEditingData = (id: number): boolean => {
+    return (
+      !isEditingTournamentParticipants && id === getIdOfItemToSaveOrEdit(params)
+    );
+  };
 
   const handleCheck = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
@@ -122,7 +119,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   // useEffect(() => {});
 
   useEffect(() => {
-    console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
+    // console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
   });
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
@@ -196,6 +193,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                       isParticipantsSingles
                         ? item.id + item.firstName + item.lastName
                         : item.id + item.playerOneId + item.playerTwoId
+                    }
+                    className={
+                      isToBeHighlightedForEditingData(item.id)
+                        ? highlighted()
+                        : ""
                     }
                   >
                     {/* player to tournament assignment mode, singles : doubles */}
