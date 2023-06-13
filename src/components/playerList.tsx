@@ -13,12 +13,20 @@ import {
   checkPlayers,
   deletePlayer,
 } from "../storeContent/storeSlices/playerSlice";
-import { Team, checkTeams, deleteTeam } from "../storeContent/storeSlices/teamSlice";
+import {
+  Team,
+  checkTeams,
+  deleteTeam,
+} from "../storeContent/storeSlices/teamSlice";
 import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
 import PlayerInfoColumns from "./PlayerInfoColumns";
 import { TData, Tournament } from "../storeContent/storeSlices/tournamentSlice";
 import TeamInfoColumns from "./TeamInfoColumns";
+// eslint-disable-next-line import/no-cycle
+import { findPlayerById } from "./AddOrEditPlayer";
+// eslint-disable-next-line import/no-cycle
+import { findTeamById } from "./AddOrEditTeam";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -42,33 +50,33 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     (state) => state.player.forceRerenderPlayerListCount
   );
   const dispatch = useAppDispatch();
-  const findPlayerById = useCallback(
-    (id: number) => {
-      return players.filter((player) => player.id === id)[0];
-    },
-    [players]
-  );
-  const findTeamById = useCallback(
-    (id: number) => {
-      return teams.filter((team) => team.id === id)[0];
-    },
-    [teams]
-  );
+  // const findPlayerById = useCallback(
+  //   (id: number) => {
+  //     return players.filter((player) => player.id === id)[0];
+  //   },
+  //   [players]
+  // );
+  // const findTeamById = useCallback(
+  //   (id: number) => {
+  //     return teams.filter((team) => team.id === id)[0];
+  //   },
+  //   [teams]
+  // );
 
   const isPlayerChecked = useCallback(
     (id: number): boolean => {
-      const found = findPlayerById(id);
+      const found = findPlayerById(players, id);
       return found && found.isChecked === true;
     },
-    [findPlayerById]
+    [players]
   );
 
   const isTeamChecked = useCallback(
     (id: number): boolean => {
-      const found = findTeamById(id);
+      const found = findTeamById(teams, id);
       return found && found.isChecked === true;
     },
-    [findTeamById]
+    [teams]
   );
 
   const handleCheck = useCallback(
@@ -77,11 +85,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       const newIdToCheckStatusMapping = new Map();
       if (key !== -1) {
         if (type === "player") {
-          const player = findPlayerById(key);
+          const player = findPlayerById(players, key);
           newIdToCheckStatusMapping.set(player.id, !isPlayerChecked(player.id));
           dispatch(checkPlayers(newIdToCheckStatusMapping));
         } else if (type === "team") {
-          const team = findTeamById(key);
+          const team = findTeamById(teams, key);
           newIdToCheckStatusMapping.set(team.id, !isTeamChecked(team.id));
           dispatch(checkTeams(newIdToCheckStatusMapping));
         }
@@ -108,15 +116,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
         }
       }
     },
-    [
-      dispatch,
-      findPlayerById,
-      findTeamById,
-      isPlayerChecked,
-      isTeamChecked,
-      players,
-      teams,
-    ]
+    [dispatch, isPlayerChecked, isTeamChecked, players, teams]
   );
 
   // useEffect(() => {});
@@ -253,8 +253,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                       !isParticipantsSingles && (
                         <>
                           <TeamInfoColumns
-                            playerOne={findPlayerById(item.playerOneId)}
-                            playerTwo={findPlayerById(item.playerTwoId)}
+                            playerOne={findPlayerById(
+                              players,
+                              item.playerOneId
+                            )}
+                            playerTwo={findPlayerById(
+                              players,
+                              item.playerTwoId
+                            )}
                             team={item}
                           />
                           <th>

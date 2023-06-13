@@ -6,14 +6,29 @@ import { useEffect, useState } from "react";
 
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
+// eslint-disable-next-line import/no-cycle
 import PlayerList from "./PlayerList";
+// eslint-disable-next-line import/no-cycle
 import {
   UserActions,
   findPlayerById,
   getIdOfItemToSaveOrEdit,
   getUserAction,
 } from "./AddOrEditPlayer";
-import { saveTeam } from "../storeContent/storeSlices/teamSlice";
+import { Team, saveTeam } from "../storeContent/storeSlices/teamSlice";
+
+export const findTeamById = (teams: Team[], id: number) => {
+  const placeholderTeam = {
+    id: -2,
+    isChecked: false,
+    playerOneId: 1,
+    playerTwoId: 2,
+    strength: 0,
+    comment: "",
+  };
+  if (id === -2) return placeholderTeam;
+  return teams.filter((team) => team.id === id)[0];
+};
 
 function AddOrEditTeam() {
   const navigate = useNavigate();
@@ -22,37 +37,13 @@ function AddOrEditTeam() {
   // id = -2 => reserved for adding a new team
   // id = -1 => reserved for hidden allTeams isChecked (shown only on assignment)
 
-  // const getIdOfTeamToSaveOrEdit = () => {
-  //   let idOfTeamToSaveOrEdit = -2;
-  //   if (params.action) {
-  //     idOfTeamToSaveOrEdit =
-  //       params.action !== "add"
-  //         ? parseInt(params.action.split("").slice(4).join(""), 10)
-  //         : idOfTeamToSaveOrEdit;
-  //   }
-  //   return idOfTeamToSaveOrEdit;
-  // };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // const getUserAction = (): string => {
-  //   return params.action ?? UserActions.NONE;
-  // };
   const teams = useAppSelector((state) => state.team.teams);
   const players = useAppSelector((state) => state.player.players);
-  const findTeamById = (id: number) => {
-    const placeholderTeam = {
-      id: -2,
-      isChecked: false,
-      playerOneId: -2,
-      playerTwoId: -2,
-      strength: 0,
-      comment: "",
-    };
-    if (id === -2) return placeholderTeam;
-    return teams.filter((team) => team.id === id)[0];
-  };
 
-  const initialDisplayedTeam = findTeamById(getIdOfItemToSaveOrEdit(params));
+  const initialDisplayedTeam = findTeamById(
+    teams,
+    getIdOfItemToSaveOrEdit(params)
+  );
   const [displayedTeam, setDisplayedTeam] = useState(initialDisplayedTeam);
   const [currentAction, setCurrentAction] = useState<string>();
   const [playerOneId, setPlayerOneId] = useState<number>(
@@ -81,6 +72,7 @@ function AddOrEditTeam() {
       strength !== displayedTeam.strength
     ) {
       const currentTeamToDisplay = findTeamById(
+        teams,
         getIdOfItemToSaveOrEdit(params)
       );
       setDisplayedTeam((prev) => currentTeamToDisplay);
@@ -114,8 +106,12 @@ function AddOrEditTeam() {
               {/* head */}
               <thead>
                 <tr>
-                  <th className="text text-center">Imię i Nazwisko</th>
-                  <th className="text text-center">Siła</th>
+                  {displayedTeam.id === -2 && <th />}
+                  {/* {displayedTeam.id === -2 && <th />} */}
+                  <th className="text text-center">gracz 1</th>
+                  <th className="text text-center">gracz 2</th>
+                  <th className="text text-center">Siła drużyny</th>
+
                   <th className="text text-center">Uwagi</th>
                   <th />
                   <th />
@@ -125,7 +121,7 @@ function AddOrEditTeam() {
                 {/* rows */}
 
                 <tr>
-                  {/* <td>
+                  <td>
                     <div className="flex items-center space-x-3">
                       <div className="avatar">
                         <div className="mask mask-squircle w-12 h-12">
@@ -135,73 +131,86 @@ function AddOrEditTeam() {
                           />
                         </div>
                       </div>
-                      <div> */}
-                  {/* <div className="font-bold">
-                          <label htmlFor="" />
-                          <input
-                            style={{ paddingLeft: "10px" }}
-                            placeholder="imię"
-                            value={firstName}
-                            onChange={(e) =>
-                              setFirstName((prev) => e.target.value)
-                            }
-                          />
-                        </div> */}
 
-                  {/* </div>
+                      {/* editing team data */}
+                      {displayedTeam.id !== -2 && (
+                        <div>
+                          <div className="font-bold">
+                            <p>
+                              {findPlayerById(players, playerOneId).firstName}{" "}
+                              {findPlayerById(players, playerOneId).lastName}{" "}
+                              {"       +       "}
+                              {
+                                findPlayerById(players, playerTwoId).firstName
+                              }{" "}
+                              {findPlayerById(players, playerTwoId).lastName}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </td>
-                  <td>
-                    <div className="flex items-center space-x-3">
-                      <div className="avatar">
-                        <div className="mask mask-squircle w-12 h-12">
-                          <img
-                            src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
-                            alt="Avatar"
-                          />
-                        </div>
-                      </div>
-                      <div> */}
-                  {/* <div className="font-bold">
-                          <label htmlFor="" />
-                          <input
-                            style={{ paddingLeft: "10px" }}
-                            placeholder="nazwisko"
-                            value={lastName}
-                            onChange={(e) =>
-                              setLastName((prev) => e.target.value)
-                            }
-                          />
-                        </div> */}
-                  {/* </div>
-                    </div>
-                  </td> */}
 
-                  <td>
-                    <div className="flex items-center space-x-3">
-                      <div className="avatar">
-                        <div className="mask mask-squircle w-12 h-12">
-                          <img
-                            src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
-                            alt="Avatar"
-                          />
-                        </div>
-                      </div>
-                      <div>
+                  {/* selecting players for a new team */}
+                  {displayedTeam.id === -2 && (
+                    <>
+                      <td className="text text-center">
                         <div className="font-bold">
-                          <p>
-                            {findPlayerById(players, playerOneId).firstName}{" "}
-                            {findPlayerById(players, playerOneId).lastName}{" "}
-                            {"       +       "}
-                            {
-                              findPlayerById(players, playerTwoId).firstName
-                            }{" "}
-                            {findPlayerById(players, playerTwoId).lastName}
-                          </p>
+                          <label htmlFor="" />
+                          <select
+                            value={playerOneId}
+                            onChange={(e) => {
+                              if (+e.target.value !== playerTwoId) {
+                                setPlayerOneId((prev) => +e.target.value);
+                                console.log("ONE: ", +e.target.value);
+                              } else
+                                console.warn(
+                                  "please select a player different from player 2!"
+                                );
+                            }}
+                          >
+                            {players
+                              .filter(
+                                (p) => p.id !== -1 && p.id !== playerTwoId
+                              )
+                              .map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {`${p.firstName}${"   "}${p.lastName}`}
+                                </option>
+                              ))}
+                          </select>
                         </div>
-                      </div>
-                    </div>
-                  </td>
+                      </td>
+
+                      <td className="text text-center">
+                        <div className="font-bold">
+                          <label htmlFor="" />
+                          <select
+                            value={playerTwoId}
+                            onChange={(e) => {
+                              if (+e.target.value !== playerOneId) {
+                                setPlayerTwoId((prev) => +e.target.value);
+                                console.log("TWO: ", +e.target.value);
+                              } else
+                                console.warn(
+                                  "please select a player different from player 1!"
+                                );
+                            }}
+                          >
+                            {players
+                              .filter(
+                                (p) => p.id !== -1 && p.id !== playerOneId
+                              )
+                              .map((p) => (
+                                <option key={99999 + p.id} value={p.id}>
+                                  {`${p.firstName}${"   "}${p.lastName}`}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                      </td>
+                    </>
+                  )}
 
                   <td className="text text-center">
                     <div className="font-bold">
@@ -210,17 +219,11 @@ function AddOrEditTeam() {
                         value={strength}
                         onChange={(e) => setStrength((prev) => +e.target.value)}
                       >
-                        <option value={0}>0</option>
-                        <option value={1}>1</option>
-                        <option value={2}>2</option>
-                        <option value={3}>3</option>
-                        <option value={4}>4</option>
-                        <option value={5}>5</option>
-                        <option value={6}>6</option>
-                        <option value={7}>7</option>
-                        <option value={8}>8</option>
-                        <option value={9}>9</option>
-                        <option value={10}>10</option>
+                        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </td>
@@ -272,6 +275,8 @@ function AddOrEditTeam() {
                   <th />
                   <th />
                   <th />
+                  {displayedTeam.id === -2 && <th />}
+                  {displayedTeam.id === -2 && <th />}
                 </tr>
               </tfoot>
             </table>
@@ -286,7 +291,7 @@ function AddOrEditTeam() {
         assignPlayersToTournament={() => {}}
       />
       <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
-        <Link to="/players">x</Link>
+        <Link to="/teams">x</Link>
       </button>
     </div>
   );
