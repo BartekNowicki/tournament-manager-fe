@@ -4,8 +4,8 @@
 /* eslint-disable no-return-assign */
 import { useEffect, useState } from "react";
 
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { savePlayer } from "../storeContent/storeSlices/playerSlice";
+import { useParams, useNavigate, Link, Params } from "react-router-dom";
+import { Player, savePlayer } from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import PlayerList from "./PlayerList";
 
@@ -15,43 +15,67 @@ export enum UserActions {
   NONE = "none",
 }
 
+export const getUserAction = (params: Readonly<Params<string>>): string => {
+  if (params) return params.action;
+  return UserActions.NONE;
+};
+
+export const getIdOfItemToSaveOrEdit = (
+  params: Readonly<Params<string>>
+): number => {
+  let idOfPlayerToSaveOrEdit = -2;
+  if (params && params.action) {
+    idOfPlayerToSaveOrEdit =
+      params.action !== "add"
+        ? parseInt(params.action.split("").slice(4).join(""), 10)
+        : idOfPlayerToSaveOrEdit;
+  }
+  return idOfPlayerToSaveOrEdit;
+};
+
+export const findPlayerById = (players: Player[], id: number) => {
+  const placeholderPlayer = {
+    id: -2,
+    isChecked: false,
+    firstName: "",
+    lastName: "",
+    strength: 0,
+    comment: "",
+  };
+  if (id === -2) return placeholderPlayer;
+  return players.filter((player) => player.id === id)[0];
+};
+
 function AddOrEditPlayer() {
   const navigate = useNavigate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const params = useParams() ?? {};
   const dispatch = useAppDispatch();
   // id = -2 => reserved for adding a new player
-  // id = -1 => reserved for hidden allPlayers isChecked
-
-  const getIdOfPlayerToSaveOrEdit = () => {
-    let idOfPlayerToSaveOrEdit = -2;
-    if (params.action) {
-      idOfPlayerToSaveOrEdit =
-        params.action !== "add"
-          ? parseInt(params.action.split("").slice(4).join(""), 10)
-          : idOfPlayerToSaveOrEdit;
-    }
-    return idOfPlayerToSaveOrEdit;
-  };
+  // id = -1 => reserved for hidden allPlayers isChecked (shown only on assignment)
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const getUserAction = (): string => {
-    return params.action ?? UserActions.NONE;
-  };
+  // export const getUserAction = (): string => {
+  //   return params.action ?? UserActions.NONE;
+  // };
   const players = useAppSelector((state) => state.player.players);
-  const findById = (id: number) => {
-    const placeholderPlayer = {
-      id: -2,
-      isChecked: false,
-      firstName: "",
-      lastName: "",
-      strength: 0,
-      comment: "",
-    };
-    if (id === -2) return placeholderPlayer;
-    return players.filter((player) => player.id === id)[0];
-  };
+  // const findPlayerById = (id: number) => {
+  //   const placeholderPlayer = {
+  //     id: -2,
+  //     isChecked: false,
+  //     firstName: "",
+  //     lastName: "",
+  //     strength: 0,
+  //     comment: "",
+  //   };
+  //   if (id === -2) return placeholderPlayer;
+  //   return players.filter((player) => player.id === id)[0];
+  // };
 
-  const initialDisplayedPlayer = findById(getIdOfPlayerToSaveOrEdit());
+  const initialDisplayedPlayer = findPlayerById(
+    players,
+    getIdOfItemToSaveOrEdit(params)
+  );
   const [displayedPlayer, setDisplayedPlayer] = useState(
     initialDisplayedPlayer
   );
@@ -62,22 +86,25 @@ function AddOrEditPlayer() {
   const [comment, setComment] = useState(displayedPlayer.comment);
 
   useEffect(() => {
-    if (getUserAction() === UserActions.NONE) {
+    if (getUserAction(params) === UserActions.NONE) {
       navigate("/nosuchpath");
     }
-  }, [navigate, getUserAction]);
+  }, [navigate, params]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateDisplayedPlayer = () => {
     if (
-      getUserAction() === UserActions.ADD ||
-      getIdOfPlayerToSaveOrEdit() !== displayedPlayer.id ||
+      getUserAction(params) === UserActions.ADD ||
+      getIdOfItemToSaveOrEdit(params) !== displayedPlayer.id ||
       firstName !== displayedPlayer.firstName ||
       lastName !== displayedPlayer.lastName ||
       comment !== displayedPlayer.comment ||
       strength !== displayedPlayer.strength
     ) {
-      const currentPlayerToDisplay = findById(getIdOfPlayerToSaveOrEdit());
+      const currentPlayerToDisplay = findPlayerById(
+        players,
+        getIdOfItemToSaveOrEdit(params)
+      );
       setDisplayedPlayer((prev) => currentPlayerToDisplay);
       setFirstName((prev) => currentPlayerToDisplay.firstName);
       setLastName((prev) => currentPlayerToDisplay.lastName);
@@ -87,11 +114,11 @@ function AddOrEditPlayer() {
   };
 
   useEffect(() => {
-    if (currentAction !== getUserAction()) {
-      setCurrentAction((prev) => getUserAction());
+    if (currentAction !== getUserAction(params)) {
+      setCurrentAction((prev) => getUserAction(params));
       updateDisplayedPlayer();
     }
-  }, [currentAction, getUserAction, params.action, updateDisplayedPlayer]);
+  }, [currentAction, params, params.action, updateDisplayedPlayer]);
 
   // is this not done already in the above useffect?
   useEffect(() => {
@@ -207,10 +234,13 @@ function AddOrEditPlayer() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        console.log("idToEdit: ", getIdOfPlayerToSaveOrEdit());
+                        console.log(
+                          "idToEdit: ",
+                          getIdOfItemToSaveOrEdit(params)
+                        );
                         dispatch(
                           savePlayer({
-                            id: getIdOfPlayerToSaveOrEdit(),
+                            id: getIdOfItemToSaveOrEdit(params),
                             isChecked: false,
                             firstName,
                             lastName,
@@ -220,7 +250,9 @@ function AddOrEditPlayer() {
                         );
                       }}
                     >
-                      {getUserAction() === UserActions.ADD ? "dodaj" : "zapisz"}
+                      {getUserAction(params) === UserActions.ADD
+                        ? "dodaj"
+                        : "zapisz"}
                     </button>
                   </th>
                 </tr>
@@ -241,6 +273,7 @@ function AddOrEditPlayer() {
       </form>
       <PlayerList
         isEditingTournamentParticipants={false}
+        // eslint-disable-next-line react/jsx-boolean-value
         isParticipantsSingles={true}
         displayedPlayerUpdater={updateDisplayedPlayer}
         assignPlayersToTournament={() => {}}

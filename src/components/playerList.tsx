@@ -13,7 +13,7 @@ import {
   checkPlayers,
   deletePlayer,
 } from "../storeContent/storeSlices/playerSlice";
-import { Team, checkTeams } from "../storeContent/storeSlices/teamSlice";
+import { Team, checkTeams, deleteTeam } from "../storeContent/storeSlices/teamSlice";
 import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
 import PlayerInfoColumns from "./PlayerInfoColumns";
@@ -265,7 +265,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                                   displayedPlayerUpdater();
                               }}
                             >
-                              <Link to={`/players/addoredit/edit${item.id}`}>
+                              <Link to={`/teams/addoredit/edit${item.id}`}>
                                 edytuj
                               </Link>
                             </button>
@@ -274,7 +274,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                             <button
                               className="btn btn-ghost btn-xs bg-slate-600"
                               onClick={(e) => {
-                                dispatch(deletePlayer(item.id));
+                                dispatch(deleteTeam(item.id));
                               }}
                             >
                               usuń

@@ -5,97 +5,102 @@
 import { useEffect, useState } from "react";
 
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { savePlayer } from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import PlayerList from "./PlayerList";
-
-export enum UserActions {
-  ADD = "add",
-  EDIT = "edit",
-  NONE = "none",
-}
+import {
+  UserActions,
+  findPlayerById,
+  getIdOfItemToSaveOrEdit,
+  getUserAction,
+} from "./AddOrEditPlayer";
+import { saveTeam } from "../storeContent/storeSlices/teamSlice";
 
 function AddOrEditTeam() {
   const navigate = useNavigate();
   const params = useParams() ?? {};
   const dispatch = useAppDispatch();
-  // id = -2 => reserved for adding a new player
-  // id = -1 => reserved for hidden allPlayers isChecked
+  // id = -2 => reserved for adding a new team
+  // id = -1 => reserved for hidden allTeams isChecked (shown only on assignment)
 
-  const getIdOfPlayerToSaveOrEdit = () => {
-    let idOfPlayerToSaveOrEdit = -2;
-    if (params.action) {
-      idOfPlayerToSaveOrEdit =
-        params.action !== "add"
-          ? parseInt(params.action.split("").slice(4).join(""), 10)
-          : idOfPlayerToSaveOrEdit;
-    }
-    return idOfPlayerToSaveOrEdit;
-  };
+  // const getIdOfTeamToSaveOrEdit = () => {
+  //   let idOfTeamToSaveOrEdit = -2;
+  //   if (params.action) {
+  //     idOfTeamToSaveOrEdit =
+  //       params.action !== "add"
+  //         ? parseInt(params.action.split("").slice(4).join(""), 10)
+  //         : idOfTeamToSaveOrEdit;
+  //   }
+  //   return idOfTeamToSaveOrEdit;
+  // };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const getUserAction = (): string => {
-    return params.action ?? UserActions.NONE;
-  };
+  // const getUserAction = (): string => {
+  //   return params.action ?? UserActions.NONE;
+  // };
+  const teams = useAppSelector((state) => state.team.teams);
   const players = useAppSelector((state) => state.player.players);
-  const findById = (id: number) => {
-    const placeholderPlayer = {
+  const findTeamById = (id: number) => {
+    const placeholderTeam = {
       id: -2,
       isChecked: false,
-      firstName: "",
-      lastName: "",
+      playerOneId: -2,
+      playerTwoId: -2,
       strength: 0,
       comment: "",
     };
-    if (id === -2) return placeholderPlayer;
-    return players.filter((player) => player.id === id)[0];
+    if (id === -2) return placeholderTeam;
+    return teams.filter((team) => team.id === id)[0];
   };
 
-  const initialDisplayedPlayer = findById(getIdOfPlayerToSaveOrEdit());
-  const [displayedPlayer, setDisplayedPlayer] = useState(
-    initialDisplayedPlayer
-  );
+  const initialDisplayedTeam = findTeamById(getIdOfItemToSaveOrEdit(params));
+  const [displayedTeam, setDisplayedTeam] = useState(initialDisplayedTeam);
   const [currentAction, setCurrentAction] = useState<string>();
-  const [firstName, setFirstName] = useState(displayedPlayer.firstName);
-  const [lastName, setLastName] = useState(displayedPlayer.lastName);
-  const [strength, setStrength] = useState(displayedPlayer.strength);
-  const [comment, setComment] = useState(displayedPlayer.comment);
+  const [playerOneId, setPlayerOneId] = useState<number>(
+    displayedTeam.playerOneId
+  );
+  const [playerTwoId, setPlayerTwoId] = useState<number>(
+    displayedTeam.playerTwoId
+  );
+  const [strength, setStrength] = useState(displayedTeam.strength);
+  const [comment, setComment] = useState(displayedTeam.comment);
 
   useEffect(() => {
-    if (getUserAction() === UserActions.NONE) {
+    if (getUserAction(params) === UserActions.NONE) {
       navigate("/nosuchpath");
     }
-  }, [navigate, getUserAction]);
+  }, [navigate, params]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const updateDisplayedPlayer = () => {
+  const updateDisplayedTeam = () => {
     if (
-      getUserAction() === UserActions.ADD ||
-      getIdOfPlayerToSaveOrEdit() !== displayedPlayer.id ||
-      firstName !== displayedPlayer.firstName ||
-      lastName !== displayedPlayer.lastName ||
-      comment !== displayedPlayer.comment ||
-      strength !== displayedPlayer.strength
+      getUserAction(params) === UserActions.ADD ||
+      getIdOfItemToSaveOrEdit(params) !== displayedTeam.id ||
+      playerOneId !== displayedTeam.playerOneId ||
+      playerTwoId !== displayedTeam.playerTwoId ||
+      comment !== displayedTeam.comment ||
+      strength !== displayedTeam.strength
     ) {
-      const currentPlayerToDisplay = findById(getIdOfPlayerToSaveOrEdit());
-      setDisplayedPlayer((prev) => currentPlayerToDisplay);
-      setFirstName((prev) => currentPlayerToDisplay.firstName);
-      setLastName((prev) => currentPlayerToDisplay.lastName);
-      setStrength((prev) => currentPlayerToDisplay.strength);
-      setComment((prev) => currentPlayerToDisplay.comment);
+      const currentTeamToDisplay = findTeamById(
+        getIdOfItemToSaveOrEdit(params)
+      );
+      setDisplayedTeam((prev) => currentTeamToDisplay);
+      setPlayerOneId((prev) => currentTeamToDisplay.playerOneId);
+      setPlayerTwoId((prev) => currentTeamToDisplay.playerTwoId);
+      setStrength((prev) => currentTeamToDisplay.strength);
+      setComment((prev) => currentTeamToDisplay.comment);
     }
   };
 
   useEffect(() => {
-    if (currentAction !== getUserAction()) {
-      setCurrentAction((prev) => getUserAction());
-      updateDisplayedPlayer();
+    if (currentAction !== getUserAction(params)) {
+      setCurrentAction((prev) => getUserAction(params));
+      updateDisplayedTeam();
     }
-  }, [currentAction, getUserAction, params.action, updateDisplayedPlayer]);
+  }, [currentAction, params, params.action, updateDisplayedTeam]);
 
   // is this not done already in the above useffect?
   useEffect(() => {
-    updateDisplayedPlayer();
+    updateDisplayedTeam();
     // do not follow this gudeline or infinite loop ensues:
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -120,7 +125,7 @@ function AddOrEditTeam() {
                 {/* rows */}
 
                 <tr>
-                  <td>
+                  {/* <td>
                     <div className="flex items-center space-x-3">
                       <div className="avatar">
                         <div className="mask mask-squircle w-12 h-12">
@@ -130,8 +135,8 @@ function AddOrEditTeam() {
                           />
                         </div>
                       </div>
-                      <div>
-                        <div className="font-bold">
+                      <div> */}
+                  {/* <div className="font-bold">
                           <label htmlFor="" />
                           <input
                             style={{ paddingLeft: "10px" }}
@@ -141,8 +146,9 @@ function AddOrEditTeam() {
                               setFirstName((prev) => e.target.value)
                             }
                           />
-                        </div>
-                      </div>
+                        </div> */}
+
+                  {/* </div>
                     </div>
                   </td>
                   <td>
@@ -155,8 +161,8 @@ function AddOrEditTeam() {
                           />
                         </div>
                       </div>
-                      <div>
-                        <div className="font-bold">
+                      <div> */}
+                  {/* <div className="font-bold">
                           <label htmlFor="" />
                           <input
                             style={{ paddingLeft: "10px" }}
@@ -166,10 +172,37 @@ function AddOrEditTeam() {
                               setLastName((prev) => e.target.value)
                             }
                           />
+                        </div> */}
+                  {/* </div>
+                    </div>
+                  </td> */}
+
+                  <td>
+                    <div className="flex items-center space-x-3">
+                      <div className="avatar">
+                        <div className="mask mask-squircle w-12 h-12">
+                          <img
+                            src="https://img.icons8.com/fluency/96/null/user-male-circle.png"
+                            alt="Avatar"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-bold">
+                          <p>
+                            {findPlayerById(players, playerOneId).firstName}{" "}
+                            {findPlayerById(players, playerOneId).lastName}{" "}
+                            {"       +       "}
+                            {
+                              findPlayerById(players, playerTwoId).firstName
+                            }{" "}
+                            {findPlayerById(players, playerTwoId).lastName}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </td>
+
                   <td className="text text-center">
                     <div className="font-bold">
                       <label htmlFor="" />
@@ -202,25 +235,31 @@ function AddOrEditTeam() {
                       />
                     </div>
                   </td>
+                  <th />
                   <th>
                     <button
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        console.log("idToEdit: ", getIdOfPlayerToSaveOrEdit());
+                        console.log(
+                          "idToEdit: ",
+                          getIdOfItemToSaveOrEdit(params)
+                        );
                         dispatch(
-                          savePlayer({
-                            id: getIdOfPlayerToSaveOrEdit(),
+                          saveTeam({
+                            id: getIdOfItemToSaveOrEdit(params),
                             isChecked: false,
-                            firstName,
-                            lastName,
+                            playerOneId,
+                            playerTwoId,
                             strength,
                             comment,
                           })
                         );
                       }}
                     >
-                      {getUserAction() === UserActions.ADD ? "dodaj" : "zapisz"}
+                      {getUserAction(params) === UserActions.ADD
+                        ? "dodaj"
+                        : "zapisz"}
                     </button>
                   </th>
                 </tr>
@@ -242,8 +281,8 @@ function AddOrEditTeam() {
       <PlayerList
         isEditingTournamentParticipants={false}
         // eslint-disable-next-line react/jsx-boolean-value
-        isParticipantsSingles={true}
-        displayedPlayerUpdater={updateDisplayedPlayer}
+        isParticipantsSingles={false}
+        displayedPlayerUpdater={updateDisplayedTeam}
         assignPlayersToTournament={() => {}}
       />
       <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
