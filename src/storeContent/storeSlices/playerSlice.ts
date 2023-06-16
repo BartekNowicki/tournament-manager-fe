@@ -63,7 +63,8 @@ export const checkPlayers = createAsyncThunk(
   "players/check",
   async (mapping: IdToCheckStatusMapping, { rejectWithValue }) => {
     try {
-      //console.log("SENDING : ", Object.fromEntries(mapping));
+      console.log("SENDING : ", Object.fromEntries(mapping));
+      //console.log("SENDING : ", mapping);
       const response = await axios.patch(
         `${baseUrl}/api/data/players`,
         Object.fromEntries(mapping)
@@ -141,7 +142,7 @@ export const PlayerSlice = createSlice({
         comment: string;
       }>
     ) => {
-      state.players = state.players.map((player) =>
+      state.players = state.players.map((player: Player) =>
         player.id !== action.payload.id
           ? player
           : { ...player, isChecked: action.payload.isChecked || false }
@@ -163,7 +164,7 @@ export const PlayerSlice = createSlice({
     builder
       .addCase(fetchAllPlayers.fulfilled, (state, action) => {
         state.players = action.payload;
-        console.info("fetch players promise fulfilled");
+        console.info("fetch players promise fulfilled", state.players[1]);
         state.forceRerenderPlayerListCount += 1;
       })
       .addCase(fetchAllPlayers.pending, () => {
@@ -176,7 +177,7 @@ export const PlayerSlice = createSlice({
         };
 
         if (playerIdAlreadyInState(action.payload.id)) {
-          state.players = state.players.map((player) => {
+          state.players = state.players.map((player: Player) => {
             return player.id !== action.payload.id
               ? player
               : {
@@ -201,11 +202,11 @@ export const PlayerSlice = createSlice({
         // console.info("save player promise pending...");
       })
       .addCase(checkPlayers.fulfilled, (state, action) => {
-        //console.log("PAYLOAD: ", action.payload);
+        console.log("PAYLOAD: ", action.payload);
         const newIdToCheckStatusMapping: IdToCheckStatusMapping = new Map(
           Object.entries(action.payload)
         );
-        state.players = state.players.map((player) => {
+        state.players = state.players.map((player: Player) => {
           return !newIdToCheckStatusMapping.has(String(player.id))
             ? player
             : {

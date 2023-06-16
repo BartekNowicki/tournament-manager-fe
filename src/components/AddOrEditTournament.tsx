@@ -13,6 +13,7 @@ import { UserActions } from "./AddOrEditPlayer";
 import { TournamentType } from "./Tournament";
 import TournamentList from "./TournamentList";
 import { getDateOneDayBefore } from "../utils/dates";
+import { numericOptions } from "./numericOptions";
 
 // these functions are only to communicate the date from the date picker to component state and back, not with redux and db
 // redux and db date conversion takes place in the tournamentSlice
@@ -205,17 +206,7 @@ function AddOrEditTournament() {
                           setGroupSize((prev) => +e.target.value)
                         }
                       >
-                        <option value={0}>0</option>
-                        <option value={1}>1</option>
-                        <option value={2}>2</option>
-                        <option value={3}>3</option>
-                        <option value={4}>4</option>
-                        <option value={5}>5</option>
-                        <option value={6}>6</option>
-                        <option value={7}>7</option>
-                        <option value={8}>8</option>
-                        <option value={9}>9</option>
-                        <option value={10}>10</option>
+                        {numericOptions(11)}
                       </select>
                     </div>
                   </td>

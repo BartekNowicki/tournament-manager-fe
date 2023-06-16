@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable react/button-has-type */
@@ -27,7 +28,7 @@ import TeamInfoColumns from "./TeamInfoColumns";
 import { findPlayerById, getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
 // eslint-disable-next-line import/no-cycle
 import { findTeamById } from "./AddOrEditTeam";
-import { highlighted } from "./TournamentList";
+import { Item, highlighted, injectItemPlayerOrTeamKey } from "../utils/funcs";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -124,21 +125,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
-
-  interface PlayerOrTeam {
-    id: number;
-    isChecked: boolean;
-    firstName?: string | undefined;
-    lastName?: string | undefined;
-    playerOneId?: number | undefined;
-    playerTwoId?: number | undefined;
-    strength: number;
-    comment: string;
-    playedTournaments?: Tournament[];
-  }
-
-  // const items: Player[] | Team[] = !isParticipantsSingles ? teams : players; OR:
-  const items: Array<PlayerOrTeam> = !isParticipantsSingles ? teams : players;
+  
+  const items: Array<Item> = !isParticipantsSingles ? teams : players;
 
   return (
     <div className="m-8 border border-sky-500 addPlayersPanel">
@@ -186,14 +174,10 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             {/* rows */}
             {Boolean(items.length) &&
               items
-                .filter((item: { id: number }) => item.id !== -1)
-                .map((item) => (
+                .filter((item: Item) => item.id !== -1)
+                .map((item: Item) => (
                   <tr
-                    key={
-                      isParticipantsSingles
-                        ? item.id + item.firstName + item.lastName
-                        : item.id + item.playerOneId + item.playerTwoId
-                    }
+                    key={injectItemPlayerOrTeamKey(item)}
                     className={
                       isToBeHighlightedForEditingData(item.id)
                         ? highlighted()

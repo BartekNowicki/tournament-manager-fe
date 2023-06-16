@@ -9,6 +9,7 @@ import { Player, savePlayer } from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 // eslint-disable-next-line import/no-cycle
 import PlayerList from "./PlayerList";
+import { NumericOptions, numericOptions } from "./numericOptions";
 
 export enum UserActions {
   ADD = "add",
@@ -200,11 +201,14 @@ function AddOrEditPlayer() {
                         <option value={8}>8</option>
                         <option value={9}>9</option>
                         <option value={10}>10</option> */}
-                        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((o) => (
+
+                        {/* {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((o) => (
                           <option key={o} value={o}>
                             {o}
                           </option>
-                        ))}
+                        ))} */}
+
+                        {numericOptions(11)}
                       </select>
                     </div>
                   </td>

@@ -25,14 +25,13 @@ import {
 } from "../storeContent/storeSlices/playerSlice";
 
 import { checkTeams } from "../storeContent/storeSlices/teamSlice";
+import { highlighted, injectItemTournamentKey } from "../utils/funcs";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
   typeOfTournamentDisplayedForEditingData: string;
   displayedTournamentUpdater: () => void;
 }
-
-export const highlighted = () => "border-solid border-2 border-sky-500";
 
 const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   idOfTournamentDisplayedForEditingData,
@@ -79,13 +78,6 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     tournamentId: number,
     tournamentType: string
   ) => {
-    console.log(
-      "matching for tournament type: ",
-      tournamentType,
-      "tournamentId: ",
-      tournamentId
-    );
-
     const selectedTournament = tournaments.find(
       (t) =>
         t.id === tournamentId &&
@@ -97,7 +89,11 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
         typeOfTournamentDisplayedForEditingParticipants === "SINGLES"
           ? selectedTournament.participatingPlayers
           : selectedTournament.participatingTeams;
-      const participantIds = participants && participants.map((p) => p.id);
+      const participantIds =
+        participants &&
+        participants
+          .map((p) => p.id)
+          .filter((id) => id !== -1 && typeof id !== "undefined");
 
       console.log(
         "matching for tournament type: ",
@@ -116,11 +112,13 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
       ) {
         // eslint-disable-next-line no-restricted-syntax
         for (const p of players) {
-          newIdToCheckStatusMapping.set(p.id, false);
+          if (typeof p.id !== "undefined")
+            newIdToCheckStatusMapping.set(p.id, false);
         }
         // eslint-disable-next-line no-restricted-syntax
         for (const id of participantIds) {
-          newIdToCheckStatusMapping.set(id, true);
+          if (typeof id !== "undefined")
+            newIdToCheckStatusMapping.set(id, true);
         }
         if (newIdToCheckStatusMapping.size > 0) {
           // console.log("DISPATCH: ", newIdToCheckStatusMapping);
@@ -154,17 +152,32 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     setTypeOfTournamentDisplayedForEditingParticipants(
       (prev) => tournamentType
     );
-    matchPlayerIsCheckedDBStatusToTournamentParticipation(
-      tournamentId,
-      tournamentType
-    );
+    // no, this should be done AFTER setIDofParticipants, otherwise it will not wait for the update and refresh
+    // matchPlayerIsCheckedDBStatusToTournamentParticipation(
+    //   tournamentId,
+    //   tournamentType
+    // );
   };
 
   useEffect(() => {
     console.log(
       `TournamentList showing participants of: ${idOfTournamentDisplayedForEditingParticipants} data: ${idOfTournamentDisplayedForEditingData}`
     );
-  });
+
+    if (
+      idOfTournamentDisplayedForEditingParticipants &&
+      typeOfTournamentDisplayedForEditingParticipants
+    ) {
+      matchPlayerIsCheckedDBStatusToTournamentParticipation(
+        idOfTournamentDisplayedForEditingParticipants,
+        typeOfTournamentDisplayedForEditingParticipants
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    idOfTournamentDisplayedForEditingParticipants,
+    typeOfTournamentDisplayedForEditingParticipants,
+  ]);
 
   return (
     <>
@@ -185,9 +198,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
               {Boolean(tournaments.length) &&
                 tournaments.map((tournament) => (
                   <tr
-                    key={
-                      tournament.id + tournament.startDate + tournament.comment
-                    }
+                    key={injectItemTournamentKey(tournament)}
                     className={
                       isToBeHighlightedForEditingParticipants(
                         tournament.id,
@@ -323,11 +334,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     {Boolean(tournaments.length) &&
                       tournaments.map((tournament) => (
                         <tr
-                          key={
-                            tournament.id +
-                            tournament.type +
-                            tournament.startDate
-                          }
+                          key={injectItemTournamentKey(tournament)}
                           className={
                             isToBeHighlightedForEditingParticipants(
                               tournament.id,
