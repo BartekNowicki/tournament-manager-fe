@@ -141,7 +141,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           checkTeams(newIdToCheckStatusMapping);
         }
       }
-    }
+    } else throw new Error("The selected tournament does not exist");
   };
 
   const handleParticipantsClick = (
@@ -149,10 +149,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     tournamentType: string
   ) => {
     console.log("click uczestnicy: ", tournamentId, tournamentType);
-    // setIdOfTournamentDisplayedForEditingParticipants((prev) => tournamentId);
-    // setTypeOfTournamentDisplayedForEditingParticipants(
-    //   (prev) => tournamentType
-    // );
+    setIdOfTournamentDisplayedForEditingParticipants((prev) => tournamentId);
+    setTypeOfTournamentDisplayedForEditingParticipants(
+      (prev) => tournamentType
+    );
   };
 
   useEffect(() => {

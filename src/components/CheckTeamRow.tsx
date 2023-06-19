@@ -1,6 +1,6 @@
+import { useAppSelector } from "../storeContent/store";
 import { Player } from "../storeContent/storeSlices/playerSlice";
 import { Team } from "../storeContent/storeSlices/teamSlice";
-import PlayerInfoColumns from "./PlayerInfoColumns";
 import TeamInfoColumns from "./TeamInfoColumns";
 
 interface ICheckTeamRowProps {
@@ -8,7 +8,7 @@ interface ICheckTeamRowProps {
   id: number;
   isChecked: (id: number) => boolean;
   team: Team;
-  findPlayerById(id: number): Player;
+  findPlayerById(players: Player[], id: number): Player;
 }
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -20,6 +20,10 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
   team,
   findPlayerById,
 }): JSX.Element => {
+  const players = useAppSelector((state) => state.player.players);
+  const playerOne: Player = findPlayerById(players, team.playerOneId);
+  const playerTwo: Player = findPlayerById(players, team.playerTwoId);
+
   return (
     <>
       <th>
@@ -33,11 +37,13 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
           />
         </label>
       </th>
-      <TeamInfoColumns
-        playerOne={findPlayerById(team.playerOneId)}
-        playerTwo={findPlayerById(team.playerTwoId)}
-        team={team}
-      />
+      {playerOne && playerTwo && (
+        <TeamInfoColumns
+          playerOne={playerOne}
+          playerTwo={playerTwo}
+          team={team}
+        />
+      )}
     </>
   );
 };

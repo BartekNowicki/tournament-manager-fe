@@ -14,6 +14,7 @@ const TeamInfoColumns: React.FC<ITeamInfoColumnsProps> = ({
   playerTwo,
   team,
 }): JSX.Element => {
+  console.log("RENDERING TEAM INFO COLS ROW FOR ", team);
   return (
     <>
       <td>

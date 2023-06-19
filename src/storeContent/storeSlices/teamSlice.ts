@@ -182,7 +182,7 @@ export const TeamSlice = createSlice({
                 };
           });
         } else {
-          state.teams.push(action.payload);
+          state.teams = [...state.teams, action.payload];
         }
         console.info("save team promise fulfilled");
         state.forceRerenderTeamListCount += 1;
