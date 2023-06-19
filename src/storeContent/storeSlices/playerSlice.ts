@@ -15,14 +15,13 @@ import { Tournament } from "./tournamentSlice";
 
 export interface Player {
   id: number;
-  isChecked: boolean;
-  // removing this after be upgrade:
-  // checked?: unknown; // meet ts requirement
+  isChecked?: boolean;
+  checked?: boolean;
   firstName: string;
   lastName: string;
   strength: number;
   comment: string;
-  playedTournaments?: Tournament[];
+  playedSinglesTournaments: Tournament[];
 }
 
 export type IdToCheckStatusMapping = Map<string, boolean>;
@@ -64,7 +63,7 @@ export const checkPlayers = createAsyncThunk(
   async (mapping: IdToCheckStatusMapping, { rejectWithValue }) => {
     try {
       console.log("SENDING : ", Object.fromEntries(mapping));
-      //console.log("SENDING : ", mapping);
+      // console.log("SENDING : ", mapping);
       const response = await axios.patch(
         `${baseUrl}/api/data/players`,
         Object.fromEntries(mapping)
@@ -117,6 +116,7 @@ export const PlayerSlice = createSlice({
         lastName: string;
         strength: number;
         comment: string;
+        playedSinglesTournaments: Tournament[];
       }>
     ) => {
       state.players = [
@@ -128,6 +128,7 @@ export const PlayerSlice = createSlice({
           lastName: action.payload.lastName,
           strength: action.payload.strength,
           comment: action.payload.comment,
+          playedSinglesTournaments: action.payload.playedSinglesTournaments,
         },
       ];
     },
@@ -164,7 +165,7 @@ export const PlayerSlice = createSlice({
     builder
       .addCase(fetchAllPlayers.fulfilled, (state, action) => {
         state.players = action.payload;
-        console.info("fetch players promise fulfilled", state.players[1]);
+        console.info("fetch players promise fulfilled", state.players);
         state.forceRerenderPlayerListCount += 1;
       })
       .addCase(fetchAllPlayers.pending, () => {
@@ -190,7 +191,7 @@ export const PlayerSlice = createSlice({
                 };
           });
         } else {
-          state.players.push(action.payload);
+          state.players = [...state.players, action.payload];
         }
         console.info("save player promise fulfilled");
         state.forceRerenderPlayerListCount += 1;
@@ -202,7 +203,7 @@ export const PlayerSlice = createSlice({
         // console.info("save player promise pending...");
       })
       .addCase(checkPlayers.fulfilled, (state, action) => {
-        console.log("PAYLOAD: ", action.payload);
+        // console.log("PAYLOAD: ", action.payload);
         const newIdToCheckStatusMapping: IdToCheckStatusMapping = new Map(
           Object.entries(action.payload)
         );

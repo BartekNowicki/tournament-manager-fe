@@ -57,8 +57,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   const isPlayerChecked = useCallback(
     (id: number): boolean => {
-      const found = findPlayerById(players, id);
-      return found && found.isChecked === true;
+      const found: Player = findPlayerById(players, id);
+      if (found && "isChecked" in found) {
+        return found.isChecked;
+      }
+      if (found && "checked" in found) {
+        return found.checked;
+      }
+      return false;
     },
     [players]
   );
@@ -120,12 +126,12 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   // useEffect(() => {});
 
   useEffect(() => {
-    // console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
+    console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
   });
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
-  
+
   const items: Array<Item> = !isParticipantsSingles ? teams : players;
 
   return (

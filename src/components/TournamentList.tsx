@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
   TData,
+  Tournament,
   assignPlayersToTournament,
   deleteTournament,
   fetchAllTournaments,
@@ -78,29 +79,29 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     tournamentId: number,
     tournamentType: string
   ) => {
-    const selectedTournament = tournaments.find(
-      (t) =>
-        t.id === tournamentId &&
-        t.type === typeOfTournamentDisplayedForEditingParticipants
-    );
+    const selectedTournament =
+      tournaments && Array.isArray(tournaments)
+        ? tournaments?.find(
+            (t) =>
+              t.id === tournamentId &&
+              t.type === typeOfTournamentDisplayedForEditingParticipants
+          )
+        : null;
 
     if (selectedTournament) {
-      const participants =
+      const participantIds =
         typeOfTournamentDisplayedForEditingParticipants === "SINGLES"
           ? selectedTournament.participatingPlayers
           : selectedTournament.participatingTeams;
-      const participantIds =
-        participants &&
-        participants
-          .map((p) => p.id)
-          .filter((id) => id !== -1 && typeof id !== "undefined");
 
       console.log(
+        "matching for tournament: ",
+        selectedTournament,
         "matching for tournament type: ",
         typeOfTournamentDisplayedForEditingParticipants,
         "id: ",
         idOfTournamentDisplayedForEditingParticipants,
-        "participants: ",
+        "participantIds: ",
         participantIds
       );
 
@@ -148,14 +149,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     tournamentType: string
   ) => {
     console.log("click uczestnicy: ", tournamentId, tournamentType);
-    setIdOfTournamentDisplayedForEditingParticipants((prev) => tournamentId);
-    setTypeOfTournamentDisplayedForEditingParticipants(
-      (prev) => tournamentType
-    );
-    // no, this should be done AFTER setIDofParticipants, otherwise it will not wait for the update and refresh
-    // matchPlayerIsCheckedDBStatusToTournamentParticipation(
-    //   tournamentId,
-    //   tournamentType
+    // setIdOfTournamentDisplayedForEditingParticipants((prev) => tournamentId);
+    // setTypeOfTournamentDisplayedForEditingParticipants(
+    //   (prev) => tournamentType
     // );
   };
 
@@ -427,8 +423,8 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     type,
                   })
                 );
-                await dispatch(fetchAllPlayers());
-                dispatch(fetchAllTournaments());
+                await dispatch(fetchAllTournaments());
+                dispatch(fetchAllPlayers());
               }}
             />
           </div>,

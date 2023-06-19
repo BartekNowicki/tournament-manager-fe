@@ -6,7 +6,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
-import { saveTournament } from "../storeContent/storeSlices/tournamentSlice";
+import {
+  Tournament,
+  saveTournament,
+} from "../storeContent/storeSlices/tournamentSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import "react-datepicker/dist/react-datepicker.css";
 import { UserActions } from "./AddOrEditPlayer";
@@ -47,17 +50,19 @@ function AddOrEditTournament() {
 
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
   const findById = (id: number) => {
-    const placeholderTournament = {
+    const placeholderTournament: Tournament = {
       id: -2,
       startDate: serialize(new Date()),
       endDate: serialize(new Date()),
       type: TournamentType.SINGLES,
       groupSize: 0,
       comment: "",
+      participatingPlayers: [],
+      participatingTeams: [],
     };
     if (id === -2) return placeholderTournament;
 
-    const foundTournament = tournaments.filter(
+    const foundTournament: Tournament = tournaments.filter(
       (tournament) => tournament.id === id
     )[0];
 
@@ -74,7 +79,7 @@ function AddOrEditTournament() {
   };
 
   const initialDisplayedTournament = findById(getIdOfTournamentToSaveOrEdit());
-  const [displayedTournament, setDisplayedTournament] = useState(
+  const [displayedTournament, setDisplayedTournament] = useState<Tournament>(
     initialDisplayedTournament
   );
   const [currentAction, setCurrentAction] = useState<string>();
@@ -234,6 +239,8 @@ function AddOrEditTournament() {
                             endDate,
                             groupSize,
                             comment,
+                            participatingPlayers: [],
+                            participatingTeams: [],
                           })
                         );
                       }}

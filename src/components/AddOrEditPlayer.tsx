@@ -45,7 +45,9 @@ export const findPlayerById = (players: Player[], id: number) => {
     comment: "",
   };
   if (id === -2) return placeholderPlayer;
-  return players.filter((player) => player.id === id)[0];
+  return Array.isArray(players)
+    ? players.filter((player) => player.id === id)[0]
+    : null;
 };
 
 function AddOrEditPlayer() {

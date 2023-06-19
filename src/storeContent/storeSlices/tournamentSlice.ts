@@ -11,6 +11,8 @@ import {
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
 import { Player, baseUrl } from "./playerSlice";
+// eslint-disable-next-line import/no-cycle
+import { Team } from "./teamSlice";
 
 export interface Tournament {
   id: number;
@@ -20,9 +22,9 @@ export interface Tournament {
   groupSize: number;
   comment: string;
   participatingPlayerIds?: number[];
-  participatingPlayers?: Player[];
+  participatingPlayers: Player[];
   participatingTeamIds?: number[];
-  participatingTeams?: Player[];
+  participatingTeams: Team[];
 }
 
 interface TournamentSliceState {
@@ -163,7 +165,7 @@ export const TournamentSlice = createSlice({
     builder
       .addCase(fetchAllTournaments.fulfilled, (state, action) => {
         state.tournaments = action.payload;
-        console.info("fetch tournaments promise fulfilled");
+        console.info("fetch tournaments promise fulfilled", state.tournaments);
       })
       .addCase(fetchAllTournaments.pending, () => {
         // console.info("fetch tournaments promise pending...");

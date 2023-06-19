@@ -21,7 +21,7 @@ export interface Team {
   playerTwoId: number;
   strength: number;
   comment: string;
-  playedTournaments?: Tournament[];
+  playedDoublesTournaments: Tournament[];
 }
 
 interface RejectedAction extends Action {
