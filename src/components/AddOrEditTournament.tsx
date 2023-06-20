@@ -239,8 +239,9 @@ function AddOrEditTournament() {
                             endDate,
                             groupSize,
                             comment,
-                            participatingPlayers: [],
-                            participatingTeams: [],
+                            participatingPlayerIds: [],
+                            participatingTeamIds: [],
+                            groupIds: [],
                           })
                         );
                       }}

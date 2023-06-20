@@ -13,7 +13,9 @@ import axios from "axios";
 import { Player, baseUrl } from "./playerSlice";
 // eslint-disable-next-line import/no-cycle
 import { Team } from "./teamSlice";
+import { Group } from "./groupSlice";
 
+// TODO: figure out which ones are optional
 export interface Tournament {
   id: number;
   type: string;
@@ -21,10 +23,12 @@ export interface Tournament {
   endDate: string;
   groupSize: number;
   comment: string;
-  participatingPlayerIds?: number[];
   participatingPlayers: Player[];
-  participatingTeamIds?: number[];
+  participatingPlayerIds: number[];
   participatingTeams: Team[];
+  participatingTeamIds: number[];
+  groups: Group[];
+  groupIds: number[];
 }
 
 interface TournamentSliceState {
@@ -72,12 +76,13 @@ export const saveTournament = createAsyncThunk(
       type: getEnumKeyByValue(tournament.type),
     };
     try {
+      // console.log("SAVE REQUEST: ", tournament);
       const response = await axios.put(`${baseUrl}/api/data/tournaments`, {
         ...tournamentWithTypeConvertedToEnumKey,
         startDate: convertToMysqlDatetime6(tournament.startDate),
         endDate: convertToMysqlDatetime6(tournament.endDate),
       });
-
+      // console.log("SAVE RESPONSE: tournament, response.data");
       return response.data;
     } catch (error: any) {
       return rejectWithValue(`error saving the tournament: ${error.message}`);
@@ -109,10 +114,10 @@ export const assignPlayersToTournament = createAsyncThunk(
 
 export const deleteTournament = createAsyncThunk(
   "tournaments/delete",
-  async (tournamentId: number, { rejectWithValue }) => {
+  async (tdata: TData, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${baseUrl}/api/data/tournaments/${tournamentId}`
+        `${baseUrl}/api/data/tournaments/${tdata.type}/${tdata.tournamentId}`
       );
 
       return response.data;
@@ -146,17 +151,29 @@ export const TournamentSlice = createSlice({
         endDate: string;
         groupSize: number;
         comment: string;
+        participatingPlayers: Player[];
+        participatingPlayerIds: number[];
+        participatingTeams: Team[];
+        participatingTeamIds: number[];
+        groups: Group[];
+        groupIds: number[];
       }>
     ) => {
       state.tournaments = [
         ...state.tournaments,
         {
-          id: state.tournaments.length,
+          id: state.tournaments.length || 1,
           type: action.payload.type,
           startDate: action.payload.startDate,
           endDate: action.payload.endDate,
           groupSize: action.payload.groupSize,
           comment: action.payload.comment,
+          participatingPlayers: action.payload.participatingPlayers,
+          participatingPlayerIds: action.payload.participatingPlayerIds,
+          participatingTeams: action.payload.participatingTeams,
+          participatingTeamIds: action.payload.participatingTeamIds,
+          groups: action.payload.groups,
+          groupIds: action.payload.groupIds,
         },
       ];
     },
@@ -190,6 +207,8 @@ export const TournamentSlice = createSlice({
                   endDate: action.payload.endDate,
                   groupSize: action.payload.groupSize,
                   comment: action.payload.comment,
+                  participatingPlayers: action.payload.participatingPlayers,
+                  participatingTeams: action.payload.participatingTeams,
                 };
           });
         } else {
@@ -197,7 +216,7 @@ export const TournamentSlice = createSlice({
         }
         console.info("save tournament promise fulfilled");
       })
-      .addCase(saveTournament.rejected, () => {
+      .addCase(saveTournament.rejected, (e) => {
         console.warn("save tournament promise rejected!");
       })
       .addCase(saveTournament.pending, () => {

@@ -109,6 +109,7 @@ export const TeamSlice = createSlice({
         playerTwoId: number;
         strength: number;
         comment: string;
+        playedDoublesTournaments: Tournament[];
       }>
     ) => {
       state.teams = [
@@ -120,6 +121,7 @@ export const TeamSlice = createSlice({
           playerTwoId: action.payload.playerTwoId,
           strength: action.payload.strength,
           comment: action.payload.comment,
+          playedDoublesTournaments: action.payload.playedDoublesTournaments,
         },
       ];
     },
@@ -179,6 +181,8 @@ export const TeamSlice = createSlice({
                   isChecked: action.payload.isChecked,
                   strength: action.payload.strength,
                   comment: action.payload.comment,
+                  playedDoublesTournaments:
+                    action.payload.playedDoublesTournaments,
                 };
           });
         } else {
@@ -208,6 +212,7 @@ export const TeamSlice = createSlice({
                 isChecked: newIdToCheckStatusMapping.get(String(team.id)),
                 strength: team.strength,
                 comment: team.comment,
+                playedDoublesTournaments: team.playedDoublesTournaments,
               };
         });
         console.info("check teams promise fulfilled", state.teams[1]);

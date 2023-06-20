@@ -21,6 +21,7 @@ import { fetchAllTeams } from "./storeContent/storeSlices/teamSlice";
 import AddOrEditTeam from "./components/AddOrEditTeam";
 import { TeamLayout } from "./pages/TeamLayout";
 import { Teams } from "./pages/Teams";
+import { fetchAllGroups } from "./storeContent/storeSlices/groupSlice";
 
 function App() {
   const dispatch = useAppDispatch();
@@ -29,6 +30,7 @@ function App() {
     dispatch(fetchAllPlayers());
     dispatch(fetchAllTeams());
     dispatch(fetchAllTournaments());
+    dispatch(fetchAllGroups());
   });
 
   return (

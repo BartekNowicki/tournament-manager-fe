@@ -141,7 +141,11 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           checkTeams(newIdToCheckStatusMapping);
         }
       }
-    } else throw new Error("The selected tournament does not exist");
+    } else {
+      console.log(
+        "The selected tournament does not exist, are you adding a new one?"
+      );
+    }
   };
 
   const handleParticipantsClick = (
@@ -256,7 +260,22 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                       <button
                         className="btn btn-ghost btn-xs bg-slate-600"
                         onClick={(e) => {
-                          dispatch(deleteTournament(tournament.id));
+                          const tournamentType =
+                            tournament.type === "SINGLES"
+                              ? "singles"
+                              : "doubles";
+                          console.log(
+                            "DELETING: ",
+                            tournamentType,
+                            tournament.type
+                          );
+
+                          dispatch(
+                            deleteTournament({
+                              tournamentId: tournament.id,
+                              type: tournamentType,
+                            })
+                          );
                         }}
                         disabled={isToBeHighlightedForEditingData(
                           tournament.id,
