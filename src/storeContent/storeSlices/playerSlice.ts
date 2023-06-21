@@ -24,6 +24,26 @@ export interface Player {
   playedSinglesTournaments: Tournament[];
 }
 
+export const placeholderPlayer: Player = {
+  id: -2,
+  isChecked: false,
+  firstName: "",
+  lastName: "",
+  strength: 0,
+  comment: "",
+  playedSinglesTournaments: [],
+};
+
+export const emptyPlayer: Player = {
+  id: 999,
+  isChecked: false,
+  firstName: "",
+  lastName: "",
+  strength: 999,
+  comment: "",
+  playedSinglesTournaments: [],
+};
+
 export type IdToCheckStatusMapping = Map<string, boolean>;
 
 interface RejectedAction extends Action {

@@ -5,11 +5,16 @@
 import { useEffect, useState } from "react";
 
 import { useParams, useNavigate, Link, Params } from "react-router-dom";
-import { Player, savePlayer } from "../storeContent/storeSlices/playerSlice";
+import {
+  Player,
+  emptyPlayer,
+  placeholderPlayer,
+  savePlayer,
+} from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 // eslint-disable-next-line import/no-cycle
 import PlayerList from "./PlayerList";
-import { NumericOptions, numericOptions } from "./numericOptions";
+import { numericOptions } from "./numericOptions";
 
 export enum UserActions {
   ADD = "add",
@@ -18,7 +23,9 @@ export enum UserActions {
 }
 
 export const getUserAction = (params: Readonly<Params<string>>): string => {
-  if (params) return params.action;
+  if (params && params.action) {
+    return params.action;
+  }
   return UserActions.NONE;
 };
 
@@ -36,18 +43,10 @@ export const getIdOfItemToSaveOrEdit = (
 };
 
 export const findPlayerById = (players: Player[], id: number) => {
-  const placeholderPlayer = {
-    id: -2,
-    isChecked: false,
-    firstName: "",
-    lastName: "",
-    strength: 0,
-    comment: "",
-  };
   if (id === -2) return placeholderPlayer;
   return Array.isArray(players)
-    ? players.filter((player) => player.id === id)[0]
-    : null;
+    ? players.find((player) => player.id === id) || emptyPlayer
+    : emptyPlayer;
 };
 
 function AddOrEditPlayer() {
@@ -60,7 +59,7 @@ function AddOrEditPlayer() {
 
   const players = useAppSelector((state) => state.player.players);
 
-  const initialDisplayedPlayer = findPlayerById(
+  const initialDisplayedPlayer: Player = findPlayerById(
     players,
     getIdOfItemToSaveOrEdit(params)
   );
@@ -230,10 +229,9 @@ function AddOrEditPlayer() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        console.log(
-                          "idToEdit: ",
-                          getIdOfItemToSaveOrEdit(params)
-                        );
+                        const idToEdit: number =
+                          getIdOfItemToSaveOrEdit(params);
+                        console.log("idToEdit: ", idToEdit);
                         dispatch(
                           savePlayer({
                             id: getIdOfItemToSaveOrEdit(params),
@@ -242,6 +240,10 @@ function AddOrEditPlayer() {
                             lastName,
                             strength,
                             comment,
+                            playedSinglesTournaments: findPlayerById(
+                              players,
+                              idToEdit
+                            ).playedSinglesTournaments,
                           })
                         );
                       }}
