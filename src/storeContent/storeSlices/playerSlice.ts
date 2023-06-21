@@ -144,6 +144,8 @@ export const PlayerSlice = createSlice({
         strength: number;
         comment: string;
         playedSinglesTournaments: Tournament[];
+        belongsToSinglesGroups: Group[];
+        belongsToSinglesGroupIds: number[];
       }>
     ) => {
       state.players = [
@@ -156,6 +158,8 @@ export const PlayerSlice = createSlice({
           strength: action.payload.strength,
           comment: action.payload.comment,
           playedSinglesTournaments: action.payload.playedSinglesTournaments,
+          belongsToGroups: action.payload.belongsToSinglesGroups,
+          belongsToGroupIds: action.payload.belongsToSinglesGroupIds,
         },
       ];
     },
@@ -215,6 +219,10 @@ export const PlayerSlice = createSlice({
                   isChecked: action.payload.isChecked,
                   strength: action.payload.strength,
                   comment: action.payload.comment,
+                  playedSinglesTournaments:
+                    action.payload.playedSinglesTournaments,
+                  belongsToGroups: action.payload.belongsToSinglesGroups,
+                  belongsToGroupIds: action.payload.belongsToSinglesGroupIds,
                 };
           });
         } else {
@@ -244,6 +252,10 @@ export const PlayerSlice = createSlice({
                 isChecked: newIdToCheckStatusMapping.get(String(player.id)),
                 strength: player.strength,
                 comment: player.comment,
+                playedSinglesTournaments:
+                  action.payload.playedSinglesTournaments,
+                belongsToGroups: action.payload.belongsToSinglesGroups,
+                belongsToGroupIds: action.payload.belongsToSinglesGroupIds,
               };
         });
         console.info("check player promise fulfilled", state.players[1]);

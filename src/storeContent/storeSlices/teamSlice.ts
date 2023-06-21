@@ -12,7 +12,9 @@ import {
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
 import { Tournament } from "./tournamentSlice";
+// eslint-disable-next-line import/no-cycle
 import { IdToCheckStatusMapping } from "./playerSlice";
+// eslint-disable-next-line import/no-cycle
 import { Group } from "./groupSlice";
 
 export interface Team {
@@ -137,6 +139,8 @@ export const TeamSlice = createSlice({
         strength: number;
         comment: string;
         playedDoublesTournaments: Tournament[];
+        belongsToDoublesGroups: Group[];
+        belongsToDoublesGroupIds: number[];
       }>
     ) => {
       state.teams = [
@@ -149,6 +153,8 @@ export const TeamSlice = createSlice({
           strength: action.payload.strength,
           comment: action.payload.comment,
           playedDoublesTournaments: action.payload.playedDoublesTournaments,
+          belongsToGroups: action.payload.belongsToDoublesGroups,
+          belongsToGroupIds: action.payload.belongsToDoublesGroupIds,
         },
       ];
     },
@@ -210,6 +216,8 @@ export const TeamSlice = createSlice({
                   comment: action.payload.comment,
                   playedDoublesTournaments:
                     action.payload.playedDoublesTournaments,
+                  belongsToGroups: action.payload.belongsToDoublesGroups,
+                  belongsToGroupIds: action.payload.belongsToDoublesGroupIds,
                 };
           });
         } else {
@@ -236,10 +244,13 @@ export const TeamSlice = createSlice({
                 id: team.id,
                 playerOneId: team.playerOneId,
                 playerTwoId: team.playerTwoId,
-                isChecked: newIdToCheckStatusMapping.get(String(team.id)),
+                isChecked:
+                  newIdToCheckStatusMapping.get(String(team.id)) || false,
                 strength: team.strength,
                 comment: team.comment,
                 playedDoublesTournaments: team.playedDoublesTournaments,
+                belongsToGroups: action.payload.belongsToDoublesGroups,
+                belongsToGroupIds: action.payload.belongsToDoublesGroupIds,
               };
         });
         console.info("check teams promise fulfilled", state.teams[1]);

@@ -13,16 +13,19 @@ import axios from "axios";
 import { Player, baseUrl } from "./playerSlice";
 // eslint-disable-next-line import/no-cycle
 import { Team } from "./teamSlice";
+// eslint-disable-next-line import/no-cycle
 import { Group } from "./groupSlice";
-import { serializeDate } from "../../utils/funcs";
+// eslint-disable-next-line import/no-cycle
+// import { serializeDate } from "../../utils/funcs";
 import { TournamentType } from "../../components/Tournament";
+// import { serializeDate } from "../../utils/funcs";
 
 // TODO: figure out which ones are optional
 export interface Tournament {
   id: number;
   type: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   groupSize: number;
   comment: string;
   participatingPlayers: Player[];
@@ -35,8 +38,8 @@ export interface Tournament {
 
 export const placeholderTournament: Tournament = {
   id: -2,
-  startDate: serializeDate(new Date()),
-  endDate: serializeDate(new Date()),
+  startDate: new Date(),
+  endDate: new Date(),
   type: TournamentType.SINGLES,
   groupSize: 0,
   comment: "",
@@ -50,8 +53,8 @@ export const placeholderTournament: Tournament = {
 
 export const emptyTournament: Tournament = {
   id: 999,
-  startDate: serializeDate(new Date()),
-  endDate: serializeDate(new Date()),
+  startDate: new Date(),
+  endDate: new Date(),
   type: TournamentType.SINGLES,
   groupSize: 0,
   comment: "",
@@ -87,18 +90,36 @@ const getEnumKeyByValue = (val: string) => {
   return val === "singles" ? "SINGLES" : "DOUBLES";
 };
 
-const convertToMysqlDatetime6 = (dateString: string) => {
-  // required by mysql: datetime(6)
-  // e.g. `java.util.Date` from String "5.04.2023"
-  const dateArr: string[] = dateString.split(".");
-  // return new Date(`"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`).getTime();
-  const convertedDate: Date = new Date(
-    `"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`
-  );
-  // need to set the date one day after as sql stores the date one day before
-  convertedDate.setDate(convertedDate.getDate() + 1);
-  return convertedDate;
-};
+// export const convertToMysqlDatetime6 = (dateString: string): Date => {
+//   // required by mysql: datetime(6)
+//   // e.g. `java.util.Date` from String "5.04.2023"
+//   const dateArr: string[] = dateString.split(".");
+//   // return new Date(`"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`).getTime();
+//   const convertedDate: Date = new Date(
+//     `"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`
+//   );
+//   // need to set the date one day after as sql stores the date one day before
+//   convertedDate.setDate(convertedDate.getDate() + 1);
+//   return convertedDate;
+// };
+
+// export const convertFromMysqlDatetime6 = (mysqlDatetime6: Date): string => {
+//   console.log(
+//     "CONVERTED FROM  DB: ",
+//     mysqlDatetime6.getFullYear(),
+//     mysqlDatetime6.getDate()
+//   );
+//   // required by mysql: datetime(6)
+//   // e.g. `java.util.Date` from String "5.04.2023"
+//   // const dateArr: string[] = dateString.split(".");
+//   // return new Date(`"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`).getTime();
+//   // const convertedDate: Date = new Date(
+//   //   `"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`
+//   // );
+//   // need to set the date one day after as sql stores the date one day before
+//   // convertedDate.setDate(convertedDate.getDate() + 1);
+//   return "convertedDate";
+// };
 
 export const saveTournament = createAsyncThunk(
   "tournaments/save",
@@ -108,11 +129,11 @@ export const saveTournament = createAsyncThunk(
       type: getEnumKeyByValue(tournament.type),
     };
     try {
-      // console.log("SAVE REQUEST: ", tournament);
+      console.log("SAVE REQUEST: ", tournament);
       const response = await axios.put(`${baseUrl}/api/data/tournaments`, {
         ...tournamentWithTypeConvertedToEnumKey,
-        startDate: convertToMysqlDatetime6(tournament.startDate),
-        endDate: convertToMysqlDatetime6(tournament.endDate),
+        // startDate: convertToMysqlDatetime6(tournament.startDate),
+        // endDate: convertToMysqlDatetime6(tournament.endDate),
       });
       // console.log("SAVE RESPONSE: tournament, response.data");
       return response.data;
@@ -179,8 +200,8 @@ export const TournamentSlice = createSlice({
       state,
       action: PayloadAction<{
         type: string;
-        startDate: string;
-        endDate: string;
+        startDate: Date;
+        endDate: Date;
         groupSize: number;
         comment: string;
         participatingPlayers: Player[];
@@ -240,7 +261,11 @@ export const TournamentSlice = createSlice({
                   groupSize: action.payload.groupSize,
                   comment: action.payload.comment,
                   participatingPlayers: action.payload.participatingPlayers,
+                  participatingPlayerIds: action.payload.participatingPlayerIds,
                   participatingTeams: action.payload.participatingTeams,
+                  participatingTeamIds: action.payload.participatingTeamIds,
+                  groups: action.payload.groups,
+                  groupIds: action.payload.groupIds,
                 };
           });
         } else {

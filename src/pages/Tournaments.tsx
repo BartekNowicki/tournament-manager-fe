@@ -18,6 +18,7 @@ export function Tournaments(props: ITournamentsProps) {
       <TournamentList
         displayedTournamentUpdater={() => {}}
         idOfTournamentDisplayedForEditingData={-1}
+        typeOfTournamentDisplayedForEditingData="none"
       />
     </div>
   );

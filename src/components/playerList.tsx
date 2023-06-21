@@ -132,7 +132,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   // useEffect(() => {});
 
   useEffect(() => {
-    //console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
+    // console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
   });
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
@@ -140,201 +140,202 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   const items: Array<Item> = !isParticipantsSingles ? teams : players;
 
+  if (items.length === 0)
+    return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;
+
   return (
-    Boolean(items.length) && (
-      <div className="m-8 border border-sky-500 addPlayersPanel">
-        <div
-          style={
-            isEditingTournamentParticipants
-              ? { maxHeight: "65vh" }
-              : { maxHeight: "75vh" }
-          }
-          className="overflow-x-auto w-full"
-        >
-          <table className="table w-full">
-            {/* head */}
-            <thead>
-              <tr>
-                {isEditingTournamentParticipants && (
-                  <th>
-                    <label>
-                      <input
-                        type="checkbox"
-                        className="checkbox"
-                        id="-1"
-                        checked={
-                          isParticipantsSingles
-                            ? isPlayerChecked(-1) === true
-                            : isTeamChecked(-1)
-                        }
-                        onChange={
-                          isParticipantsSingles
-                            ? (e) => handleCheck(e, "player")
-                            : (e) => handleCheck(e, "team")
-                        }
-                      />
-                    </label>
-                  </th>
-                )}
-                <th className="text text-center">Imię i Nazwisko</th>
-                <th className="text text-center">Siła</th>
-                <th className="text text-center">Uwagi</th>
-                {!isEditingTournamentParticipants && <th />}
-                {!isEditingTournamentParticipants && <th />}
-              </tr>
-            </thead>
-            <tbody>
-              {/* rows */}
-              {Boolean(items.length) &&
-                items
-                  .filter((item: Item) => item.id !== -1)
-                  .map((item: Item) => (
-                    <tr
-                      key={injectItemPlayerOrTeamKey(item)}
-                      className={
-                        isToBeHighlightedForEditingData(item.id)
-                          ? highlighted()
-                          : ""
+    <div className="m-8 border border-sky-500 addPlayersPanel">
+      <div
+        style={
+          isEditingTournamentParticipants
+            ? { maxHeight: "65vh" }
+            : { maxHeight: "75vh" }
+        }
+        className="overflow-x-auto w-full"
+      >
+        <table className="table w-full">
+          {/* head */}
+          <thead>
+            <tr>
+              {isEditingTournamentParticipants && (
+                <th>
+                  <label>
+                    <input
+                      type="checkbox"
+                      className="checkbox"
+                      id="-1"
+                      checked={
+                        isParticipantsSingles
+                          ? isPlayerChecked(-1) === true
+                          : isTeamChecked(-1)
                       }
-                    >
-                      {/* player to tournament assignment mode, singles : doubles */}
-                      {isEditingTournamentParticipants &&
-                        (isParticipantsSingles && isPlayer(item) ? (
-                          <CheckPlayerRow
-                            handleCheck={(e) => handleCheck(e, "player")}
-                            id={item.id}
-                            isChecked={isPlayerChecked}
-                            player={item}
-                          />
-                        ) : (
-                          !isParticipantsSingles &&
-                          isTeam(item) && (
-                            <CheckTeamRow
-                              handleCheck={(e) => handleCheck(e, "team")}
-                              id={item.id}
-                              isChecked={isTeamChecked}
-                              team={item}
-                              findPlayerById={findPlayerById}
-                            />
-                          )
-                        ))}
-
-                      {/* read only mode, singles */}
-                      {!isEditingTournamentParticipants &&
-                        isParticipantsSingles &&
-                        isPlayer(item) && (
-                          <>
-                            <PlayerInfoColumns player={item} />
-                            <th>
-                              <button
-                                className="btn btn-ghost btn-xs bg-slate-600"
-                                onClick={() => {
-                                  if (displayedPlayerUpdater)
-                                    displayedPlayerUpdater();
-                                }}
-                              >
-                                <Link to={`/players/addoredit/edit${item.id}`}>
-                                  edytuj
-                                </Link>
-                              </button>
-                            </th>
-                            <th>
-                              <button
-                                className="btn btn-ghost btn-xs bg-slate-600"
-                                onClick={(e) => {
-                                  dispatch(deletePlayer(item.id));
-                                }}
-                              >
-                                usuń
-                              </button>
-                            </th>
-                          </>
-                        )}
-
-                      {/* read only mode, doubles */}
-                      {!isEditingTournamentParticipants &&
+                      onChange={
+                        isParticipantsSingles
+                          ? (e) => handleCheck(e, "player")
+                          : (e) => handleCheck(e, "team")
+                      }
+                    />
+                  </label>
+                </th>
+              )}
+              <th className="text text-center">Imię i Nazwisko</th>
+              <th className="text text-center">Siła</th>
+              <th className="text text-center">Uwagi</th>
+              {!isEditingTournamentParticipants && <th />}
+              {!isEditingTournamentParticipants && <th />}
+            </tr>
+          </thead>
+          <tbody>
+            {/* rows */}
+            {Boolean(items.length) &&
+              items
+                .filter((item: Item) => item.id !== -1)
+                .map((item: Item) => (
+                  <tr
+                    key={injectItemPlayerOrTeamKey(item)}
+                    className={
+                      isToBeHighlightedForEditingData(item.id)
+                        ? highlighted()
+                        : ""
+                    }
+                  >
+                    {/* player to tournament assignment mode, singles : doubles */}
+                    {isEditingTournamentParticipants &&
+                      (isParticipantsSingles && isPlayer(item) ? (
+                        <CheckPlayerRow
+                          handleCheck={(e) => handleCheck(e, "player")}
+                          id={item.id}
+                          isChecked={isPlayerChecked}
+                          player={item}
+                        />
+                      ) : (
                         !isParticipantsSingles &&
                         isTeam(item) && (
-                          <>
-                            <TeamInfoColumns
-                              playerOne={findPlayerById(
-                                players,
-                                item.playerOneId
-                              )}
-                              playerTwo={findPlayerById(
-                                players,
-                                item.playerTwoId
-                              )}
-                              team={item}
-                            />
-                            <th>
-                              <button
-                                className="btn btn-ghost btn-xs bg-slate-600"
-                                onClick={() => {
-                                  if (displayedPlayerUpdater)
-                                    displayedPlayerUpdater();
-                                }}
-                              >
-                                <Link to={`/teams/addoredit/edit${item.id}`}>
-                                  edytuj
-                                </Link>
-                              </button>
-                            </th>
-                            <th>
-                              <button
-                                className="btn btn-ghost btn-xs bg-slate-600"
-                                onClick={(e) => {
-                                  dispatch(deleteTeam(item.id));
-                                }}
-                              >
-                                usuń
-                              </button>
-                            </th>
-                          </>
-                        )}
-                    </tr>
-                  ))}
-            </tbody>
-            {/* foot */}
-            <tfoot>
-              <tr>
-                {!isEditingTournamentParticipants && <th />}
-                {!isEditingTournamentParticipants && <th />}
-                <th />
-                <th />
-                <th />
-                {isEditingTournamentParticipants && <th />}
-              </tr>
-            </tfoot>
-          </table>
+                          <CheckTeamRow
+                            handleCheck={(e) => handleCheck(e, "team")}
+                            id={item.id}
+                            isChecked={isTeamChecked}
+                            team={item}
+                            findPlayerById={findPlayerById}
+                          />
+                        )
+                      ))}
 
-          {isEditingTournamentParticipants && (
-            <div>
-              <button
-                className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
-                onClick={
-                  isParticipantsSingles
-                    ? () =>
-                        assignPlayersToTournament({
-                          tournamentId:
-                            idOfTournamentDisplayedForEditingParticipants,
-                          type: "singles",
-                        })
-                    : () =>
-                        assignPlayersToTournament({
-                          tournamentId:
-                            idOfTournamentDisplayedForEditingParticipants,
-                          type: "doubles",
-                        })
-                }
-              >
-                zapisz uczestników
-              </button>
-            </div>
-          )}
-        </div>
+                    {/* read only mode, singles */}
+                    {!isEditingTournamentParticipants &&
+                      isParticipantsSingles &&
+                      isPlayer(item) && (
+                        <>
+                          <PlayerInfoColumns player={item} />
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={() => {
+                                if (displayedPlayerUpdater)
+                                  displayedPlayerUpdater();
+                              }}
+                            >
+                              <Link to={`/players/addoredit/edit${item.id}`}>
+                                edytuj
+                              </Link>
+                            </button>
+                          </th>
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={(e) => {
+                                dispatch(deletePlayer(item.id));
+                              }}
+                            >
+                              usuń
+                            </button>
+                          </th>
+                        </>
+                      )}
+
+                    {/* read only mode, doubles */}
+                    {!isEditingTournamentParticipants &&
+                      !isParticipantsSingles &&
+                      isTeam(item) && (
+                        <>
+                          <TeamInfoColumns
+                            playerOne={findPlayerById(
+                              players,
+                              item.playerOneId
+                            )}
+                            playerTwo={findPlayerById(
+                              players,
+                              item.playerTwoId
+                            )}
+                            team={item}
+                          />
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={() => {
+                                if (displayedPlayerUpdater)
+                                  displayedPlayerUpdater();
+                              }}
+                            >
+                              <Link to={`/teams/addoredit/edit${item.id}`}>
+                                edytuj
+                              </Link>
+                            </button>
+                          </th>
+                          <th>
+                            <button
+                              className="btn btn-ghost btn-xs bg-slate-600"
+                              onClick={(e) => {
+                                dispatch(deleteTeam(item.id));
+                              }}
+                            >
+                              usuń
+                            </button>
+                          </th>
+                        </>
+                      )}
+                  </tr>
+                ))}
+          </tbody>
+          {/* foot */}
+          <tfoot>
+            <tr>
+              {!isEditingTournamentParticipants && <th />}
+              {!isEditingTournamentParticipants && <th />}
+              <th />
+              <th />
+              <th />
+              {isEditingTournamentParticipants && <th />}
+            </tr>
+          </tfoot>
+        </table>
+
+        {isEditingTournamentParticipants && (
+          <div>
+            <button
+              className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
+              onClick={
+                isParticipantsSingles
+                  ? () =>
+                      assignPlayersToTournament({
+                        tournamentId:
+                          idOfTournamentDisplayedForEditingParticipants || -1,
+                        type: "singles",
+                      })
+                  : () =>
+                      assignPlayersToTournament({
+                        tournamentId:
+                          idOfTournamentDisplayedForEditingParticipants || -1,
+                        type: "doubles",
+                      })
+              }
+            >
+              zapisz uczestników
+            </button>
+          </div>
+        )}
       </div>
-    )
+    </div>
   );
 };
 

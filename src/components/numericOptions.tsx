@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-export function numericOptions(count: number): JSX.Element[] {
+export function numericOptions(count: number) {
   return (
     <>
       {Array.from(Array(count))

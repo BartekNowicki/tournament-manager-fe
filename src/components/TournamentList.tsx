@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
   TData,
-  Tournament,
   assignPlayersToTournament,
   deleteTournament,
   fetchAllTournaments,

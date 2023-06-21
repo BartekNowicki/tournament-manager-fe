@@ -8,7 +8,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import {
   Tournament,
-  placeholderTournament,
+  // convertFromMysqlDatetime6,
   saveTournament,
 } from "../storeContent/storeSlices/tournamentSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
@@ -18,9 +18,9 @@ import { TournamentType } from "./Tournament";
 import TournamentList from "./TournamentList";
 import { numericOptions } from "./numericOptions";
 import {
-  deserializeDate,
+  // deserializeDate,
   findTournamentById,
-  serializeDate,
+  // serializeDate,
 } from "../utils/funcs";
 
 function AddOrEditTournament() {
@@ -47,7 +47,7 @@ function AddOrEditTournament() {
 
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
 
-  const initialDisplayedTournament = findTournamentById(
+  const initialDisplayedTournament: Tournament = findTournamentById(
     tournaments,
     getIdOfTournamentToSaveOrEdit()
   );
@@ -55,15 +55,13 @@ function AddOrEditTournament() {
     initialDisplayedTournament
   );
   const [currentAction, setCurrentAction] = useState<string>();
-  const [startDate, setStartDate] = useState<string>(
+  const [startDate, setStartDate] = useState<Date>(
     displayedTournament.startDate
   );
-  const [endDate, setEndDate] = useState<string>(displayedTournament.endDate);
+  const [endDate, setEndDate] = useState<Date>(displayedTournament.endDate);
   const [type, setType] = useState<string>(displayedTournament.type);
   const [groupSize, setGroupSize] = useState(displayedTournament.groupSize);
   const [comment, setComment] = useState<string>(displayedTournament.comment);
-  // const [isAddingOrEditingTournament, setIsAddingOrEditingTournament] =
-  //   useState<boolean>(false);
 
   useEffect(() => {
     if (getUserAction() === UserActions.NONE) {
@@ -93,7 +91,6 @@ function AddOrEditTournament() {
       setType((prev) => currentTournamentToDisplay.type);
       setGroupSize((prev) => currentTournamentToDisplay.groupSize);
       setComment((prev) => currentTournamentToDisplay.comment);
-      // console.log("SWITCHING TO ", currentTournamentToDisplay.type);
     }
   };
 
@@ -103,6 +100,14 @@ function AddOrEditTournament() {
       updateDisplayedTournament();
     }
   }, [currentAction, getUserAction, params.action, updateDisplayedTournament]);
+
+  useEffect(() => {
+    console.log(
+      "ADDOREDIT PANEL SHOWS: startdate - enddate",
+      startDate,
+      endDate, type
+    );
+  });
 
   return (
     <div className="darkModal max-w-7xl mx-auto">
@@ -135,11 +140,13 @@ function AddOrEditTournament() {
                       <DatePicker
                         className="text-center font-bold"
                         dateFormat="dd/MM/yyyy"
-                        selected={new Date(deserializeDate(startDate))}
+                        // selected={deserializeDate(
+                        //   displayedTournament.startDate
+                        // )}
+                        // selected={displayedTournament.startDate} TODO - why does not show real Date() ?
+                        selected={new Date(startDate)}
                         onChange={(date) =>
-                          date
-                            ? setStartDate((prev) => serializeDate(date))
-                            : {}
+                          date ? setStartDate((prev) => date) : {}
                         }
                       />
                     </div>
@@ -150,9 +157,10 @@ function AddOrEditTournament() {
                       <DatePicker
                         className="text-center font-bold"
                         dateFormat="dd/MM/yyyy"
-                        selected={new Date(deserializeDate(endDate))}
+                        // selected={displayedTournament.endDate}
+                        selected={new Date(endDate)}
                         onChange={(date) =>
-                          date ? setEndDate((prev) => serializeDate(date)) : {}
+                          date ? setEndDate((prev) => date) : {}
                         }
                       />
                     </div>
@@ -166,7 +174,10 @@ function AddOrEditTournament() {
                           ? TournamentType.DOUBLES
                           : TournamentType.SINGLES
                       }
-                      onChange={(e) => setType((prev) => e.target.value)}
+                      onChange={(e) => {
+                        console.log("DETECTING CHANGE OF TYPE...");
+                        setType((prev) => e.target.value);
+                      }}
                     >
                       <option value={TournamentType.DOUBLES}>
                         {TournamentType.DOUBLES}
@@ -223,12 +234,13 @@ function AddOrEditTournament() {
                             endDate,
                             groupSize,
                             comment,
-                            participatingPlayers,
-                            participatingPlayerIds,
-                            participatingTeams,
-                            participatingTeamIds,
-                            groups,
-                            groupIds,
+                            participatingPlayers: participatingPlayers || [],
+                            participatingPlayerIds:
+                              participatingPlayerIds || [],
+                            participatingTeams: participatingTeams || [],
+                            participatingTeamIds: participatingTeamIds || [],
+                            groups: groups || [],
+                            groupIds: groupIds || [],
                           })
                         );
                       }}
