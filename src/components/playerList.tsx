@@ -28,7 +28,13 @@ import TeamInfoColumns from "./TeamInfoColumns";
 import { findPlayerById, getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
 // eslint-disable-next-line import/no-cycle
 import { findTeamById } from "./AddOrEditTeam";
-import { Item, highlighted, injectItemPlayerOrTeamKey } from "../utils/funcs";
+import {
+  Item,
+  highlighted,
+  injectItemPlayerOrTeamKey,
+  isPlayer,
+  isTeam,
+} from "../utils/funcs";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -58,10 +64,10 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const isPlayerChecked = useCallback(
     (id: number): boolean => {
       const found: Player = findPlayerById(players, id);
-      if (found && "isChecked" in found) {
+      if (found && found.isChecked) {
         return found.isChecked;
       }
-      if (found && "checked" in found) {
+      if (found && found.checked) {
         return found.checked;
       }
       return false;
@@ -89,7 +95,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       const newIdToCheckStatusMapping = new Map();
       if (key !== -1) {
         if (type === "player") {
-          const player = findPlayerById(players, key);
+          const player: Player = findPlayerById(players, key);
           newIdToCheckStatusMapping.set(player.id, !isPlayerChecked(player.id));
           dispatch(checkPlayers(newIdToCheckStatusMapping));
         } else if (type === "team") {
@@ -133,8 +139,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   useEffect(() => {}, [forceRenderCount]);
 
   const items: Array<Item> = !isParticipantsSingles ? teams : players;
-
-  console.log("WILL SHOW ITEMS: ", items);
 
   return (
     Boolean(items.length) && (
@@ -195,7 +199,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                     >
                       {/* player to tournament assignment mode, singles : doubles */}
                       {isEditingTournamentParticipants &&
-                        (isParticipantsSingles ? (
+                        (isParticipantsSingles && isPlayer(item) ? (
                           <CheckPlayerRow
                             handleCheck={(e) => handleCheck(e, "player")}
                             id={item.id}
@@ -203,18 +207,22 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                             player={item}
                           />
                         ) : (
-                          <CheckTeamRow
-                            handleCheck={(e) => handleCheck(e, "team")}
-                            id={item.id}
-                            isChecked={isTeamChecked}
-                            team={item}
-                            findPlayerById={findPlayerById}
-                          />
+                          !isParticipantsSingles &&
+                          isTeam(item) && (
+                            <CheckTeamRow
+                              handleCheck={(e) => handleCheck(e, "team")}
+                              id={item.id}
+                              isChecked={isTeamChecked}
+                              team={item}
+                              findPlayerById={findPlayerById}
+                            />
+                          )
                         ))}
 
                       {/* read only mode, singles */}
                       {!isEditingTournamentParticipants &&
-                        isParticipantsSingles && (
+                        isParticipantsSingles &&
+                        isPlayer(item) && (
                           <>
                             <PlayerInfoColumns player={item} />
                             <th>
@@ -245,7 +253,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
                       {/* read only mode, doubles */}
                       {!isEditingTournamentParticipants &&
-                        !isParticipantsSingles && (
+                        !isParticipantsSingles &&
+                        isTeam(item) && (
                           <>
                             <TeamInfoColumns
                               playerOne={findPlayerById(
