@@ -14,6 +14,8 @@ import { Player, baseUrl } from "./playerSlice";
 // eslint-disable-next-line import/no-cycle
 import { Team } from "./teamSlice";
 import { Group } from "./groupSlice";
+import { serializeDate } from "../../utils/funcs";
+import { TournamentType } from "../../components/Tournament";
 
 // TODO: figure out which ones are optional
 export interface Tournament {
@@ -30,6 +32,36 @@ export interface Tournament {
   groups: Group[];
   groupIds: number[];
 }
+
+export const placeholderTournament: Tournament = {
+  id: -2,
+  startDate: serializeDate(new Date()),
+  endDate: serializeDate(new Date()),
+  type: TournamentType.SINGLES,
+  groupSize: 0,
+  comment: "",
+  participatingPlayers: [],
+  participatingPlayerIds: [],
+  participatingTeams: [],
+  participatingTeamIds: [],
+  groups: [],
+  groupIds: [],
+};
+
+export const emptyTournament: Tournament = {
+  id: 999,
+  startDate: serializeDate(new Date()),
+  endDate: serializeDate(new Date()),
+  type: TournamentType.SINGLES,
+  groupSize: 0,
+  comment: "",
+  participatingPlayers: [],
+  participatingPlayerIds: [],
+  participatingTeams: [],
+  participatingTeamIds: [],
+  groups: [],
+  groupIds: [],
+};
 
 interface TournamentSliceState {
   tournaments: Tournament[];

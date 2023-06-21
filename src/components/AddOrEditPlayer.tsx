@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from "../storeContent/store";
 // eslint-disable-next-line import/no-cycle
 import PlayerList from "./PlayerList";
 import { numericOptions } from "./numericOptions";
+import { findPlayerById } from "../utils/funcs";
 
 export enum UserActions {
   ADD = "add",
@@ -40,13 +41,6 @@ export const getIdOfItemToSaveOrEdit = (
         : idOfPlayerToSaveOrEdit;
   }
   return idOfPlayerToSaveOrEdit;
-};
-
-export const findPlayerById = (players: Player[], id: number) => {
-  if (id === -2) return placeholderPlayer;
-  return Array.isArray(players)
-    ? players.find((player) => player.id === id) || emptyPlayer
-    : emptyPlayer;
 };
 
 function AddOrEditPlayer() {
@@ -229,21 +223,24 @@ function AddOrEditPlayer() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        const idToEdit: number =
-                          getIdOfItemToSaveOrEdit(params);
-                        console.log("idToEdit: ", idToEdit);
+                        const id: number = getIdOfItemToSaveOrEdit(params);
+                        console.log("idToEdit: ", id);
+                        const p = findPlayerById(players, id);
+                        const isChecked = p.isChecked || false;
+                        const { playedSinglesTournaments } = p;
+                        const { belongsToGroups } = p;
+                        const { belongsToGroupIds } = p;
                         dispatch(
                           savePlayer({
-                            id: getIdOfItemToSaveOrEdit(params),
-                            isChecked: false,
+                            id,
+                            isChecked,
                             firstName,
                             lastName,
                             strength,
                             comment,
-                            playedSinglesTournaments: findPlayerById(
-                              players,
-                              idToEdit
-                            ).playedSinglesTournaments,
+                            playedSinglesTournaments,
+                            belongsToGroups,
+                            belongsToGroupIds,
                           })
                         );
                       }}

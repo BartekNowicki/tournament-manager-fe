@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
 import { Tournament } from "./tournamentSlice";
+import { Group } from "./groupSlice";
 
 export interface Player {
   id: number;
@@ -22,6 +23,8 @@ export interface Player {
   strength: number;
   comment: string;
   playedSinglesTournaments: Tournament[];
+  belongsToGroups: Group[];
+  belongsToGroupIds: number[];
 }
 
 export const placeholderPlayer: Player = {
@@ -32,6 +35,8 @@ export const placeholderPlayer: Player = {
   strength: 0,
   comment: "",
   playedSinglesTournaments: [],
+  belongsToGroups: [],
+  belongsToGroupIds: [],
 };
 
 export const emptyPlayer: Player = {
@@ -42,6 +47,8 @@ export const emptyPlayer: Player = {
   strength: 999,
   comment: "",
   playedSinglesTournaments: [],
+  belongsToGroups: [],
+  belongsToGroupIds: [],
 };
 
 export type IdToCheckStatusMapping = Map<string, boolean>;
@@ -82,7 +89,7 @@ export const checkPlayers = createAsyncThunk(
   "players/check",
   async (mapping: IdToCheckStatusMapping, { rejectWithValue }) => {
     try {
-      console.log("SENDING : ", Object.fromEntries(mapping));
+      // console.log("SENDING : ", Object.fromEntries(mapping));
       // console.log("SENDING : ", mapping);
       const response = await axios.patch(
         `${baseUrl}/api/data/players`,

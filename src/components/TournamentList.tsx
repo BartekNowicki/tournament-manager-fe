@@ -94,16 +94,16 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           ? selectedTournament.participatingPlayers
           : selectedTournament.participatingTeams;
 
-      console.log(
-        "matching for tournament: ",
-        selectedTournament,
-        "matching for tournament type: ",
-        typeOfTournamentDisplayedForEditingParticipants,
-        "id: ",
-        idOfTournamentDisplayedForEditingParticipants,
-        "participantIds: ",
-        participantIds
-      );
+      // console.log(
+      //   "matching for tournament: ",
+      //   selectedTournament,
+      //   "matching for tournament type: ",
+      //   typeOfTournamentDisplayedForEditingParticipants,
+      //   "id: ",
+      //   idOfTournamentDisplayedForEditingParticipants,
+      //   "participantIds: ",
+      //   participantIds
+      // );
 
       const newIdToCheckStatusMapping = new Map();
 

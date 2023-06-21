@@ -25,11 +25,11 @@ import PlayerInfoColumns from "./PlayerInfoColumns";
 import { TData, Tournament } from "../storeContent/storeSlices/tournamentSlice";
 import TeamInfoColumns from "./TeamInfoColumns";
 // eslint-disable-next-line import/no-cycle
-import { findPlayerById, getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
-// eslint-disable-next-line import/no-cycle
-import { findTeamById } from "./AddOrEditTeam";
+import { getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
 import {
   Item,
+  findPlayerById,
+  findTeamById,
   highlighted,
   injectItemPlayerOrTeamKey,
   isPlayer,
@@ -132,7 +132,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   // useEffect(() => {});
 
   useEffect(() => {
-    console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
+    //console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
   });
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender

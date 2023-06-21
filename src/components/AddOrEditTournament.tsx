@@ -8,6 +8,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import {
   Tournament,
+  placeholderTournament,
   saveTournament,
 } from "../storeContent/storeSlices/tournamentSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
@@ -15,16 +16,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import { UserActions } from "./AddOrEditPlayer";
 import { TournamentType } from "./Tournament";
 import TournamentList from "./TournamentList";
-import { getDateOneDayBefore } from "../utils/dates";
 import { numericOptions } from "./numericOptions";
-
-// these functions are only to communicate the date from the date picker to component state and back, not with redux and db
-// redux and db date conversion takes place in the tournamentSlice
-const serialize = (date: Date): string => date.toLocaleDateString();
-const deserialize = (dateString: string) => {
-  const dateArr: string[] = dateString.split(".");
-  return `"${dateArr[1]}.${dateArr[0]}.${dateArr[2]}"`;
-};
+import {
+  deserializeDate,
+  findTournamentById,
+  serializeDate,
+} from "../utils/funcs";
 
 function AddOrEditTournament() {
   const navigate = useNavigate();
@@ -49,36 +46,11 @@ function AddOrEditTournament() {
   };
 
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
-  const findById = (id: number) => {
-    const placeholderTournament: Tournament = {
-      id: -2,
-      startDate: serialize(new Date()),
-      endDate: serialize(new Date()),
-      type: TournamentType.SINGLES,
-      groupSize: 0,
-      comment: "",
-      participatingPlayers: [],
-      participatingTeams: [],
-    };
-    if (id === -2) return placeholderTournament;
 
-    const foundTournament: Tournament = tournaments.filter(
-      (tournament) => tournament.id === id
-    )[0];
-
-    return {
-      ...foundTournament,
-      type: foundTournament.type,
-      startDate: serialize(
-        getDateOneDayBefore(new Date(`${foundTournament.startDate}`))
-      ),
-      endDate: serialize(
-        getDateOneDayBefore(new Date(`${foundTournament.endDate}`))
-      ),
-    };
-  };
-
-  const initialDisplayedTournament = findById(getIdOfTournamentToSaveOrEdit());
+  const initialDisplayedTournament = findTournamentById(
+    tournaments,
+    getIdOfTournamentToSaveOrEdit()
+  );
   const [displayedTournament, setDisplayedTournament] = useState<Tournament>(
     initialDisplayedTournament
   );
@@ -110,7 +82,8 @@ function AddOrEditTournament() {
       groupSize !== displayedTournament.groupSize ||
       comment !== displayedTournament.comment
     ) {
-      const currentTournamentToDisplay = findById(
+      const currentTournamentToDisplay = findTournamentById(
+        tournaments,
         getIdOfTournamentToSaveOrEdit()
       );
 
@@ -162,9 +135,11 @@ function AddOrEditTournament() {
                       <DatePicker
                         className="text-center font-bold"
                         dateFormat="dd/MM/yyyy"
-                        selected={new Date(deserialize(startDate))}
+                        selected={new Date(deserializeDate(startDate))}
                         onChange={(date) =>
-                          date ? setStartDate((prev) => serialize(date)) : {}
+                          date
+                            ? setStartDate((prev) => serializeDate(date))
+                            : {}
                         }
                       />
                     </div>
@@ -175,9 +150,9 @@ function AddOrEditTournament() {
                       <DatePicker
                         className="text-center font-bold"
                         dateFormat="dd/MM/yyyy"
-                        selected={new Date(deserialize(endDate))}
+                        selected={new Date(deserializeDate(endDate))}
                         onChange={(date) =>
-                          date ? setEndDate((prev) => serialize(date)) : {}
+                          date ? setEndDate((prev) => serializeDate(date)) : {}
                         }
                       />
                     </div>
@@ -231,17 +206,29 @@ function AddOrEditTournament() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
+                        const id = getIdOfTournamentToSaveOrEdit();
+                        const t = findTournamentById(tournaments, id);
+                        const { participatingPlayers } = t;
+                        const { participatingPlayerIds } = t;
+                        const { participatingTeams } = t;
+                        const { participatingTeamIds } = t;
+                        const { groups } = t;
+                        const { groupIds } = t;
+
                         dispatch(
                           saveTournament({
-                            id: getIdOfTournamentToSaveOrEdit(),
+                            id,
                             type,
                             startDate,
                             endDate,
                             groupSize,
                             comment,
-                            participatingPlayerIds: [],
-                            participatingTeamIds: [],
-                            groupIds: [],
+                            participatingPlayers,
+                            participatingPlayerIds,
+                            participatingTeams,
+                            participatingTeamIds,
+                            groups,
+                            groupIds,
                           })
                         );
                       }}

@@ -11,24 +11,11 @@ import PlayerList from "./PlayerList";
 // eslint-disable-next-line import/no-cycle
 import {
   UserActions,
-  findPlayerById,
   getIdOfItemToSaveOrEdit,
   getUserAction,
 } from "./AddOrEditPlayer";
 import { Team, saveTeam } from "../storeContent/storeSlices/teamSlice";
-
-export const findTeamById = (teams: Team[], id: number) => {
-  const placeholderTeam = {
-    id: -2,
-    isChecked: false,
-    playerOneId: 1,
-    playerTwoId: 2,
-    strength: 0,
-    comment: "",
-  };
-  if (id === -2) return placeholderTeam;
-  return teams.filter((team) => team.id === id)[0];
-};
+import { findPlayerById, findTeamById } from "../utils/funcs";
 
 function AddOrEditTeam() {
   const navigate = useNavigate();
@@ -107,13 +94,19 @@ function AddOrEditTeam() {
               <thead>
                 <tr>
                   {displayedTeam.id === -2 && <th />}
-                  {displayedTeam.id === -2 && <th className="text text-center">gracz 1</th>}                  
-                  {displayedTeam.id === -2 && <th className="text text-center">gracz 2</th>}                  
-                  {displayedTeam.id !== -2 && <th className="text text-center">gracz 1 + gracz 2</th>}               
-                  
+                  {displayedTeam.id === -2 && (
+                    <th className="text text-center">gracz 1</th>
+                  )}
+                  {displayedTeam.id === -2 && (
+                    <th className="text text-center">gracz 2</th>
+                  )}
+                  {displayedTeam.id !== -2 && (
+                    <th className="text text-center">gracz 1 + gracz 2</th>
+                  )}
+
                   <th className="text text-center">Siła drużyny</th>
                   <th className="text text-center">Uwagi</th>
-                   {<th />}
+                  <th />
                   <th />
                 </tr>
               </thead>
@@ -148,7 +141,6 @@ function AddOrEditTeam() {
                           </div>
                         </div>
                       )}
-
                     </div>
                   </td>
 
@@ -245,18 +237,24 @@ function AddOrEditTeam() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        console.log(
-                          "idToEdit: ",
-                          getIdOfItemToSaveOrEdit(params)
-                        );
+                        const id = getIdOfItemToSaveOrEdit(params);
+                        const t = findTeamById(teams, id);
+                        const isChecked = t.isChecked || false;
+                        const { playedDoublesTournaments } = t;
+                        const { belongsToGroups } = t;
+                        const { belongsToGroupIds } = t;
+                        console.log("idToEdit: ", id);
                         dispatch(
                           saveTeam({
-                            id: getIdOfItemToSaveOrEdit(params),
-                            isChecked: false,
+                            id,
+                            isChecked,
                             playerOneId,
                             playerTwoId,
                             strength,
                             comment,
+                            playedDoublesTournaments,
+                            belongsToGroups,
+                            belongsToGroupIds,
                           })
                         );
                       }}

@@ -13,6 +13,7 @@ import axios from "axios";
 // eslint-disable-next-line import/no-cycle
 import { Tournament } from "./tournamentSlice";
 import { IdToCheckStatusMapping } from "./playerSlice";
+import { Group } from "./groupSlice";
 
 export interface Team {
   id: number;
@@ -22,7 +23,33 @@ export interface Team {
   strength: number;
   comment: string;
   playedDoublesTournaments: Tournament[];
+  belongsToGroups: Group[];
+  belongsToGroupIds: number[];
 }
+
+export const placeholderTeam = {
+  id: -2,
+  isChecked: false,
+  playerOneId: 1,
+  playerTwoId: 2,
+  strength: 0,
+  comment: "",
+  playedDoublesTournaments: [],
+  belongsToGroups: [],
+  belongsToGroupIds: [],
+};
+
+export const emptyTeam = {
+  id: 999,
+  isChecked: false,
+  playerOneId: 999,
+  playerTwoId: 999,
+  strength: 0,
+  comment: "",
+  playedDoublesTournaments: [],
+  belongsToGroups: [],
+  belongsToGroupIds: [],
+};
 
 interface RejectedAction extends Action {
   error: Error;
