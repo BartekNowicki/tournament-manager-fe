@@ -43,24 +43,24 @@ export const highlighted = () => "border-solid border-2 border-sky-500";
 // not with redux and db - redux and db date conversion takes place in the tournamentSlice
 export const serializeDate = (date: Date): string => date.toLocaleDateString();
 
-export const deserializeDate = (dateString: string): Date => {
-  // if (!dateString || !dateString.length) return new Date();
-  // console.log("DATESTRING BEFORE: ", dateString, dateString.split("."));
-  // const dateArr: string[] = dateString.split(".");
+// export const deserializeDate = (dateString: string): Date => {
+// if (!dateString || !dateString.length) return new Date();
+// console.log("DATESTRING BEFORE: ", dateString, dateString.split("."));
+// const dateArr: string[] = dateString.split(".");
 
-  // const dateStringDeserializedToDateObject: Date = new Date("2022-5-19 GMT");
-  // const year = parseInt(dateArr[2], 10);
-  // const month = parseInt(dateArr[1], 10);
-  // const day = parseInt(dateArr[0], 10);
-  // const dateStringDeserializedToDateObject: Date = new Date(`${year}-${month}-${day} GMT`);
-  // console.log(dateString);
-  // console.log(year, month, day);
-  // console.log("DATESTRING AFTER: ", dateStringDeserializedToDateObject);
-  // console.log(new Date(dateString));
+// const dateStringDeserializedToDateObject: Date = new Date("2022-5-19 GMT");
+// const year = parseInt(dateArr[2], 10);
+// const month = parseInt(dateArr[1], 10);
+// const day = parseInt(dateArr[0], 10);
+// const dateStringDeserializedToDateObject: Date = new Date(`${year}-${month}-${day} GMT`);
+// console.log(dateString);
+// console.log(year, month, day);
+// console.log("DATESTRING AFTER: ", dateStringDeserializedToDateObject);
+// console.log(new Date(dateString));
 
-  return new Date();
-  // return dateStringDeserializedToDateObject;
-};
+// return new Date();
+// return dateStringDeserializedToDateObject;
+// };
 
 export const findPlayerById = (players: Player[], id: number) => {
   if (id === -2) return placeholderPlayer;
@@ -80,15 +80,25 @@ export const findTournamentById = (
   tournaments: Tournament[],
   id: number
 ): Tournament => {
-  let foundTournament: Tournament = emptyTournament;
+  if (id === -2) {
+    return placeholderTournament;
+  }
+  if (Array.isArray(tournaments)) {
+    return (
+      tournaments.find((tournament) => tournament.id === id) || emptyTournament
+    );
+  }
+  return emptyTournament;
 
-  if (id === -2) foundTournament = placeholderTournament;
+  // let foundTournament: Tournament = emptyTournament;
 
-  if (id !== -2)
-    foundTournament = Array.isArray(tournaments)
-      ? tournaments.find((tournament) => tournament.id === id) ||
-        emptyTournament
-      : emptyTournament;
+  // if (id === -2) foundTournament = placeholderTournament;
+
+  // if (id !== -2)
+  //   foundTournament = Array.isArray(tournaments)
+  //     ? tournaments.find((tournament) => tournament.id === id) ||
+  //       emptyTournament
+  //     : emptyTournament;
 
   // return {
   //   ...foundTournament,
@@ -101,12 +111,12 @@ export const findTournamentById = (
   //   ),
   // };
 
-  return {
-    ...foundTournament,
-    type: foundTournament.type,
-    // startDate: serializeDate(new Date(`${foundTournament.startDate}`)),
-    // endDate: serializeDate(new Date(`${foundTournament.endDate}`)),
-    startDate: foundTournament.startDate,
-    endDate: foundTournament.endDate,
-  };
+  // return {
+  //   ...foundTournament,
+  //   type: foundTournament.type,
+  //   // startDate: serializeDate(new Date(`${foundTournament.startDate}`)),
+  //   // endDate: serializeDate(new Date(`${foundTournament.endDate}`)),
+  //   startDate: foundTournament.startDate,
+  //   endDate: foundTournament.endDate,
+  // };
 };

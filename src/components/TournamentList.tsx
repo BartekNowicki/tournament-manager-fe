@@ -24,7 +24,7 @@ import {
   fetchAllPlayers,
 } from "../storeContent/storeSlices/playerSlice";
 
-import { checkTeams } from "../storeContent/storeSlices/teamSlice";
+import { checkTeams, fetchAllTeams } from "../storeContent/storeSlices/teamSlice";
 import { highlighted, injectItemTournamentKey } from "../utils/funcs";
 
 interface ITournamentListProps {
@@ -141,9 +141,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
         }
       }
     } else {
-      console.log(
-        "The selected tournament does not exist, are you adding a new one?"
-      );
+      // console.log("No tournament selected or adding a new one");
     }
   };
 
@@ -259,15 +257,16 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                       <button
                         className="btn btn-ghost btn-xs bg-slate-600"
                         onClick={(e) => {
+                          // const tournamentType = tournament.type;
                           const tournamentType =
                             tournament.type === "SINGLES"
                               ? "singles"
                               : "doubles";
-                          console.log(
-                            "DELETING: ",
-                            tournamentType,
-                            tournament.type
-                          );
+                          // console.log(
+                          //   "DELETING: ",
+                          //   tournamentType,
+                          //   tournament.type
+                          // );
 
                           dispatch(
                             deleteTournament({
@@ -442,7 +441,8 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                   })
                 );
                 await dispatch(fetchAllTournaments());
-                dispatch(fetchAllPlayers());
+                await dispatch(fetchAllPlayers());
+                dispatch(fetchAllTeams()); // uu if redundant?
               }}
             />
           </div>,

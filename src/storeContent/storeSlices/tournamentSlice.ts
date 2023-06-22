@@ -20,7 +20,6 @@ import { Group } from "./groupSlice";
 import { TournamentType } from "../../components/Tournament";
 // import { serializeDate } from "../../utils/funcs";
 
-// TODO: figure out which ones are optional
 export interface Tournament {
   id: number;
   type: string;
@@ -86,12 +85,12 @@ export const fetchAllTournaments = createAsyncThunk(
   }
 );
 
-const getEnumKeyByValue = (val: string): string => {
-  if (val === "SINGLES") return "SINGLES";
-  if (val === "DOUBLES") return "DOUBLES";
-  console.warn("HERE IS THE ERROR WHEN SAVING SINGLES!!!");
-  return "DOUBLES";
-};
+// const getEnumKeyByValue = (val: string): string => {
+//   if (val === "SINGLES") return "SINGLES";
+//   if (val === "DOUBLES") return "DOUBLES";
+//   console.warn("HERE IS THE ERROR WHEN SAVING SINGLES!!!");
+//   return "DOUBLES";
+// };
 
 // export const convertToMysqlDatetime6 = (dateString: string): Date => {
 //   // required by mysql: datetime(6)
@@ -127,15 +126,16 @@ const getEnumKeyByValue = (val: string): string => {
 export const saveTournament = createAsyncThunk(
   "tournaments/save",
   async (tournament: Tournament, { rejectWithValue }) => {
-    console.log("ASYNC THINK RECEIVED TYPE: ", tournament.type);
-    const tournamentWithTypeConvertedToEnumKey = {
-      ...tournament,
-      // type: getEnumKeyByValue(tournament.type),  IS THIS CONVERSION NECESSARY?? PROBABLY NOT IF YOU JUST SET THE ENUM VALUE TO "SINGLES" AND "DOUBLES" AND NOT TO "singles" and "doubles" because BE EXPECTS IN ITS ENUM CONVERSION TO RECEIVE SINGLES OR DOUBLES, IF YOU SEND "singles" THEN YOU NEED TO CONVERT... IS IT NOT BETTER TO JUST USE CAPITALS EVERYWHERE?
-    };
+    // console.log("ASYNC THUNK RECEIVED TYPE: ", tournament.type);
+    // const tournamentWithTypeConvertedToEnumKey = {
+    //   ...tournament,
+    //   // type: getEnumKeyByValue(tournament.type),  IS THIS CONVERSION NECESSARY?? PROBABLY NOT IF YOU JUST SET THE ENUM VALUE TO "SINGLES" AND "DOUBLES" AND NOT TO "singles" and "doubles" because BE EXPECTS IN ITS ENUM CONVERSION TO RECEIVE SINGLES OR DOUBLES, IF YOU SEND "singles" THEN YOU NEED TO CONVERT... IS IT NOT BETTER TO JUST USE CAPITALS EVERYWHERE?
+    // };
     try {
-      console.log("SAVE REQUEST: ", tournament);
+      // console.log("SAVE REQUEST: ", tournament);
       const response = await axios.put(`${baseUrl}/api/data/tournaments`, {
-        ...tournamentWithTypeConvertedToEnumKey,
+        // ...tournamentWithTypeConvertedToEnumKey,
+        ...tournament,
         // startDate: convertToMysqlDatetime6(tournament.startDate),
         // endDate: convertToMysqlDatetime6(tournament.endDate),
       });
@@ -160,7 +160,7 @@ export const assignPlayersToTournament = createAsyncThunk(
         type === "singles"
           ? `${baseUrl}/api/data/tournaments/assignToSingles?tournamentId=${tournamentId}`
           : `${baseUrl}/api/data/tournaments/assignToDoubles?tournamentId=${tournamentId}`;
-      // console.log("ASSIGNING: ", tournamentId, type);
+      console.log("ASSIGNING: ", tournamentId, type);
       const response = await axios.get(URL);
       return response.data;
     } catch (error: any) {
@@ -248,6 +248,7 @@ export const TournamentSlice = createSlice({
         console.warn("fetch tournaments promise rejected!");
       })
       .addCase(saveTournament.fulfilled, (state, action) => {
+        // console.log("PAYLOAD: ", action.payload);
         const tournamentIdAlreadyInState = (id: number) => {
           if (!state.tournaments.length) return false;
           return state.tournaments.filter((t) => t.id === id).length > 0;

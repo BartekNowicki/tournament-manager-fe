@@ -87,7 +87,7 @@ function AddOrEditTournament() {
       );
 
       setDisplayedTournament((prev) => currentTournamentToDisplay);
-      setId((prev) => currentTournamentToDisplay.id); //adding this now to see if it fixes anything
+      setId((prev) => currentTournamentToDisplay.id); // adding this now to see if it fixes anything
       setStartDate((prev) => currentTournamentToDisplay.startDate);
       setEndDate((prev) => currentTournamentToDisplay.endDate);
       setType((prev) => currentTournamentToDisplay.type);
@@ -104,18 +104,11 @@ function AddOrEditTournament() {
   }, [currentAction, getUserAction, params.action, updateDisplayedTournament]);
 
   useEffect(() => {
-    console.log(
-      "ADDOREDIT PANEL SHOWS: startdate - enddate",
-      startDate,
-      endDate, type, id
-    );
-
-console.log(
-      "WTF ARE ENUMS FOR:",
-      TournamentType.SINGLES, TournamentType.DOUBLES,
-      endDate, type, id
-    );
-
+    // console.log("ADDOREDIT PANEL SHOWS:");
+    // console.log("startdate", startDate);
+    // console.log("enddate", endDate);
+    // console.log("type", type);
+    // console.log("id", id);
   });
 
   return (
@@ -132,7 +125,10 @@ console.log(
                   </th>
                   <th className="text text-center">Data rozpoczęcia</th>
                   <th className="text text-center">Data zakończenia</th>
-                  <th className="text text-center">Rodzaj</th>
+                  {params.action === "add" && (
+                    <th className="text text-center">Rodzaj</th>
+                  )}
+                  {params.action !== "add" && <th />}
                   <th className="text text-center">Rozmiar grupy</th>
                   <th className="text text-center">Uwagi</th>
                   <th />
@@ -174,28 +170,32 @@ console.log(
                       />
                     </div>
                   </td>
-                  <td className="text text-center">
-                    <label htmlFor="" />
-                    <select
-                      className="font-bold px-2"
-                      value={
-                        type === "DOUBLES"
-                          ? TournamentType.DOUBLES
-                          : TournamentType.SINGLES
-                      }
-                      onChange={(e) => {
-                        console.log("DETECTING CHANGE OF TYPE...");
-                        setType((prev) => e.target.value);
-                      }}
-                    >
-                      <option value={TournamentType.DOUBLES}>
-                        {TournamentType.DOUBLES}
-                      </option>
-                      <option value={TournamentType.SINGLES}>
-                        {TournamentType.SINGLES}
-                      </option>
-                    </select>
-                  </td>
+                  {params.action === "add" && (
+                    <td className="text text-center">
+                      <label htmlFor="" />
+                      <select
+                        className="font-bold px-2"
+                        // value={
+                        //   type === "DOUBLES"
+                        //     ? TournamentType.DOUBLES
+                        //     : TournamentType.SINGLES
+                        // }
+                        value={type}
+                        onChange={(e) => {
+                          console.log("DETECTING CHANGE OF TYPE...");
+                          setType((prev) => e.target.value);
+                        }}
+                      >
+                        <option value={TournamentType.DOUBLES}>
+                          {TournamentType.DOUBLES}
+                        </option>
+                        <option value={TournamentType.SINGLES}>
+                          {TournamentType.SINGLES}
+                        </option>
+                      </select>
+                    </td>
+                  )}
+                  {params.action !== "add" && <td />}
                   <td className="text text-center">
                     <div className="font-bold">
                       <label htmlFor="" />

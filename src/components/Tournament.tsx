@@ -3,15 +3,17 @@
 import * as React from "react";
 
 export enum TournamentType {
-  SINGLES = "singles",
-  DOUBLES = "doubles",
+  // SINGLES = "singles",
+  // DOUBLES = "doubles",
+  SINGLES = "SINGLES",
+  DOUBLES = "DOUBLES",
 }
 
 interface ITournamentProps {
   id: number;
   type: string;
-  startDate: string;
-  endDate: string;
+  startDate: Date;
+  endDate: Date;
   groupSize: number;
   comment: string;
 }
@@ -26,8 +28,8 @@ const Tournament: React.FunctionComponent<ITournamentProps> = ({
 }) => {
   return (
     <div key={id}>
-      {id} {type} {startDate}
-      {endDate} {groupSize}
+      {id} {type} {startDate.getDate()}
+      {endDate.getDate()} {groupSize}
       {comment}
     </div>
   );
