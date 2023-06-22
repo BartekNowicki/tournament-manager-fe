@@ -55,6 +55,7 @@ function AddOrEditTournament() {
     initialDisplayedTournament
   );
   const [currentAction, setCurrentAction] = useState<string>();
+  const [id, setId] = useState<number>(displayedTournament.id);
   const [startDate, setStartDate] = useState<Date>(
     displayedTournament.startDate
   );
@@ -86,6 +87,7 @@ function AddOrEditTournament() {
       );
 
       setDisplayedTournament((prev) => currentTournamentToDisplay);
+      setId((prev) => currentTournamentToDisplay.id); //adding this now to see if it fixes anything
       setStartDate((prev) => currentTournamentToDisplay.startDate);
       setEndDate((prev) => currentTournamentToDisplay.endDate);
       setType((prev) => currentTournamentToDisplay.type);
@@ -105,8 +107,15 @@ function AddOrEditTournament() {
     console.log(
       "ADDOREDIT PANEL SHOWS: startdate - enddate",
       startDate,
-      endDate, type
+      endDate, type, id
     );
+
+console.log(
+      "WTF ARE ENUMS FOR:",
+      TournamentType.SINGLES, TournamentType.DOUBLES,
+      endDate, type, id
+    );
+
   });
 
   return (
@@ -217,7 +226,7 @@ function AddOrEditTournament() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        const id = getIdOfTournamentToSaveOrEdit();
+                        //  it is now tracked in the state
                         const t = findTournamentById(tournaments, id);
                         const { participatingPlayers } = t;
                         const { participatingPlayerIds } = t;

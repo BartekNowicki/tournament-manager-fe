@@ -86,8 +86,11 @@ export const fetchAllTournaments = createAsyncThunk(
   }
 );
 
-const getEnumKeyByValue = (val: string) => {
-  return val === "singles" ? "SINGLES" : "DOUBLES";
+const getEnumKeyByValue = (val: string): string => {
+  if (val === "SINGLES") return "SINGLES";
+  if (val === "DOUBLES") return "DOUBLES";
+  console.warn("HERE IS THE ERROR WHEN SAVING SINGLES!!!");
+  return "DOUBLES";
 };
 
 // export const convertToMysqlDatetime6 = (dateString: string): Date => {
@@ -124,9 +127,10 @@ const getEnumKeyByValue = (val: string) => {
 export const saveTournament = createAsyncThunk(
   "tournaments/save",
   async (tournament: Tournament, { rejectWithValue }) => {
+    console.log("ASYNC THINK RECEIVED TYPE: ", tournament.type);
     const tournamentWithTypeConvertedToEnumKey = {
       ...tournament,
-      type: getEnumKeyByValue(tournament.type),
+      // type: getEnumKeyByValue(tournament.type),  IS THIS CONVERSION NECESSARY?? PROBABLY NOT IF YOU JUST SET THE ENUM VALUE TO "SINGLES" AND "DOUBLES" AND NOT TO "singles" and "doubles" because BE EXPECTS IN ITS ENUM CONVERSION TO RECEIVE SINGLES OR DOUBLES, IF YOU SEND "singles" THEN YOU NEED TO CONVERT... IS IT NOT BETTER TO JUST USE CAPITALS EVERYWHERE?
     };
     try {
       console.log("SAVE REQUEST: ", tournament);
