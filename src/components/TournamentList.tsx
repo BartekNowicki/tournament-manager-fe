@@ -24,7 +24,10 @@ import {
   fetchAllPlayers,
 } from "../storeContent/storeSlices/playerSlice";
 
-import { checkTeams, fetchAllTeams } from "../storeContent/storeSlices/teamSlice";
+import {
+  checkTeams,
+  fetchAllTeams,
+} from "../storeContent/storeSlices/teamSlice";
 import { highlighted, injectItemTournamentKey } from "../utils/funcs";
 
 interface ITournamentListProps {
@@ -93,16 +96,16 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           ? selectedTournament.participatingPlayers
           : selectedTournament.participatingTeams;
 
-      // console.log(
-      //   "matching for tournament: ",
-      //   selectedTournament,
-      //   "matching for tournament type: ",
-      //   typeOfTournamentDisplayedForEditingParticipants,
-      //   "id: ",
-      //   idOfTournamentDisplayedForEditingParticipants,
-      //   "participantIds: ",
-      //   participantIds
-      // );
+      console.log(
+        "matching for tournament: ",
+        selectedTournament,
+        "matching for tournament type: ",
+        typeOfTournamentDisplayedForEditingParticipants,
+        "id: ",
+        idOfTournamentDisplayedForEditingParticipants,
+        "participantIds: ",
+        participantIds
+      );
 
       const newIdToCheckStatusMapping = new Map();
 
@@ -137,7 +140,8 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           newIdToCheckStatusMapping.set(id, true);
         }
         if (newIdToCheckStatusMapping.size > 0) {
-          checkTeams(newIdToCheckStatusMapping);
+          //checkTeams(newIdToCheckStatusMapping); //WHY NOT DISPATCH???
+          dispatch(checkTeams(newIdToCheckStatusMapping));
         }
       }
     } else {

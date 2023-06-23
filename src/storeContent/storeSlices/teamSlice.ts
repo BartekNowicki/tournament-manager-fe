@@ -19,7 +19,8 @@ import { Group } from "./groupSlice";
 
 export interface Team {
   id: number;
-  isChecked: boolean;
+  isChecked?: boolean;
+  checked?: boolean;
   playerOneId: number;
   playerTwoId: number;
   strength: number;

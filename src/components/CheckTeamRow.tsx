@@ -1,6 +1,7 @@
 import { useAppSelector } from "../storeContent/store";
 import { Player } from "../storeContent/storeSlices/playerSlice";
 import { Team } from "../storeContent/storeSlices/teamSlice";
+import { findTeamById } from "../utils/funcs";
 import TeamInfoColumns from "./TeamInfoColumns";
 
 interface ICheckTeamRowProps {
@@ -23,6 +24,12 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
   const players = useAppSelector((state) => state.player.players);
   const playerOne: Player = findPlayerById(players, team.playerOneId);
   const playerTwo: Player = findPlayerById(players, team.playerTwoId);
+  const teams = useAppSelector((state) => state.team.teams);
+
+  // console.log("I AM CHECKED A ROW: ", isChecked(id));
+  // console.log("BECAUSE: ", findTeamById(teams, id).checked);
+  // console.log("TEAMS: ", teams);
+  // console.log(findTeamById(teams, id).playedDoublesTournaments);
 
   return (
     <>

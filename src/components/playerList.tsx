@@ -77,11 +77,26 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   const isTeamChecked = useCallback(
     (id: number): boolean => {
-      const found = findTeamById(teams, id);
-      return found && found.isChecked === true;
+      const found: Team = findTeamById(teams, id);
+      if (found && found.isChecked) {
+        return found.isChecked;
+      }
+      if (found && found.checked) {
+        return found.checked;
+      }
+      return false;
     },
     [teams]
   );
+
+  // is this correct? lets try to copy the above
+  // const isTeamChecked = useCallback(
+  //   (id: number): boolean => {
+  //     const found = findTeamById(teams, id);
+  //     return found && found.isChecked === true;
+  //   },
+  //   [teams]
+  // );
 
   const isToBeHighlightedForEditingData = (id: number): boolean => {
     return (
