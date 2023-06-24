@@ -28,7 +28,8 @@ import {
   checkTeams,
   fetchAllTeams,
 } from "../storeContent/storeSlices/teamSlice";
-import { highlighted, injectItemTournamentKey } from "../utils/funcs";
+import { highlighted, injectItemKey } from "../utils/funcs";
+import { TournamentType } from "./Tournament";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -92,25 +93,26 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
     if (selectedTournament) {
       const participantIds =
-        typeOfTournamentDisplayedForEditingParticipants === "SINGLES"
+        typeOfTournamentDisplayedForEditingParticipants === TournamentType.SINGLES
           ? selectedTournament.participatingPlayers
           : selectedTournament.participatingTeams;
 
-      console.log(
-        "matching for tournament: ",
-        selectedTournament,
-        "matching for tournament type: ",
-        typeOfTournamentDisplayedForEditingParticipants,
-        "id: ",
-        idOfTournamentDisplayedForEditingParticipants,
-        "participantIds: ",
-        participantIds
-      );
+      // console.log(
+      //   "matching for tournament: ",
+      //   selectedTournament,
+      //   "matching for tournament type: ",
+      //   typeOfTournamentDisplayedForEditingParticipants,
+      //   "id: ",
+      //   idOfTournamentDisplayedForEditingParticipants,
+      //   "participantIds: ",
+      //   participantIds
+      // );
 
       const newIdToCheckStatusMapping = new Map();
 
       if (
-        typeOfTournamentDisplayedForEditingParticipants === "SINGLES" &&
+        typeOfTournamentDisplayedForEditingParticipants ===
+          TournamentType.SINGLES &&
         typeof participantIds !== "undefined"
       ) {
         // eslint-disable-next-line no-restricted-syntax
@@ -128,7 +130,8 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           dispatch(checkPlayers(newIdToCheckStatusMapping));
         }
       } else if (
-        typeOfTournamentDisplayedForEditingParticipants === "DOUBLES" &&
+        typeOfTournamentDisplayedForEditingParticipants ===
+          TournamentType.DOUBLES &&
         typeof participantIds !== "undefined"
       ) {
         // eslint-disable-next-line no-restricted-syntax
@@ -140,7 +143,6 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
           newIdToCheckStatusMapping.set(id, true);
         }
         if (newIdToCheckStatusMapping.size > 0) {
-          //checkTeams(newIdToCheckStatusMapping); //WHY NOT DISPATCH???
           dispatch(checkTeams(newIdToCheckStatusMapping));
         }
       }
@@ -199,7 +201,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
               {Boolean(tournaments.length) &&
                 tournaments.map((tournament) => (
                   <tr
-                    key={injectItemTournamentKey(tournament)}
+                    key={injectItemKey(tournament)}
                     className={
                       isToBeHighlightedForEditingParticipants(
                         tournament.id,
@@ -261,17 +263,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                       <button
                         className="btn btn-ghost btn-xs bg-slate-600"
                         onClick={(e) => {
-                          // const tournamentType = tournament.type;
                           const tournamentType =
                             tournament.type === "SINGLES"
                               ? "singles"
                               : "doubles";
-                          // console.log(
-                          //   "DELETING: ",
-                          //   tournamentType,
-                          //   tournament.type
-                          // );
-
                           dispatch(
                             deleteTournament({
                               tournamentId: tournament.id,
@@ -446,7 +441,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                 );
                 await dispatch(fetchAllTournaments());
                 await dispatch(fetchAllPlayers());
-                dispatch(fetchAllTeams()); // uu if redundant?
+                dispatch(fetchAllTeams());
               }}
             />
           </div>,

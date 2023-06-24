@@ -22,7 +22,7 @@ import {
 import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
 import PlayerInfoColumns from "./PlayerInfoColumns";
-import { TData, Tournament } from "../storeContent/storeSlices/tournamentSlice";
+import { TData } from "../storeContent/storeSlices/tournamentSlice";
 import TeamInfoColumns from "./TeamInfoColumns";
 // eslint-disable-next-line import/no-cycle
 import { getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
@@ -31,7 +31,7 @@ import {
   findPlayerById,
   findTeamById,
   highlighted,
-  injectItemPlayerOrTeamKey,
+  injectItemKey,
   isPlayer,
   isTeam,
 } from "../utils/funcs";
@@ -88,15 +88,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     },
     [teams]
   );
-
-  // is this correct? lets try to copy the above
-  // const isTeamChecked = useCallback(
-  //   (id: number): boolean => {
-  //     const found = findTeamById(teams, id);
-  //     return found && found.isChecked === true;
-  //   },
-  //   [teams]
-  // );
 
   const isToBeHighlightedForEditingData = (id: number): boolean => {
     return (
@@ -207,7 +198,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                 .filter((item: Item) => item.id !== -1)
                 .map((item: Item) => (
                   <tr
-                    key={injectItemPlayerOrTeamKey(item)}
+                    key={injectItemKey(item)}
                     className={
                       isToBeHighlightedForEditingData(item.id)
                         ? highlighted()
