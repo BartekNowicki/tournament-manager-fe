@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
 import * as React from "react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
@@ -34,6 +34,7 @@ import {
   injectItemKey,
   isPlayer,
   isTeam,
+  log,
 } from "../utils/funcs";
 
 interface IPlayerListProps {
@@ -47,7 +48,7 @@ interface IPlayerListProps {
 
 const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   displayedPlayerUpdater,
-  isEditingTournamentParticipants,
+  isEditingTournamentParticipants: isEditingParticipantsOrGroups,
   idOfTournamentDisplayedForEditingParticipants,
   isParticipantsSingles,
   assignPlayersToTournament,
@@ -57,6 +58,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const forceRenderCount = useAppSelector(
     (state) => state.player.forceRerenderPlayerListCount
   );
+  const [isDividedIntoGroups, setIsDividedIntoGroups] =
+    useState<boolean>(false);
   const dispatch = useAppDispatch();
 
   const params = useParams() ?? {};
@@ -91,7 +94,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   const isToBeHighlightedForEditingData = (id: number): boolean => {
     return (
-      !isEditingTournamentParticipants && id === getIdOfItemToSaveOrEdit(params)
+      !isEditingParticipantsOrGroups && id === getIdOfItemToSaveOrEdit(params)
     );
   };
 
@@ -139,6 +142,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   useEffect(() => {
     // console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
+    log("isDividedIntoGroups: ", isDividedIntoGroups);
   });
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
@@ -153,7 +157,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     <div className="m-8 border border-sky-500 addPlayersPanel">
       <div
         style={
-          isEditingTournamentParticipants
+          isEditingParticipantsOrGroups
             ? { maxHeight: "65vh" }
             : { maxHeight: "75vh" }
         }
@@ -163,7 +167,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
           {/* head */}
           <thead>
             <tr>
-              {isEditingTournamentParticipants && (
+              {isEditingParticipantsOrGroups && (
                 <th>
                   <label>
                     <input
@@ -180,6 +184,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           ? (e) => handleCheck(e, "player")
                           : (e) => handleCheck(e, "team")
                       }
+                      style={{
+                        display: !isDividedIntoGroups ? "block" : "none",
+                      }}
                     />
                   </label>
                 </th>
@@ -187,8 +194,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
               <th className="text text-center">Imię i Nazwisko</th>
               <th className="text text-center">Siła</th>
               <th className="text text-center">Uwagi</th>
-              {!isEditingTournamentParticipants && <th />}
-              {!isEditingTournamentParticipants && <th />}
+              {!isEditingParticipantsOrGroups && <th />}
+              {!isEditingParticipantsOrGroups && <th />}
             </tr>
           </thead>
           <tbody>
@@ -206,13 +213,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                     }
                   >
                     {/* player to tournament assignment mode, singles : doubles */}
-                    {isEditingTournamentParticipants &&
+                    {isEditingParticipantsOrGroups &&
                       (isParticipantsSingles && isPlayer(item) ? (
                         <CheckPlayerRow
                           handleCheck={(e) => handleCheck(e, "player")}
                           id={item.id}
                           isChecked={isPlayerChecked}
                           player={item}
+                          isDividedIntoGroups={isDividedIntoGroups}
                         />
                       ) : (
                         !isParticipantsSingles &&
@@ -223,12 +231,13 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                             isChecked={isTeamChecked}
                             team={item}
                             findPlayerById={findPlayerById}
+                            isDividedIntoGroups={isDividedIntoGroups}
                           />
                         )
                       ))}
 
                     {/* read only mode, singles */}
-                    {!isEditingTournamentParticipants &&
+                    {!isEditingParticipantsOrGroups &&
                       isParticipantsSingles &&
                       isPlayer(item) && (
                         <>
@@ -260,7 +269,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                       )}
 
                     {/* read only mode, doubles */}
-                    {!isEditingTournamentParticipants &&
+                    {!isEditingParticipantsOrGroups &&
                       !isParticipantsSingles &&
                       isTeam(item) && (
                         <>
@@ -306,20 +315,21 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
           {/* foot */}
           <tfoot>
             <tr>
-              {!isEditingTournamentParticipants && <th />}
-              {!isEditingTournamentParticipants && <th />}
+              {!isEditingParticipantsOrGroups && <th />}
+              {!isEditingParticipantsOrGroups && <th />}
               <th />
               <th />
               <th />
-              {isEditingTournamentParticipants && <th />}
+              {isEditingParticipantsOrGroups && <th />}
             </tr>
           </tfoot>
         </table>
 
-        {isEditingTournamentParticipants && (
+        {isEditingParticipantsOrGroups && (
           <div>
             <button
-              className="btn btn-ghost btn-xs bg-slate-600 positionMeBottomRight"
+              disabled={isDividedIntoGroups}
+              className="btn btn-ghost btn-xs bg-slate-700 positionMeBottomCenterLeft"
               onClick={
                 isParticipantsSingles
                   ? () =>
@@ -337,6 +347,15 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
               }
             >
               zapisz uczestników
+            </button>
+            <button
+              className="btn btn-ghost btn-xs bg-slate-700 positionMeBottomCenterRight"
+              onClick={() => {
+                log("GROUPING");
+                setIsDividedIntoGroups((prev) => !prev);
+              }}
+            >
+              {isDividedIntoGroups ? "cofnij losowanie" : "losuj grupy"}
             </button>
           </div>
         )}

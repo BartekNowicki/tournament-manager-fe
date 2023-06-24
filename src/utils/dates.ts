@@ -9,9 +9,3 @@ export const getAdjustedDates = (d1: Date, d2: Date): string => {
   adjustedEndDate.setDate(adjustedEndDate.getDate() - dayOffset);
   return `${adjustedStartDate.toLocaleDateString()} - ${adjustedEndDate.toLocaleDateString()}`;
 };
-
-// export const getDateOneDayBefore = (d: Date): Date => {
-//   const adjustedDate = new Date(d);
-//   adjustedDate.setDate(adjustedDate.getDate() - 1);
-//   return adjustedDate;
-// };

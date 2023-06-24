@@ -10,6 +10,7 @@ interface ICheckTeamRowProps {
   isChecked: (id: number) => boolean;
   team: Team;
   findPlayerById(players: Player[], id: number): Player;
+  isDividedIntoGroups: boolean;
 }
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -20,16 +21,11 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
   isChecked,
   team,
   findPlayerById,
+  isDividedIntoGroups,
 }): JSX.Element => {
   const players = useAppSelector((state) => state.player.players);
   const playerOne: Player = findPlayerById(players, team.playerOneId);
   const playerTwo: Player = findPlayerById(players, team.playerTwoId);
-  const teams = useAppSelector((state) => state.team.teams);
-
-  // console.log("I AM CHECKED A ROW: ", isChecked(id));
-  // console.log("BECAUSE: ", findTeamById(teams, id).checked);
-  // console.log("TEAMS: ", teams);
-  // console.log(findTeamById(teams, id).playedDoublesTournaments);
 
   return (
     <>
@@ -41,6 +37,7 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
             id={id.toString()}
             checked={isChecked(id)}
             onChange={handleCheck}
+            style={{ display: !isDividedIntoGroups ? "block" : "none" }}
           />
         </label>
       </th>

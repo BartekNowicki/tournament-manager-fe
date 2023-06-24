@@ -15,6 +15,9 @@ import {
   placeholderTournament,
 } from "../storeContent/storeSlices/tournamentSlice";
 
+// eslint-disable-next-line no-console, prefer-destructuring
+export const log = console.log;
+
 export type Item = Player | Team | Tournament;
 
 export function isPlayer(someObj: Item): someObj is Player {
@@ -63,6 +66,18 @@ export const findById = (items: Item[], id: number): Item => {
   }
   console.warn("somethingwent wrong with item type selection");
   return emptyPlayer;
+};
+
+export const findPlayerById = (players: Player[], id: number) => {
+  return findById(players, id);
+};
+
+export const findTeamById = (teams: Team[], id: number) => {
+  return findById(teams, id);
+};
+
+export const findTournamentById = (tournaments: Tournament[], id: number) => {
+  return findById(tournaments, id);
 };
 
 // export const findPlayerById = (players: Player[], id: number) => {

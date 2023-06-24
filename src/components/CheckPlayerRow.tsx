@@ -6,6 +6,7 @@ interface ICheckPlayerRowProps {
   id: number;
   isChecked: (id: number) => boolean;
   player: Player;
+  isDividedIntoGroups: boolean;
 }
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -15,6 +16,7 @@ const CheckPlayerRow: React.FC<ICheckPlayerRowProps> = ({
   id,
   isChecked,
   player,
+  isDividedIntoGroups,
 }): JSX.Element => {
   return (
     <>
@@ -26,6 +28,7 @@ const CheckPlayerRow: React.FC<ICheckPlayerRowProps> = ({
             id={id.toString()}
             checked={isChecked(id)}
             onChange={handleCheck}
+            style={{ display: !isDividedIntoGroups ? "block" : "none" }}
           />
         </label>
       </th>
