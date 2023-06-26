@@ -230,7 +230,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                             id={item.id}
                             isChecked={isTeamChecked}
                             team={item}
-                            findPlayerById={findPlayerById}
                             isDividedIntoGroups={isDividedIntoGroups}
                           />
                         )

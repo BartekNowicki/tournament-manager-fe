@@ -1,7 +1,7 @@
 import { useAppSelector } from "../storeContent/store";
 import { Player } from "../storeContent/storeSlices/playerSlice";
 import { Team } from "../storeContent/storeSlices/teamSlice";
-import { findTeamById } from "../utils/funcs";
+import { findPlayerById } from "../utils/funcs";
 import TeamInfoColumns from "./TeamInfoColumns";
 
 interface ICheckTeamRowProps {
@@ -9,7 +9,6 @@ interface ICheckTeamRowProps {
   id: number;
   isChecked: (id: number) => boolean;
   team: Team;
-  findPlayerById(players: Player[], id: number): Player;
   isDividedIntoGroups: boolean;
 }
 /* eslint-disable react/prop-types */
@@ -20,7 +19,6 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
   id,
   isChecked,
   team,
-  findPlayerById,
   isDividedIntoGroups,
 }): JSX.Element => {
   const players = useAppSelector((state) => state.player.players);
