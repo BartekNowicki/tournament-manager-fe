@@ -13,29 +13,41 @@ import {
   Player,
   checkPlayers,
   deletePlayer,
+  fetchAllPlayers,
+  groupPlayers,
+  unGroupPlayers,
 } from "../storeContent/storeSlices/playerSlice";
 import {
   Team,
   checkTeams,
   deleteTeam,
+  fetchAllTeams,
 } from "../storeContent/storeSlices/teamSlice";
 import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
 import PlayerInfoColumns from "./PlayerInfoColumns";
-import { TData } from "../storeContent/storeSlices/tournamentSlice";
+import {
+  TData,
+  fetchAllTournaments,
+} from "../storeContent/storeSlices/tournamentSlice";
 import TeamInfoColumns from "./TeamInfoColumns";
 // eslint-disable-next-line import/no-cycle
 import { getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
 import {
   Item,
+  findById,
   findPlayerById,
   findTeamById,
+  getSortedPlayerGroups,
   highlighted,
   injectItemKey,
   isPlayer,
   isTeam,
   log,
 } from "../utils/funcs";
+import { fetchAllGroups } from "../storeContent/storeSlices/groupSlice";
+import { TournamentType } from "./Tournament";
+import Separator from "./Separator";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -53,20 +65,23 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   isParticipantsSingles,
   assignPlayersToTournament,
 }) => {
-  const players = useAppSelector((state) => state.player.players);
-  const teams = useAppSelector((state) => state.team.teams);
+  const allPlayers = useAppSelector((state) => state.player.players);
+  const allTeams = useAppSelector((state) => state.team.teams);
+  const allTournaments = useAppSelector(
+    (state) => state.tournament.tournaments
+  );
+  const allGroups = useAppSelector((state) => state.group.groups);
   const forceRenderCount = useAppSelector(
     (state) => state.player.forceRerenderPlayerListCount
   );
   const [isDividedIntoGroups, setIsDividedIntoGroups] =
     useState<boolean>(false);
   const dispatch = useAppDispatch();
-
   const params = useParams() ?? {};
 
   const isPlayerChecked = useCallback(
     (id: number): boolean => {
-      const found: Player = findPlayerById(players, id);
+      const found: Player = findPlayerById(allPlayers, id);
       if (found && found.isChecked) {
         return found.isChecked;
       }
@@ -75,12 +90,12 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       }
       return false;
     },
-    [players]
+    [allPlayers]
   );
 
   const isTeamChecked = useCallback(
     (id: number): boolean => {
-      const found: Team = findTeamById(teams, id);
+      const found: Team = findTeamById(allTeams, id);
       if (found && found.isChecked) {
         return found.isChecked;
       }
@@ -89,7 +104,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       }
       return false;
     },
-    [teams]
+    [allTeams]
   );
 
   const isToBeHighlightedForEditingData = (id: number): boolean => {
@@ -104,11 +119,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       const newIdToCheckStatusMapping = new Map();
       if (key !== -1) {
         if (type === "player") {
-          const player: Player = findPlayerById(players, key);
+          const player: Player = findPlayerById(allPlayers, key);
           newIdToCheckStatusMapping.set(player.id, !isPlayerChecked(player.id));
           dispatch(checkPlayers(newIdToCheckStatusMapping));
         } else if (type === "team") {
-          const team = findTeamById(teams, key);
+          const team = findTeamById(allTeams, key);
           newIdToCheckStatusMapping.set(team.id, !isTeamChecked(team.id));
           dispatch(checkTeams(newIdToCheckStatusMapping));
         }
@@ -117,7 +132,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
         if (type === "player") {
           const commonOppositeStateForAll = !isPlayerChecked(-1) || false;
           // eslint-disable-next-line no-restricted-syntax
-          for (const p of players) {
+          for (const p of allPlayers) {
             newIdToCheckStatusMapping.set(p.id, commonOppositeStateForAll);
           }
           if (newIdToCheckStatusMapping) {
@@ -126,7 +141,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
         } else if (type === "team") {
           const commonOppositeStateForAll = !isTeamChecked(-1) || false;
           // eslint-disable-next-line no-restricted-syntax
-          for (const t of teams) {
+          for (const t of allTeams) {
             newIdToCheckStatusMapping.set(t.id, commonOppositeStateForAll);
           }
           if (newIdToCheckStatusMapping) {
@@ -135,20 +150,39 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
         }
       }
     },
-    [dispatch, isPlayerChecked, isTeamChecked, players, teams]
+    [dispatch, isPlayerChecked, isTeamChecked, allPlayers, allTeams]
   );
 
   // useEffect(() => {});
 
   useEffect(() => {
     // console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
-    log("isDividedIntoGroups: ", isDividedIntoGroups);
   });
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
 
-  const items: Array<Item> = !isParticipantsSingles ? teams : players;
+  let items: Array<Item>;
+
+  const playersAssignedToGroups = getSortedPlayerGroups(
+    allTournaments,
+    idOfTournamentDisplayedForEditingParticipants,
+    isParticipantsSingles,
+    allGroups,
+    allPlayers
+  );
+
+  const teamsAssignedToGroups = allTeams; // TODO
+
+  if (!isDividedIntoGroups && !isParticipantsSingles) {
+    items = allTeams;
+  } else if (isDividedIntoGroups && !isParticipantsSingles) {
+    items = teamsAssignedToGroups;
+  } else if (!isDividedIntoGroups && isParticipantsSingles) {
+    items = allPlayers;
+  } else if (isDividedIntoGroups && isParticipantsSingles) {
+    items = playersAssignedToGroups;
+  }
 
   if (items.length === 0)
     return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;
@@ -215,13 +249,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                     {/* player to tournament assignment mode, singles : doubles */}
                     {isEditingParticipantsOrGroups &&
                       (isParticipantsSingles && isPlayer(item) ? (
-                        <CheckPlayerRow
-                          handleCheck={(e) => handleCheck(e, "player")}
-                          id={item.id}
-                          isChecked={isPlayerChecked}
-                          player={item}
-                          isDividedIntoGroups={isDividedIntoGroups}
-                        />
+                        // <CheckPlayerRow
+                        //   handleCheck={(e) => handleCheck(e, "player")}
+                        //   id={item.id}
+                        //   isChecked={isPlayerChecked}
+                        //   player={item}
+                        //   isDividedIntoGroups={isDividedIntoGroups}
+                        // />
+                        <Separator />
                       ) : (
                         !isParticipantsSingles &&
                         isTeam(item) && (
@@ -274,11 +309,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                         <>
                           <TeamInfoColumns
                             playerOne={findPlayerById(
-                              players,
+                              allPlayers,
                               item.playerOneId
                             )}
                             playerTwo={findPlayerById(
-                              players,
+                              allPlayers,
                               item.playerTwoId
                             )}
                             team={item}
@@ -349,8 +384,30 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             </button>
             <button
               className="btn btn-ghost btn-xs bg-slate-700 positionMeBottomCenterRight"
-              onClick={() => {
-                log("GROUPING");
+              onClick={async () => {
+                if (
+                  !isDividedIntoGroups &&
+                  idOfTournamentDisplayedForEditingParticipants
+                ) {
+                  // if isParticipantsSingles, then do Teams
+                  await dispatch(
+                    groupPlayers(idOfTournamentDisplayedForEditingParticipants)
+                  );
+                } else if (
+                  isDividedIntoGroups &&
+                  idOfTournamentDisplayedForEditingParticipants
+                ) {
+                  await dispatch(
+                    unGroupPlayers(
+                      idOfTournamentDisplayedForEditingParticipants
+                    )
+                  );
+                }
+
+                await dispatch(fetchAllTournaments());
+                await dispatch(fetchAllPlayers());
+                await dispatch(fetchAllGroups());
+
                 setIsDividedIntoGroups((prev) => !prev);
               }}
             >

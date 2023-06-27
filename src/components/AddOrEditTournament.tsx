@@ -8,7 +8,6 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import {
   Tournament,
-  // convertFromMysqlDatetime6,
   saveTournament,
 } from "../storeContent/storeSlices/tournamentSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
@@ -17,11 +16,7 @@ import { UserActions } from "./AddOrEditPlayer";
 import { TournamentType } from "./Tournament";
 import TournamentList from "./TournamentList";
 import { numericOptions } from "./numericOptions";
-import {
-  // deserializeDate,
-  findTournamentById,
-  // serializeDate,
-} from "../utils/funcs";
+import { findTournamentById } from "../utils/funcs";
 
 function AddOrEditTournament() {
   const navigate = useNavigate();
@@ -49,7 +44,8 @@ function AddOrEditTournament() {
 
   const initialDisplayedTournament: Tournament = findTournamentById(
     tournaments,
-    getIdOfTournamentToSaveOrEdit()
+    getIdOfTournamentToSaveOrEdit(),
+    TournamentType.SINGLES
   );
   const [displayedTournament, setDisplayedTournament] = useState<Tournament>(
     initialDisplayedTournament
@@ -83,7 +79,8 @@ function AddOrEditTournament() {
     ) {
       const currentTournamentToDisplay = findTournamentById(
         tournaments,
-        getIdOfTournamentToSaveOrEdit()
+        getIdOfTournamentToSaveOrEdit(),
+        type
       );
 
       setDisplayedTournament((prev) => currentTournamentToDisplay);
@@ -227,7 +224,7 @@ function AddOrEditTournament() {
                       onClick={(e) => {
                         e.preventDefault();
                         //  it is now tracked in the state
-                        const t = findTournamentById(tournaments, id);
+                        const t = findTournamentById(tournaments, id, type);
                         const { participatingPlayers } = t;
                         const { participatingPlayerIds } = t;
                         const { participatingTeams } = t;

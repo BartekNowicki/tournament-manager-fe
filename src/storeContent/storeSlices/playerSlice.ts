@@ -11,7 +11,7 @@ import {
 } from "@reduxjs/toolkit";
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
-import { Tournament } from "./tournamentSlice";
+import { TData, Tournament } from "./tournamentSlice";
 import { Group } from "./groupSlice";
 
 export interface Player {
@@ -110,6 +110,36 @@ export const deletePlayer = createAsyncThunk(
     try {
       const response = await axios.delete(
         `${baseUrl}/api/data/players/${playerId}`
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue("error deleting the player");
+    }
+  }
+);
+
+export const groupPlayers = createAsyncThunk(
+  "players/group",
+  async (tournamentId: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/data/players/group/${tournamentId}`
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue("error deleting the player");
+    }
+  }
+);
+
+export const unGroupPlayers = createAsyncThunk(
+  "players/unGroup",
+  async (tournamentId: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/data/players/ungroup/${tournamentId}`
       );
 
       return response.data;
@@ -286,6 +316,18 @@ export const PlayerSlice = createSlice({
       })
       .addCase(deletePlayer.pending, () => {
         // console.info("delete player promise pending...");
+      })
+      .addCase(groupPlayers.fulfilled, (state, action) => {
+        console.info("group players promise fulfilled");
+      })
+      .addCase(groupPlayers.rejected, () => {
+        console.warn("group players promise rejected!");
+      })
+      .addCase(unGroupPlayers.fulfilled, (state, action) => {
+        console.info("ungroup players promise fulfilled");
+      })
+      .addCase(unGroupPlayers.rejected, () => {
+        console.warn("ungroup players promise rejected!");
       })
       .addMatcher(isRejectedAction, () => {
         console.info("promise rejected");

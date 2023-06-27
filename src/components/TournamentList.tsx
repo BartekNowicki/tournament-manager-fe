@@ -28,7 +28,12 @@ import {
   checkTeams,
   fetchAllTeams,
 } from "../storeContent/storeSlices/teamSlice";
-import { highlighted, injectItemKey, log } from "../utils/funcs";
+import {
+  countParticipants,
+  highlighted,
+  injectItemKey,
+  log,
+} from "../utils/funcs";
 import { TournamentType } from "./Tournament";
 
 interface ITournamentListProps {
@@ -294,7 +299,13 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                             );
                           }}
                         >
-                          uczestnicy
+                          uczestnicy (
+                          {countParticipants(
+                            tournaments,
+                            tournament.id,
+                            tournament.type
+                          ) || 0}
+                          )
                         </button>
                       </th>
                     )}
@@ -400,7 +411,13 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                                   );
                                 }}
                               >
-                                uczestnicy
+                                uczestnicy (
+                                {countParticipants(
+                                  tournaments,
+                                  tournament.id,
+                                  tournament.type
+                                ) || 0}
+                                )
                               </button>
                             </th>
                           )}
