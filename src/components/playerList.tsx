@@ -33,9 +33,9 @@ import {
 import TeamInfoColumns from "./TeamInfoColumns";
 // eslint-disable-next-line import/no-cycle
 import { getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
+// eslint-disable-next-line import/no-cycle
 import {
   Item,
-  findById,
   findPlayerById,
   findTeamById,
   getSortedPlayerGroups,
@@ -76,6 +76,10 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   );
   const [isDividedIntoGroups, setIsDividedIntoGroups] =
     useState<boolean>(false);
+  const initialListedItems: Item[] = isParticipantsSingles
+    ? allPlayers
+    : allTeams;
+  const [listedItems, setListedItems] = useState<Item[]>(initialListedItems);
   const dispatch = useAppDispatch();
   const params = useParams() ?? {};
 
@@ -155,15 +159,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   // useEffect(() => {});
 
-  useEffect(() => {
-    // console.log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
-  });
-
-  // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
-  useEffect(() => {}, [forceRenderCount]);
-
-  let items: Array<Item>;
-
   const playersAssignedToGroups = getSortedPlayerGroups(
     allTournaments,
     idOfTournamentDisplayedForEditingParticipants,
@@ -171,6 +166,58 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     allGroups,
     allPlayers
   );
+
+  useEffect(() => {
+    if (
+      isParticipantsSingles &&
+      !isDividedIntoGroups &&
+      playersAssignedToGroups.length > 0
+    ) {
+      setIsDividedIntoGroups((prev) => true);
+      if (
+        JSON.stringify(listedItems) !== JSON.stringify(playersAssignedToGroups)
+      ) {
+        setListedItems((prev) => playersAssignedToGroups);
+      }
+    } else if (
+      isParticipantsSingles &&
+      isDividedIntoGroups &&
+      playersAssignedToGroups.length === 0
+    ) {
+      setIsDividedIntoGroups((prev) => false);
+      // setListedItems((prev) => allPlayers);
+    }
+  }, [
+    allPlayers,
+    isDividedIntoGroups,
+    isParticipantsSingles,
+    listedItems,
+    playersAssignedToGroups,
+  ]);
+
+  useEffect(() => {
+    log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
+    log("RENDERING PLAYERLIST, LISTED ITEMS: ", listedItems);
+    log("RENDERING PLAYERLIST, GROUPING DONE ? ", isDividedIntoGroups);
+    log(
+      "RENDERING PLAYERLIST, TOURNAMENT EDITING PARTICIPANTS: ",
+      idOfTournamentDisplayedForEditingParticipants
+    );
+    log("RENDERING PLAYERLIST, LISTING GROUPS: : ", playersAssignedToGroups);
+  }, [
+    isParticipantsSingles,
+    listedItems,
+    isDividedIntoGroups,
+    idOfTournamentDisplayedForEditingParticipants,
+    allPlayers,
+    allTeams,
+    playersAssignedToGroups,
+  ]);
+
+  // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
+  useEffect(() => {}, [forceRenderCount]);
+
+  let items: Array<Item>;
 
   const teamsAssignedToGroups = allTeams; // TODO
 
@@ -184,7 +231,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     items = playersAssignedToGroups;
   }
 
-  if (items.length === 0)
+  if (listedItems.length === 0)
     return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;
 
   return (
@@ -234,8 +281,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
           </thead>
           <tbody>
             {/* rows */}
-            {Boolean(items.length) &&
-              items
+            {Boolean(listedItems.length) &&
+              listedItems
                 .filter((item: Item) => item.id !== -1)
                 .map((item: Item) => (
                   <tr
@@ -249,14 +296,13 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                     {/* player to tournament assignment mode, singles : doubles */}
                     {isEditingParticipantsOrGroups &&
                       (isParticipantsSingles && isPlayer(item) ? (
-                        // <CheckPlayerRow
-                        //   handleCheck={(e) => handleCheck(e, "player")}
-                        //   id={item.id}
-                        //   isChecked={isPlayerChecked}
-                        //   player={item}
-                        //   isDividedIntoGroups={isDividedIntoGroups}
-                        // />
-                        <Separator />
+                        <CheckPlayerRow
+                          handleCheck={(e) => handleCheck(e, "player")}
+                          id={item.id}
+                          isChecked={isPlayerChecked}
+                          player={item}
+                          isDividedIntoGroups={isDividedIntoGroups}
+                        />
                       ) : (
                         !isParticipantsSingles &&
                         isTeam(item) && (

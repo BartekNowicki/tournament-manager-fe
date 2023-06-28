@@ -35,7 +35,19 @@ export function isTournament(someObj: Item): someObj is Tournament {
   return "startDate" in someObj;
 }
 
+function getGlobalCounterClosure() {
+  let counter = 0;
+  function getCounter() {
+    counter += 1;
+    return counter;
+  }
+  return getCounter;
+}
+
+const getCurrentGlobalCounter = getGlobalCounterClosure();
+
 export const injectItemKey = (item: Item): string => {
+  if (item.id === 999) return String(getCurrentGlobalCounter());
   if (isPlayer(item)) {
     return String(item.id + item.firstName + item.lastName);
   }
@@ -111,25 +123,34 @@ export const getSortedPlayerGroups = (
     : TournamentType.DOUBLES;
   const tournament = findById(tournaments, id, type);
   const playersSorted: Player[] = [];
+  const undersizedGroupToGoLast: Player[] = [];
   if (
-    Array.isArray(tournaments) &&
-    Array.isArray(tournament.groups) &&
-    isTournament(tournaments[0]) &&
-    tournament.groups &&
-    tournament.groups.length === 0
-  )
+    (Array.isArray(tournaments) &&
+      Array.isArray(tournament.groups) &&
+      isTournament(tournaments[0]) &&
+      tournament.groups &&
+      tournament.groups.length === 0) ||
+    !tournament ||
+    !tournament.groups
+  ) {
     return [];
+  }
 
-  tournament.groups.forEach((g) => {
-    playersSorted.push(emptyPlayer); // separator 999
-    const nextGroup: Group = allGroups.find((group) => group.id === g);
+  tournament.groups.forEach((gId) => {
+    playersSorted.push(emptyPlayer); // group display separator, item.id = 999
+    const nextGroup: Group = Array.from(allGroups).find(
+      (group) => group.id === gId
+    );
     if (nextGroup && nextGroup.members.length > 0)
-      nextGroup.members.forEach((m) => {
-        const member: Player = findById(allPlayers, m);
+      nextGroup.members.forEach((mId) => {
+        const member: Player = findById(allPlayers, mId);
         // log("MEMBER:", member);
-        playersSorted.push(member);
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        nextGroup.members.length === tournament.groupSize
+          ? playersSorted.push(member)
+          : undersizedGroupToGoLast.push(member);
       });
   });
-  log("PLAYERSSORTED:", playersSorted);
-  return playersSorted;
+  // log("PLAYERSSORTED:", playersSorted);
+  return [...playersSorted, ...undersizedGroupToGoLast];
 };

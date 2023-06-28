@@ -1,5 +1,6 @@
 import { Player } from "../storeContent/storeSlices/playerSlice";
 import PlayerInfoColumns from "./PlayerInfoColumns";
+import Separator from "./Separator";
 
 interface ICheckPlayerRowProps {
   handleCheck(e: React.ChangeEvent<HTMLInputElement>): void;
@@ -18,6 +19,7 @@ const CheckPlayerRow: React.FC<ICheckPlayerRowProps> = ({
   player,
   isDividedIntoGroups,
 }): JSX.Element => {
+  if (id === 999) return <Separator />;
   return (
     <>
       <th>
