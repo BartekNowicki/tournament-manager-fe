@@ -105,10 +105,16 @@ export const countParticipants = (
   tournamentType: string
 ): number => {
   return tournamentType === TournamentType.SINGLES
-    ? findById(tournaments, tournamentId, tournamentType).participatingPlayers
-        .length
-    : findById(tournaments, tournamentId, tournamentType).participatingTeams
-        .length * 2;
+    ? findById(
+        tournaments,
+        tournamentId,
+        tournamentType
+      ).participatingPlayers.filter((id) => id !== -1).length
+    : findById(
+        tournaments,
+        tournamentId,
+        tournamentType
+      ).participatingTeams.filter((id) => id !== -1).length * 2;
 };
 
 export const getSortedPlayerGroups = (
@@ -133,24 +139,28 @@ export const getSortedPlayerGroups = (
     !tournament ||
     !tournament.groups
   ) {
+    log("cannot provide sorted players, are there any?");
     return [];
   }
 
+  let groupNumber = 1;
+
   tournament.groups.forEach((gId) => {
-    playersSorted.push(emptyPlayer); // group display separator, item.id = 999
+    const markedEmptyPlayer = { ...emptyPlayer };
+    markedEmptyPlayer.firstName = String(groupNumber);
+    groupNumber += 1;
+    playersSorted.push(markedEmptyPlayer); // group display separator, item.id = 999
     const nextGroup: Group = Array.from(allGroups).find(
       (group) => group.id === gId
     );
     if (nextGroup && nextGroup.members.length > 0)
       nextGroup.members.forEach((mId) => {
         const member: Player = findById(allPlayers, mId);
-        // log("MEMBER:", member);
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         nextGroup.members.length === tournament.groupSize
           ? playersSorted.push(member)
           : undersizedGroupToGoLast.push(member);
       });
   });
-  // log("PLAYERSSORTED:", playersSorted);
   return [...playersSorted, ...undersizedGroupToGoLast];
 };

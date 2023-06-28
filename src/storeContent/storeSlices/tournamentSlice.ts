@@ -15,10 +15,9 @@ import { Player, baseUrl } from "./playerSlice";
 import { Team } from "./teamSlice";
 // eslint-disable-next-line import/no-cycle
 import { Group } from "./groupSlice";
-// eslint-disable-next-line import/no-cycle
-// import { serializeDate } from "../../utils/funcs";
 import { TournamentType } from "../../components/Tournament";
-// import { serializeDate } from "../../utils/funcs";
+// eslint-disable-next-line import/no-cycle
+import { log } from "../../utils/funcs";
 
 export interface Tournament {
   id: number;
@@ -27,12 +26,12 @@ export interface Tournament {
   endDate: Date;
   groupSize: number;
   comment: string;
-  participatingPlayers: Player[];
-  participatingPlayerIds: number[];
-  participatingTeams: Team[];
-  participatingTeamIds: number[];
-  groups: Group[];
-  groupIds: number[];
+  participatingPlayers?: number[];
+  // participatingPlayerIds: number[];
+  participatingTeams?: number[];
+  // participatingTeamIds: number[];
+  groups?: number[];
+  // groupIds: number[];
 }
 
 export const placeholderTournament: Tournament = {
@@ -43,11 +42,11 @@ export const placeholderTournament: Tournament = {
   groupSize: 0,
   comment: "",
   participatingPlayers: [],
-  participatingPlayerIds: [],
+  // participatingPlayerIds: [],
   participatingTeams: [],
-  participatingTeamIds: [],
+  // participatingTeamIds: [],
   groups: [],
-  groupIds: [],
+  // groupIds: [],
 };
 
 export const emptyTournament: Tournament = {
@@ -58,11 +57,11 @@ export const emptyTournament: Tournament = {
   groupSize: 0,
   comment: "",
   participatingPlayers: [],
-  participatingPlayerIds: [],
+  // participatingPlayerIds: [],
   participatingTeams: [],
-  participatingTeamIds: [],
+  // participatingTeamIds: [],
   groups: [],
-  groupIds: [],
+  // groupIds: [],
 };
 
 interface TournamentSliceState {
@@ -132,7 +131,7 @@ export const saveTournament = createAsyncThunk(
     //   // type: getEnumKeyByValue(tournament.type),  IS THIS CONVERSION NECESSARY?? PROBABLY NOT IF YOU JUST SET THE ENUM VALUE TO "SINGLES" AND "DOUBLES" AND NOT TO "singles" and "doubles" because BE EXPECTS IN ITS ENUM CONVERSION TO RECEIVE SINGLES OR DOUBLES, IF YOU SEND "singles" THEN YOU NEED TO CONVERT... IS IT NOT BETTER TO JUST USE CAPITALS EVERYWHERE?
     // };
     try {
-      // console.log("SAVE REQUEST: ", tournament);
+      log("SAVE REQUEST: ", tournament);
       const response = await axios.put(`${baseUrl}/api/data/tournaments`, {
         // ...tournamentWithTypeConvertedToEnumKey,
         ...tournament,

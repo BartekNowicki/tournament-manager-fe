@@ -16,7 +16,7 @@ import { UserActions } from "./AddOrEditPlayer";
 import { TournamentType } from "./Tournament";
 import TournamentList from "./TournamentList";
 import { numericOptions } from "./numericOptions";
-import { findTournamentById } from "../utils/funcs";
+import { findTournamentById, log } from "../utils/funcs";
 
 function AddOrEditTournament() {
   const navigate = useNavigate();
@@ -68,6 +68,7 @@ function AddOrEditTournament() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateDisplayedTournament = () => {
+    log("UPDATING...");
     if (
       getUserAction() === UserActions.ADD ||
       getIdOfTournamentToSaveOrEdit() !== displayedTournament.id ||
@@ -75,7 +76,8 @@ function AddOrEditTournament() {
       endDate !== displayedTournament.endDate ||
       type !== displayedTournament.type ||
       groupSize !== displayedTournament.groupSize ||
-      comment !== displayedTournament.comment
+      comment !== displayedTournament.comment ||
+      id !== displayedTournament.id
     ) {
       const currentTournamentToDisplay = findTournamentById(
         tournaments,
@@ -84,12 +86,15 @@ function AddOrEditTournament() {
       );
 
       setDisplayedTournament((prev) => currentTournamentToDisplay);
-      setId((prev) => currentTournamentToDisplay.id); // adding this now to see if it fixes anything
+      setId((prev) => currentTournamentToDisplay.id);
       setStartDate((prev) => currentTournamentToDisplay.startDate);
       setEndDate((prev) => currentTournamentToDisplay.endDate);
       setType((prev) => currentTournamentToDisplay.type);
       setGroupSize((prev) => currentTournamentToDisplay.groupSize);
       setComment((prev) => currentTournamentToDisplay.comment);
+      
+      log("currentTournamentToDisplay: ",  currentTournamentToDisplay);
+      log(getIdOfTournamentToSaveOrEdit());
     }
   };
 
@@ -101,11 +106,12 @@ function AddOrEditTournament() {
   }, [currentAction, getUserAction, params.action, updateDisplayedTournament]);
 
   useEffect(() => {
-    // console.log("ADDOREDIT PANEL SHOWS:");
-    // console.log("startdate", startDate);
-    // console.log("enddate", endDate);
-    // console.log("type", type);
-    // console.log("id", id);
+    console.log("ADDOREDIT PANEL SHOWS:");
+    console.log("startdate", startDate);
+    console.log("enddate", endDate);
+    console.log("type", type);
+    console.log("id", id);
+    console.log("displayedTournament", displayedTournament);
   });
 
   return (
@@ -122,10 +128,7 @@ function AddOrEditTournament() {
                   </th>
                   <th className="text text-center">Data rozpoczęcia</th>
                   <th className="text text-center">Data zakończenia</th>
-                  {params.action === "add" && (
-                    <th className="text text-center">Rodzaj</th>
-                  )}
-                  {params.action !== "add" && <th />}
+                  <th className="text text-center">Rodzaj</th>
                   <th className="text text-center">Rozmiar grupy</th>
                   <th className="text text-center">Uwagi</th>
                   <th />
@@ -142,10 +145,6 @@ function AddOrEditTournament() {
                       <DatePicker
                         className="text-center font-bold"
                         dateFormat="dd/MM/yyyy"
-                        // selected={deserializeDate(
-                        //   displayedTournament.startDate
-                        // )}
-                        // selected={displayedTournament.startDate} TODO - why does not show real Date() ?
                         selected={new Date(startDate)}
                         onChange={(date) =>
                           date ? setStartDate((prev) => date) : {}
@@ -159,7 +158,6 @@ function AddOrEditTournament() {
                       <DatePicker
                         className="text-center font-bold"
                         dateFormat="dd/MM/yyyy"
-                        // selected={displayedTournament.endDate}
                         selected={new Date(endDate)}
                         onChange={(date) =>
                           date ? setEndDate((prev) => date) : {}
@@ -172,14 +170,8 @@ function AddOrEditTournament() {
                       <label htmlFor="" />
                       <select
                         className="font-bold px-2"
-                        // value={
-                        //   type === "DOUBLES"
-                        //     ? TournamentType.DOUBLES
-                        //     : TournamentType.SINGLES
-                        // }
                         value={type}
                         onChange={(e) => {
-                          console.log("DETECTING CHANGE OF TYPE...");
                           setType((prev) => e.target.value);
                         }}
                       >
@@ -192,21 +184,28 @@ function AddOrEditTournament() {
                       </select>
                     </td>
                   )}
-                  {params.action !== "add" && <td />}
-                  <td className="text text-center">
-                    <div className="font-bold">
-                      <label htmlFor="" />
-                      <select
-                        className="font-bold px-2"
-                        value={groupSize}
-                        onChange={(e) =>
-                          setGroupSize((prev) => +e.target.value)
-                        }
-                      >
-                        {numericOptions(11)}
-                      </select>
-                    </div>
-                  </td>
+                  {params.action !== "add" && (
+                    <td className="text text-center">{type}</td>
+                  )}
+                  {displayedTournament.groups.length === 0 && (
+                    <td className="text text-center">
+                      <div className="font-bold">
+                        <label htmlFor="" />
+                        <select
+                          className="font-bold px-2"
+                          value={groupSize}
+                          onChange={(e) =>
+                            setGroupSize((prev) => +e.target.value)
+                          }
+                        >
+                          {numericOptions(11)}
+                        </select>
+                      </div>
+                    </td>
+                  )}
+                  {displayedTournament.groups.length !== 0 && (
+                    <td>{displayedTournament.groupSize}</td>
+                  )}
                   <td className="text text-center">
                     <div className="font-bold">
                       <label htmlFor="" />
@@ -225,12 +224,12 @@ function AddOrEditTournament() {
                         e.preventDefault();
                         //  it is now tracked in the state
                         const t = findTournamentById(tournaments, id, type);
-                        const { participatingPlayers } = t;
-                        const { participatingPlayerIds } = t;
-                        const { participatingTeams } = t;
-                        const { participatingTeamIds } = t;
-                        const { groups } = t;
-                        const { groupIds } = t;
+                        // const { participatingPlayers } = t;
+                        // const { participatingPlayerIds } = t;
+                        // const { participatingTeams } = t;
+                        // const { participatingTeamIds } = t;
+                        // const { groups } = t;
+                        // const { groupIds } = t;
 
                         dispatch(
                           saveTournament({
@@ -240,13 +239,13 @@ function AddOrEditTournament() {
                             endDate,
                             groupSize,
                             comment,
-                            participatingPlayers: participatingPlayers || [],
-                            participatingPlayerIds:
-                              participatingPlayerIds || [],
-                            participatingTeams: participatingTeams || [],
-                            participatingTeamIds: participatingTeamIds || [],
-                            groups: groups || [],
-                            groupIds: groupIds || [],
+                            // participatingPlayers: participatingPlayers || [],
+                            // participatingPlayerIds:
+                            //   participatingPlayerIds || [],
+                            // participatingTeams: participatingTeams || [],
+                            // participatingTeamIds: participatingTeamIds || [],
+                            // groups: groups || [],
+                            // groupIds: groupIds || [],
                           })
                         );
                       }}

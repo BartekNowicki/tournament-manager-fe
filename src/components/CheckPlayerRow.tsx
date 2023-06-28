@@ -19,7 +19,7 @@ const CheckPlayerRow: React.FC<ICheckPlayerRowProps> = ({
   player,
   isDividedIntoGroups,
 }): JSX.Element => {
-  if (id === 999) return <Separator />;
+  if (id === 999) return <Separator groupStringId={player.firstName} />;
   return (
     <>
       <th>
