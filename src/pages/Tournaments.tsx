@@ -13,7 +13,8 @@ export function Tournaments(props: ITournamentsProps) {
         Turnieje
       </p>
       <button className="btn btn-wide m-2 mb-12 mx-auto">
-        <Link to="/tournaments/addOrEdit/add">Nowy turniej</Link>
+        {/* <Link to="/tournaments/addOrEdit/add">Nowy turniej</Link> */}
+        <Link to="/tournaments/addoredit/add/SINGLES/-2">Nowy turniej</Link>
       </button>
       <TournamentList
         displayedTournamentUpdater={() => {}}

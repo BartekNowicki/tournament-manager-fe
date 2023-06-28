@@ -24,67 +24,40 @@ function AddOrEditTournament() {
   const dispatch = useAppDispatch();
   // id = -2 => reserved for adding a new tournament
 
-  const getIdOfTournamentToSaveOrEdit = () => {
-    let idOfTournamentToSaveOrEdit = -2;
-    if (params.action) {
-      idOfTournamentToSaveOrEdit =
-        params.action !== "add"
-          ? parseInt(params.action.split("").slice(4).join(""), 10)
-          : idOfTournamentToSaveOrEdit;
-    }
-    return idOfTournamentToSaveOrEdit;
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const getUserAction = (): string => {
-    return params.action ?? UserActions.NONE;
-  };
+  const getIdOfTournamentToSaveOrEdit = (): number =>
+    params.id ? parseInt(params.id, 10) : -2;
+  const getTypeOfTournamentToSaveOrEdit = (): string => params.type ?? "NONE";
+  const getUserAction = (): string => params.action ?? UserActions.NONE;
 
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
 
-  const initialDisplayedTournament: Tournament = findTournamentById(
-    tournaments,
-    getIdOfTournamentToSaveOrEdit(),
-    TournamentType.SINGLES
-  );
+  const [id, setId] = useState<number>(getIdOfTournamentToSaveOrEdit());
+  const [type, setType] = useState<string>(getTypeOfTournamentToSaveOrEdit());
   const [displayedTournament, setDisplayedTournament] = useState<Tournament>(
-    initialDisplayedTournament
+    findTournamentById(tournaments, id, type)
   );
-  const [currentAction, setCurrentAction] = useState<string>();
-  const [id, setId] = useState<number>(displayedTournament.id);
+  const [currentAction, setCurrentAction] = useState<string>(getUserAction());
   const [startDate, setStartDate] = useState<Date>(
     displayedTournament.startDate
   );
   const [endDate, setEndDate] = useState<Date>(displayedTournament.endDate);
-  const [type, setType] = useState<string>(displayedTournament.type);
   const [groupSize, setGroupSize] = useState(displayedTournament.groupSize);
   const [comment, setComment] = useState<string>(displayedTournament.comment);
 
-  useEffect(() => {
-    if (getUserAction() === UserActions.NONE) {
-      navigate("/nosuchpath");
-    }
-  }, [navigate, getUserAction]);
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const updateDisplayedTournament = () => {
-    log("UPDATING...");
-    if (
-      getUserAction() === UserActions.ADD ||
-      getIdOfTournamentToSaveOrEdit() !== displayedTournament.id ||
-      startDate !== displayedTournament.startDate ||
-      endDate !== displayedTournament.endDate ||
-      type !== displayedTournament.type ||
-      groupSize !== displayedTournament.groupSize ||
-      comment !== displayedTournament.comment ||
-      id !== displayedTournament.id
-    ) {
-      const currentTournamentToDisplay = findTournamentById(
+  const updateDisplayedTournament = (
+    tournamentId: number,
+    tournamentType: string
+  ) => {
+    if (tournamentId !== id || tournamentType !== type) {
+      log("UPDATING...");
+      const currentTournamentToDisplay: Tournament = findTournamentById(
         tournaments,
-        getIdOfTournamentToSaveOrEdit(),
-        type
+        tournamentId,
+        tournamentType
       );
 
+      setCurrentAction((prev) => getUserAction());
       setDisplayedTournament((prev) => currentTournamentToDisplay);
       setId((prev) => currentTournamentToDisplay.id);
       setStartDate((prev) => currentTournamentToDisplay.startDate);
@@ -92,26 +65,26 @@ function AddOrEditTournament() {
       setType((prev) => currentTournamentToDisplay.type);
       setGroupSize((prev) => currentTournamentToDisplay.groupSize);
       setComment((prev) => currentTournamentToDisplay.comment);
-      
-      log("currentTournamentToDisplay: ",  currentTournamentToDisplay);
-      log(getIdOfTournamentToSaveOrEdit());
     }
   };
 
   useEffect(() => {
-    if (currentAction !== getUserAction()) {
-      setCurrentAction((prev) => getUserAction());
-      updateDisplayedTournament();
+    if (getUserAction() === UserActions.NONE) {
+      navigate("/nosuchpath");
     }
-  }, [currentAction, getUserAction, params.action, updateDisplayedTournament]);
+  }, [navigate, getUserAction]);
 
   useEffect(() => {
-    console.log("ADDOREDIT PANEL SHOWS:");
-    console.log("startdate", startDate);
-    console.log("enddate", endDate);
-    console.log("type", type);
-    console.log("id", id);
-    console.log("displayedTournament", displayedTournament);
+    log("ADDOREDIT TOURNAMENT - PARAMS: ", params);
+  });
+
+  useEffect(() => {
+    // console.log("ADDOREDIT PANEL SHOWS:", displayedTournament);
+    // console.log("startdate", startDate);
+    // console.log("enddate", endDate);
+    // console.log("type", type);
+    // console.log("id", id);
+    // console.log("displayedTournament", displayedTournament);
   });
 
   return (
@@ -222,15 +195,6 @@ function AddOrEditTournament() {
                       className="btn btn-ghost btn-xs bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
-                        //  it is now tracked in the state
-                        const t = findTournamentById(tournaments, id, type);
-                        // const { participatingPlayers } = t;
-                        // const { participatingPlayerIds } = t;
-                        // const { participatingTeams } = t;
-                        // const { participatingTeamIds } = t;
-                        // const { groups } = t;
-                        // const { groupIds } = t;
-
                         dispatch(
                           saveTournament({
                             id,
@@ -239,13 +203,6 @@ function AddOrEditTournament() {
                             endDate,
                             groupSize,
                             comment,
-                            // participatingPlayers: participatingPlayers || [],
-                            // participatingPlayerIds:
-                            //   participatingPlayerIds || [],
-                            // participatingTeams: participatingTeams || [],
-                            // participatingTeamIds: participatingTeamIds || [],
-                            // groups: groups || [],
-                            // groupIds: groupIds || [],
                           })
                         );
                       }}

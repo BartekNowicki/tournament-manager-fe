@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable no-console */
 /* eslint-disable react/jsx-boolean-value */
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -251,7 +252,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         className="btn btn-ghost btn-xs bg-slate-600"
                         onClick={() => {
                           if (displayedTournamentUpdater)
-                            displayedTournamentUpdater();
+                            displayedTournamentUpdater(tournament.id, tournament.type);
                         }}
                         disabled={isToBeHighlightedForEditingData(
                           tournament.id,
@@ -259,7 +260,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         )}
                       >
                         <Link
-                          to={`/tournaments/addoredit/edit${tournament.id}`}
+                          to={`/tournaments/addoredit/edit/${tournament.type}/${tournament.id}`}
                         >
                           edytuj
                         </Link>

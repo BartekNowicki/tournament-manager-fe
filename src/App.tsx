@@ -40,7 +40,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/tournaments" element={<TournamentLayout />}>
           <Route index element={<Tournaments />} />
-          <Route path="addoredit/:action" element={<AddOrEditTournament />} />
+          <Route
+            path="addoredit/:action/:type/:id"
+            element={<AddOrEditTournament />}
+          />
         </Route>
         <Route path="/players" element={<PlayerLayout />}>
           <Route index element={<Players />} />
