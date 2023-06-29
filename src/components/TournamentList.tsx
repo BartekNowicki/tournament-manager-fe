@@ -16,6 +16,7 @@ import {
   TData,
   assignPlayersToTournament,
   deleteTournament,
+  emptyTournament,
   fetchAllTournaments,
 } from "../storeContent/storeSlices/tournamentSlice";
 import { getAdjustedDates } from "../utils/dates";
@@ -30,17 +31,22 @@ import {
   fetchAllTeams,
 } from "../storeContent/storeSlices/teamSlice";
 import {
-  countParticipants,
+  count,
+  findTournamentById,
   highlighted,
   injectItemKey,
+  isTournament,
   log,
 } from "../utils/funcs";
-import { TournamentType } from "./Tournament";
+import Tournament, { TournamentType } from "./Tournament";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
   typeOfTournamentDisplayedForEditingData: string;
-  displayedTournamentUpdater: () => void;
+  displayedTournamentUpdater: (
+    tournamentId: number,
+    tournamentType: string
+  ) => void;
 }
 
 const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
@@ -88,73 +94,74 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     tournamentId: number,
     tournamentType: string
   ) => {
-    const selectedTournament =
-      tournaments && Array.isArray(tournaments)
-        ? tournaments?.find(
-            (t) =>
-              t.id === tournamentId &&
-              t.type === typeOfTournamentDisplayedForEditingParticipants
-          )
-        : null;
+    let selectedTournament = emptyTournament;
 
-    if (selectedTournament) {
-      const participantIds =
-        typeOfTournamentDisplayedForEditingParticipants ===
-        TournamentType.SINGLES
-          ? selectedTournament.participatingPlayers
-          : selectedTournament.participatingTeams;
+    const foundTournament = tournaments?.find(
+      (t) =>
+        t.id === tournamentId &&
+        t.type === typeOfTournamentDisplayedForEditingParticipants
+    );
 
-      console.log(
-        "matching for tournament: ",
-        selectedTournament,
-        "matching for tournament type: ",
-        typeOfTournamentDisplayedForEditingParticipants,
-        "id: ",
-        idOfTournamentDisplayedForEditingParticipants,
-        "participantIds: ",
-        participantIds
-      );
+    if (typeof foundTournament !== "undefined" && isTournament(foundTournament))
+      selectedTournament = foundTournament;
 
-      const newIdToCheckStatusMapping = new Map();
+    if (selectedTournament.groups && selectedTournament.groups.length > 0)
+      return;
 
-      if (
-        typeOfTournamentDisplayedForEditingParticipants ===
-          TournamentType.SINGLES &&
-        typeof participantIds !== "undefined"
-      ) {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const p of players) {
-          if (typeof p.id !== "undefined")
-            newIdToCheckStatusMapping.set(p.id, false);
-        }
-        // eslint-disable-next-line no-restricted-syntax
-        for (const id of participantIds) {
-          if (typeof id !== "undefined")
-            newIdToCheckStatusMapping.set(id, true);
-        }
-        if (newIdToCheckStatusMapping.size > 0) {
-          // console.log("DISPATCH: ", newIdToCheckStatusMapping);
-          dispatch(checkPlayers(newIdToCheckStatusMapping));
-        }
-      } else if (
-        typeOfTournamentDisplayedForEditingParticipants ===
-          TournamentType.DOUBLES &&
-        typeof participantIds !== "undefined"
-      ) {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const t of teams) {
-          newIdToCheckStatusMapping.set(t.id, false);
-        }
-        // eslint-disable-next-line no-restricted-syntax
-        for (const id of participantIds) {
-          newIdToCheckStatusMapping.set(id, true);
-        }
-        if (newIdToCheckStatusMapping.size > 0) {
-          dispatch(checkTeams(newIdToCheckStatusMapping));
-        }
+    const participantIds =
+      typeOfTournamentDisplayedForEditingParticipants === TournamentType.SINGLES
+        ? selectedTournament.participatingPlayers
+        : selectedTournament.participatingTeams;
+
+    // log(
+    //   "tournament is grouped: ",
+    //   selectedTournament?.groups?.length > 0,
+    //   "matching for tournament: ",
+    //   selectedTournament,
+    //   "matching for tournament type: ",
+    //   typeOfTournamentDisplayedForEditingParticipants,
+    //   "id: ",
+    //   idOfTournamentDisplayedForEditingParticipants,
+    //   "participantIds: ",
+    //   participantIds
+    // );
+
+    const newIdToCheckStatusMapping = new Map();
+
+    if (
+      typeOfTournamentDisplayedForEditingParticipants ===
+        TournamentType.SINGLES &&
+      typeof participantIds !== "undefined"
+    ) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const p of players) {
+        if (typeof p.id !== "undefined")
+          newIdToCheckStatusMapping.set(p.id, false);
       }
-    } else {
-      // console.log("No tournament selected or adding a new one");
+      // eslint-disable-next-line no-restricted-syntax
+      for (const id of participantIds) {
+        if (typeof id !== "undefined") newIdToCheckStatusMapping.set(id, true);
+      }
+      if (newIdToCheckStatusMapping.size > 0) {
+        // console.log("DISPATCH: ", newIdToCheckStatusMapping);
+        dispatch(checkPlayers(newIdToCheckStatusMapping));
+      }
+    } else if (
+      typeOfTournamentDisplayedForEditingParticipants ===
+        TournamentType.DOUBLES &&
+      typeof participantIds !== "undefined"
+    ) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const t of teams) {
+        newIdToCheckStatusMapping.set(t.id, false);
+      }
+      // eslint-disable-next-line no-restricted-syntax
+      for (const id of participantIds) {
+        newIdToCheckStatusMapping.set(id, true);
+      }
+      if (newIdToCheckStatusMapping.size > 0) {
+        dispatch(checkTeams(newIdToCheckStatusMapping));
+      }
     }
   };
 
@@ -176,6 +183,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
     if (
       idOfTournamentDisplayedForEditingParticipants &&
+      idOfTournamentDisplayedForEditingParticipants !== -1 &&
       typeOfTournamentDisplayedForEditingParticipants
     ) {
       matchPlayerIsCheckedDBStatusToTournamentParticipation(
@@ -252,7 +260,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                         className="btn btn-ghost btn-xs bg-slate-600"
                         onClick={() => {
                           if (displayedTournamentUpdater)
-                            displayedTournamentUpdater(tournament.id, tournament.type);
+                            displayedTournamentUpdater(
+                              tournament.id,
+                              tournament.type
+                            );
                         }}
                         disabled={isToBeHighlightedForEditingData(
                           tournament.id,
@@ -301,11 +312,19 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                           }}
                         >
                           uczestnicy (
-                          {countParticipants(
+                          {count(
+                            "players",
                             tournaments,
                             tournament.id,
                             tournament.type
-                          ) || 0}
+                          )}
+                          ) grupy (
+                          {count(
+                            "groups",
+                            tournaments,
+                            tournament.id,
+                            tournament.type
+                          )}
                           )
                         </button>
                       </th>
@@ -413,11 +432,19 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                                 }}
                               >
                                 uczestnicy (
-                                {countParticipants(
+                                {count(
+                                  "players",
                                   tournaments,
                                   tournament.id,
                                   tournament.type
-                                ) || 0}
+                                )}
+                                ) grupy (
+                                {count(
+                                  "groups",
+                                  tournaments,
+                                  tournament.id,
+                                  tournament.type
+                                )}
                                 )
                               </button>
                             </th>

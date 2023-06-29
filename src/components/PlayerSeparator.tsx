@@ -1,15 +1,15 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import { emptyPlayer } from "../storeContent/storeSlices/playerSlice";
-import PlayerInfoColumns from "./PlayerInfoColumns";
+// import { emptyPlayer } from "../storeContent/storeSlices/playerSlice";
+// import PlayerInfoColumns from "./PlayerInfoColumns";
 
-interface ISeparatorProps {
+interface IPlayerSeparatorProps {
   groupStringId: string;
 }
 
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/function-component-definition */
-const Separator: React.FC<ISeparatorProps> = ({
+const PlayerSeparator: React.FC<IPlayerSeparatorProps> = ({
   groupStringId,
 }): JSX.Element => {
   return (
@@ -33,7 +33,7 @@ const Separator: React.FC<ISeparatorProps> = ({
   );
 };
 
-export default Separator;
+export default PlayerSeparator;
 
 // ORIG
 // import { emptyPlayer } from "../storeContent/storeSlices/playerSlice";

@@ -129,7 +129,7 @@ export const groupPlayers = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return rejectWithValue("error deleting the player");
+      return rejectWithValue("error grouping the players");
     }
   }
 );
@@ -144,7 +144,7 @@ export const unGroupPlayers = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return rejectWithValue("error deleting the player");
+      return rejectWithValue("error ungrouping the players");
     }
   }
 );

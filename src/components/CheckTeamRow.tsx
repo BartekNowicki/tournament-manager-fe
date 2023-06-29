@@ -3,6 +3,7 @@ import { Player } from "../storeContent/storeSlices/playerSlice";
 import { Team } from "../storeContent/storeSlices/teamSlice";
 import { findPlayerById } from "../utils/funcs";
 import TeamInfoColumns from "./TeamInfoColumns";
+import TeamSeparator from "./TeamSeparator";
 
 interface ICheckTeamRowProps {
   handleCheck(e: React.ChangeEvent<HTMLInputElement>): void;
@@ -21,6 +22,7 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
   team,
   isDividedIntoGroups,
 }): JSX.Element => {
+  if (id === 999) return <TeamSeparator groupStringId={team.comment} />;
   const players = useAppSelector((state) => state.player.players);
   const playerOne: Player = findPlayerById(players, team.playerOneId);
   const playerTwo: Player = findPlayerById(players, team.playerTwoId);

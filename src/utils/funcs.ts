@@ -79,7 +79,7 @@ export const findById = (items: Item[], id: number, type?: string): Item => {
   if (Array.isArray(items) && isTournament(items[0])) {
     return items.find((i) => i.id === id && i.type === type) || emptyTournament;
   }
-  console.warn("something is fishy wrong with item type selection");
+  console.warn("something is fishy with item type selection");
   return emptyPlayer;
 };
 
@@ -99,37 +99,60 @@ export const findTournamentById = (
   return findById(tournaments, id, type);
 };
 
-export const countParticipants = (
+export const count = (
+  items: string,
   tournaments: Tournament[],
   tournamentId: number,
   tournamentType: string
 ): number => {
-  return tournamentType === TournamentType.SINGLES
-    ? findById(
-        tournaments,
-        tournamentId,
-        tournamentType
-      ).participatingPlayers.filter((id) => id !== -1).length
-    : findById(
-        tournaments,
-        tournamentId,
-        tournamentType
-      ).participatingTeams.filter((id) => id !== -1).length * 2;
+  const foundTournament = findById(tournaments, tournamentId, tournamentType);
+  if (items === "players") {
+    return foundTournament.participatingPlayers.filter((id) => id !== -1)
+      .length;
+  }
+  if (items === "teams") {
+    return (
+      foundTournament.participatingTeams.filter((id) => id !== -1).length * 2
+    );
+  }
+  if (items === "groups") {
+    return foundTournament.groups.length;
+  }
+  return -1;
 };
 
-export const getSortedPlayerGroups = (
+const isValid = (playerArr: Player[], size: number): boolean => {
+  const isBelowGroupSize = (value: string) => String(value).length <= size;
+  const distribution = playerArr
+    .map((p) => (p.id !== 999 ? "0" : "1"))
+    .join("")
+    .split("1")
+    .filter((i) => i !== "");
+  if (!distribution.every(isBelowGroupSize)) {
+    console.warn("invalid player grouping, trying again...");
+  }
+  // log("AND: ", distribution, distribution.every(isBelowGroupSize), size);
+  return distribution.every(isBelowGroupSize);
+};
+
+export const getSortedPlayerOrTeamGroups = (
   tournaments: Tournament[],
   id: number,
   isSingles: boolean,
   allGroups: Group[],
-  allPlayers: Player[]
-): Array<Player> => {
+  allPlayers: Player[],
+  allTeams: Team[]
+): Array<Player | Team> => {
   const type: string = isSingles
     ? TournamentType.SINGLES
     : TournamentType.DOUBLES;
+
   const tournament = findById(tournaments, id, type);
-  const playersSorted: Player[] = [];
-  const undersizedGroupToGoLast: Player[] = [];
+  const itemsSorted: Player[] | Team[] = [];
+  const undersizedGroupToGoLast: Player[] | Team[] = [];
+
+  log("CALCULATING FOR ", id, type, isSingles);
+
   if (
     (Array.isArray(tournaments) &&
       Array.isArray(tournament.groups) &&
@@ -139,28 +162,65 @@ export const getSortedPlayerGroups = (
     !tournament ||
     !tournament.groups
   ) {
-    log("cannot provide sorted players, are there any?");
+    log(
+      `cannot provide sorted ${isSingles ? "players" : "teams"}, are there any?`
+    );
     return [];
   }
 
   let groupNumber = 1;
+  const iterableGroups: Group[] = Array.from(tournament.groups);
+  // the highest-id group is the only one that can be undersized
+  const iterableGroupsSortedByNumberOfMembers = iterableGroups.sort(
+    (a, b) => a - b
+  );
+  const iterableAllGroups: Group[] = Array.from(allGroups);
 
-  tournament.groups.forEach((gId) => {
+  iterableGroupsSortedByNumberOfMembers.forEach((gId) => {
     const markedEmptyPlayer = { ...emptyPlayer };
-    markedEmptyPlayer.firstName = String(groupNumber);
+    const markedEmptyTeam = { ...emptyTeam };
+    // using the comment field for numbering groups
+    markedEmptyPlayer.comment = String(groupNumber);
+    markedEmptyTeam.comment = String(groupNumber);
     groupNumber += 1;
-    playersSorted.push(markedEmptyPlayer); // group display separator, item.id = 999
-    const nextGroup: Group = Array.from(allGroups).find(
+    if (isSingles) {
+      itemsSorted.push(markedEmptyPlayer); // group display separator, item.id = 999
+    }
+    if (!isSingles) {
+      itemsSorted.push(markedEmptyTeam); // group display separator, item.id = 999
+    }
+    const nextGroup: Group = iterableAllGroups.find(
       (group) => group.id === gId
     );
-    if (nextGroup && nextGroup.members.length > 0)
+    if (isSingles && nextGroup && nextGroup.members.length > 0) {
       nextGroup.members.forEach((mId) => {
         const member: Player = findById(allPlayers, mId);
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         nextGroup.members.length === tournament.groupSize
-          ? playersSorted.push(member)
+          ? itemsSorted.push(member)
           : undersizedGroupToGoLast.push(member);
       });
+    }
+    if (!isSingles && nextGroup && nextGroup.members.length > 0) {
+      nextGroup.members.forEach((mId) => {
+        const member: Team = findById(allTeams, mId);
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        nextGroup.members.length === tournament.groupSize
+          ? itemsSorted.push(member)
+          : undersizedGroupToGoLast.push(member);
+      });
+    }
   });
-  return [...playersSorted, ...undersizedGroupToGoLast];
+  const result = [...itemsSorted, ...undersizedGroupToGoLast];
+
+  return isValid(result, tournament.groupSize)
+    ? result
+    : getSortedPlayerOrTeamGroups(
+        tournaments,
+        id,
+        isSingles,
+        allGroups,
+        allPlayers,
+        allTeams
+      );
 };

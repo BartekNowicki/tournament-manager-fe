@@ -115,6 +115,36 @@ export const deleteTeam = createAsyncThunk(
   }
 );
 
+export const groupTeams = createAsyncThunk(
+  "teams/group",
+  async (tournamentId: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/data/teams/group/${tournamentId}`
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue("error grouping the teams");
+    }
+  }
+);
+
+export const unGroupTeams = createAsyncThunk(
+  "teams/unGroup",
+  async (tournamentId: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/data/teams/ungroup/${tournamentId}`
+      );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue("error ungrouping the teams");
+    }
+  }
+);
+
 interface TeamSliceState {
   teams: Team[];
   forceRerenderTeamListCount: number;
@@ -192,7 +222,7 @@ export const TeamSlice = createSlice({
     builder
       .addCase(fetchAllTeams.fulfilled, (state, action) => {
         state.teams = action.payload;
-        console.info("fetch teams promise fulfilled");
+        console.info("fetch teams promise fulfilled", state.teams);
         state.forceRerenderTeamListCount += 1;
       })
       .addCase(fetchAllTeams.pending, () => {
@@ -234,7 +264,6 @@ export const TeamSlice = createSlice({
         // console.info("save team promise pending...");
       })
       .addCase(checkTeams.fulfilled, (state, action) => {
-        console.log("PAYLOAD: ", action.payload);
         const newIdToCheckStatusMapping: IdToCheckStatusMapping = new Map(
           Object.entries(action.payload)
         );

@@ -1,3 +1,5 @@
+/* eslint-disable import/no-cycle */
+/* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
@@ -6,7 +8,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 
 import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import {
@@ -22,6 +24,8 @@ import {
   checkTeams,
   deleteTeam,
   fetchAllTeams,
+  groupTeams,
+  unGroupTeams,
 } from "../storeContent/storeSlices/teamSlice";
 import CheckPlayerRow from "./CheckPlayerRow";
 import CheckTeamRow from "./CheckTeamRow";
@@ -31,14 +35,12 @@ import {
   fetchAllTournaments,
 } from "../storeContent/storeSlices/tournamentSlice";
 import TeamInfoColumns from "./TeamInfoColumns";
-// eslint-disable-next-line import/no-cycle
 import { getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
-// eslint-disable-next-line import/no-cycle
 import {
   Item,
   findPlayerById,
   findTeamById,
-  getSortedPlayerGroups,
+  getSortedPlayerOrTeamGroups,
   highlighted,
   injectItemKey,
   isPlayer,
@@ -47,7 +49,7 @@ import {
 } from "../utils/funcs";
 import { fetchAllGroups } from "../storeContent/storeSlices/groupSlice";
 import { TournamentType } from "./Tournament";
-import Separator from "./Separator";
+import PlayerSeparator from "./PlayerSeparator";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -80,6 +82,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     ? allPlayers
     : allTeams;
   const [listedItems, setListedItems] = useState<Item[]>(initialListedItems);
+
   const dispatch = useAppDispatch();
   const params = useParams() ?? {};
 
@@ -159,40 +162,60 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   // useEffect(() => {});
 
-  const playersAssignedToGroups = getSortedPlayerGroups(
-    allTournaments,
-    idOfTournamentDisplayedForEditingParticipants,
-    isParticipantsSingles,
-    allGroups,
-    allPlayers
+  const playersOrTeamsAssignedToGroups = useMemo(
+    () =>
+      getSortedPlayerOrTeamGroups(
+        allTournaments,
+        idOfTournamentDisplayedForEditingParticipants,
+        isParticipantsSingles,
+        allGroups,
+        allPlayers,
+        allTeams
+      ),
+    [
+      allTournaments,
+      idOfTournamentDisplayedForEditingParticipants,
+      isParticipantsSingles,
+      allGroups,
+      allPlayers,
+      allTeams,
+    ]
   );
 
   useEffect(() => {
-    if (
-      isParticipantsSingles &&
-      !isDividedIntoGroups &&
-      playersAssignedToGroups.length > 0
-    ) {
-      setIsDividedIntoGroups((prev) => true);
+    const items = playersOrTeamsAssignedToGroups;
+
+    log("ITEMS ", items, isParticipantsSingles);
+
+    if (items.length > 0) {
+      if (JSON.stringify(listedItems) !== JSON.stringify(items))
+        setListedItems((prev) => items);
+      if (isDividedIntoGroups !== true) setIsDividedIntoGroups((prev) => true);
+    } else {
       if (
-        JSON.stringify(listedItems) !== JSON.stringify(playersAssignedToGroups)
+        isParticipantsSingles &&
+        JSON.stringify(listedItems) !== JSON.stringify(allPlayers)
       ) {
-        setListedItems((prev) => playersAssignedToGroups);
+        setListedItems((prev) => allPlayers);
       }
-    } else if (
-      isParticipantsSingles &&
-      isDividedIntoGroups &&
-      playersAssignedToGroups.length === 0
-    ) {
-      setIsDividedIntoGroups((prev) => false);
-      // setListedItems((prev) => allPlayers);
+      if (
+        !isParticipantsSingles &&
+        JSON.stringify(listedItems) !== JSON.stringify(allTeams)
+      ) {
+        setListedItems((prev) => allTeams);
+      }
+
+      if (isDividedIntoGroups !== false) {
+        setIsDividedIntoGroups((prev) => false);
+      }
     }
   }, [
-    allPlayers,
-    isDividedIntoGroups,
-    isParticipantsSingles,
     listedItems,
-    playersAssignedToGroups,
+    isDividedIntoGroups,
+    allPlayers,
+    allTeams,
+    playersOrTeamsAssignedToGroups,
+    isParticipantsSingles,
   ]);
 
   useEffect(() => {
@@ -203,7 +226,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       "RENDERING PLAYERLIST, TOURNAMENT EDITING PARTICIPANTS: ",
       idOfTournamentDisplayedForEditingParticipants
     );
-    log("RENDERING PLAYERLIST, LISTING GROUPS: : ", playersAssignedToGroups);
   }, [
     isParticipantsSingles,
     listedItems,
@@ -211,25 +233,10 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     idOfTournamentDisplayedForEditingParticipants,
     allPlayers,
     allTeams,
-    playersAssignedToGroups,
   ]);
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
-
-  let items: Array<Item>;
-
-  const teamsAssignedToGroups = allTeams; // TODO
-
-  if (!isDividedIntoGroups && !isParticipantsSingles) {
-    items = allTeams;
-  } else if (isDividedIntoGroups && !isParticipantsSingles) {
-    items = teamsAssignedToGroups;
-  } else if (!isDividedIntoGroups && isParticipantsSingles) {
-    items = allPlayers;
-  } else if (isDividedIntoGroups && isParticipantsSingles) {
-    items = playersAssignedToGroups;
-  }
 
   if (listedItems.length === 0)
     return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;
@@ -431,23 +438,22 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             <button
               className="btn btn-ghost btn-xs bg-slate-700 positionMeBottomCenterRight"
               onClick={async () => {
-                if (
-                  !isDividedIntoGroups &&
-                  idOfTournamentDisplayedForEditingParticipants
-                ) {
-                  // if isParticipantsSingles, then do Teams
-                  await dispatch(
-                    groupPlayers(idOfTournamentDisplayedForEditingParticipants)
-                  );
-                } else if (
-                  isDividedIntoGroups &&
-                  idOfTournamentDisplayedForEditingParticipants
-                ) {
-                  await dispatch(
-                    unGroupPlayers(
-                      idOfTournamentDisplayedForEditingParticipants
-                    )
-                  );
+                const id: number | undefined =
+                  idOfTournamentDisplayedForEditingParticipants;
+                console.log("ID: ", id);
+                console.log("isParticipantsSingles: ", isParticipantsSingles);
+                console.log("isDividedIntoGroups: ", isDividedIntoGroups);
+
+                if (id) {
+                  if (!isDividedIntoGroups && isParticipantsSingles) {
+                    await dispatch(groupPlayers(id));
+                  } else if (!isDividedIntoGroups && !isParticipantsSingles) {
+                    await dispatch(groupTeams(id));
+                  } else if (isDividedIntoGroups && isParticipantsSingles) {
+                    await dispatch(unGroupPlayers(id));
+                  } else if (isDividedIntoGroups && !isParticipantsSingles) {
+                    await dispatch(unGroupTeams(id));
+                  }
                 }
 
                 await dispatch(fetchAllTournaments());
