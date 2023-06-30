@@ -39,6 +39,7 @@ import {
   log,
 } from "../utils/funcs";
 import Tournament, { TournamentType } from "./Tournament";
+import { maxHeightOfLists } from "../utils/settings";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -199,7 +200,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
   return (
     <>
-      <div className="m-8 border border-sky-500">
+      <div className={`m-8 ${maxHeightOfLists} overflow-y-scroll`}>
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
             {/* head */}
@@ -257,7 +258,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     <td className="text text-center">{tournament.comment}</td>
                     <th>
                       <button
-                        className="btn btn-ghost btn-xs bg-slate-600"
+                        className="btn btn-ghost btn-s bg-slate-600"
                         onClick={() => {
                           if (displayedTournamentUpdater)
                             displayedTournamentUpdater(
@@ -279,7 +280,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     </th>
                     <th>
                       <button
-                        className="btn btn-ghost btn-xs bg-slate-600"
+                        className="btn btn-ghost btn-s bg-slate-600"
                         onClick={(e) => {
                           const tournamentType =
                             tournament.type === "SINGLES"
@@ -303,7 +304,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     {!isAddingOrEditingTournamentMode() && (
                       <th>
                         <button
-                          className="btn btn-ghost btn-xs bg-slate-600"
+                          className="btn btn-ghost btn-s bg-slate-600"
                           onClick={() => {
                             handleParticipantsClick(
                               tournament.id,
@@ -362,7 +363,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
         createPortal(
           <div className="darkModal max-w-7xl mx-auto">
             <button
-              className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight"
+              className="btn btn-ghost btn-s bg-slate-600 w-10 h-10 positionMeTopRight"
               onClick={() =>
                 setIdOfTournamentDisplayedForEditingParticipants((prev) => -1)
               }
@@ -370,7 +371,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
               x
             </button>
 
-            <div className="m-8 border border-sky-500">
+            <div className="m-8">
               <div
                 style={{ maxHeight: "25vh" }}
                 className="overflow-x-auto w-full"
@@ -433,7 +434,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                           {!isAddingOrEditingTournamentMode() && (
                             <th>
                               <button
-                                className="btn btn-ghost btn-xs bg-slate-600"
+                                className="btn btn-ghost btn-s bg-slate-600"
                                 onClick={() => {
                                   handleParticipantsClick(
                                     tournament.id,

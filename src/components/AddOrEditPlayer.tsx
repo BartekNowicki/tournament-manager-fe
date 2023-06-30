@@ -111,7 +111,7 @@ function AddOrEditPlayer() {
   return (
     <div className="darkModal max-w-7xl mx-auto">
       <form className="mx-auto">
-        <div className="m-8 border border-sky-500">
+        <div className="m-8">
           <div className="overflow-x-auto w-full">
             <table className="table w-full">
               {/* head */}
@@ -220,7 +220,7 @@ function AddOrEditPlayer() {
                   </td>
                   <th>
                     <button
-                      className="btn btn-ghost btn-xs bg-slate-600"
+                      className="btn btn-ghost btn-s bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
                         const id: number = getIdOfItemToSaveOrEdit(params);
@@ -273,7 +273,7 @@ function AddOrEditPlayer() {
         displayedPlayerUpdater={updateDisplayedPlayer}
         assignPlayersToTournament={() => {}}
       />
-      <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
+      <button className="btn btn-ghost btn-s bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/players">x</Link>
       </button>
     </div>

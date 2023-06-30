@@ -24,7 +24,7 @@ export function Navbar(props: INavbarProps) {
   routeToDestinationMapping.set("Kontakt", "/contact");
 
   return (
-    <nav className="navbar bg-neutral text-neutral-content flex justify-around mx-auto">
+    <nav className="navbar bg-neutral text-neutral-content text-sky-500 flex justify-around mx-auto">
       {destinations.map((destination, index) => (
         <NavLink
           key={String(index + destination)}

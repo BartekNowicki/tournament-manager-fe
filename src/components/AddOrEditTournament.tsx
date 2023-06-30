@@ -89,9 +89,9 @@ function AddOrEditTournament() {
 
   return (
     <div className="darkModal max-w-7xl mx-auto">
-      <form className="border border-red-500">
-        <div className="m-8 border border-sky-500">
-          <div className="overflow-x-scroll overflow-y-visible w-full mb-20 pb-60">
+      <form>
+        <div className="m-8 overflow-y-visible">
+          <div className="overflow-x-auto overflow-y-visible w-full pb-60">
             <table className="table w-full">
               {/* head */}
               <thead>
@@ -192,7 +192,7 @@ function AddOrEditTournament() {
                   </td>
                   <th>
                     <button
-                      className="btn btn-ghost btn-xs bg-slate-600"
+                      className="btn btn-ghost btn-s bg-slate-600"
                       onClick={(e) => {
                         e.preventDefault();
                         dispatch(
@@ -233,7 +233,7 @@ function AddOrEditTournament() {
         idOfTournamentDisplayedForEditingData={displayedTournament.id}
         typeOfTournamentDisplayedForEditingData={displayedTournament.type}
       />
-      <button className="btn btn-ghost btn-xs bg-slate-600 w-10 h-10 positionMeTopRight">
+      <button className="btn btn-ghost btn-s bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/tournaments">x</Link>
       </button>
     </div>

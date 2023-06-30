@@ -148,9 +148,7 @@ export const getSortedPlayerOrTeamGroups = (
   const tournament = findById(tournaments, id, type);
   const itemsSorted: Player[] | Team[] = [];
   const undersizedGroupToGoLast: Player[] | Team[] = [];
-
-  log("---------------------------------CALCULATING FOR ", id, type, isParticipantsSingles);
-
+  // log("---------------------------------CALCULATING FOR ", id, type, isParticipantsSingles);
   if (
     (Array.isArray(tournaments) &&
       Array.isArray(tournament.groups) &&
@@ -160,12 +158,11 @@ export const getSortedPlayerOrTeamGroups = (
     !tournament ||
     !tournament.groups
   ) {
-    log(
-      `cannot provide sorted ${isParticipantsSingles ? "players" : "teams"}, are there any?`
-    );
+    // log(
+    //   `cannot provide sorted ${isParticipantsSingles ? "players" : "teams"}, are there any?`
+    // );
     return [];
   }
-
   let groupNumber = 1;
   const iterableGroups: Group[] = Array.from(tournament.groups);
   // the highest-id group is the only one that can be undersized

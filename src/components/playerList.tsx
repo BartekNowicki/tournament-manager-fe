@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 /* eslint-disable import/no-cycle */
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-nested-ternary */
@@ -23,7 +24,7 @@ import {
   Team,
   checkTeams,
   deleteTeam,
-  fetchAllTeams,
+  // fetchAllTeams,
   groupTeams,
   unGroupTeams,
 } from "../storeContent/storeSlices/teamSlice";
@@ -48,13 +49,11 @@ import {
   log,
 } from "../utils/funcs";
 import { fetchAllGroups } from "../storeContent/storeSlices/groupSlice";
-import { TournamentType } from "./Tournament";
-import PlayerSeparator from "./PlayerSeparator";
+import { maxHeightOfLists } from "../utils/settings";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
   isEditingTournamentParticipants: boolean;
-  // eslint-disable-next-line react/require-default-props
   idOfTournamentDisplayedForEditingParticipants?: number;
   isParticipantsSingles: boolean;
   assignPlayersToTournament: (tdata: TData) => void;
@@ -242,15 +241,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;
 
   return (
-    <div className="m-8 border border-sky-500 addPlayersPanel">
-      <div
-        style={
-          isEditingParticipantsOrGroups
-            ? { maxHeight: "65vh" }
-            : { maxHeight: "75vh" }
-        }
-        className="overflow-x-auto w-full"
-      >
+    <div className={`m-8 ${maxHeightOfLists} overflow-y-scroll`}>
+      <div>
         <table className="table w-full">
           {/* head */}
           <thead>
@@ -331,7 +323,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           <PlayerInfoColumns player={item} />
                           <th>
                             <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
+                              className="btn btn-ghost btn-s bg-slate-700"
                               onClick={() => {
                                 if (displayedPlayerUpdater)
                                   displayedPlayerUpdater();
@@ -344,7 +336,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           </th>
                           <th>
                             <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
+                              className="btn btn-ghost btn-s bg-slate-600"
                               onClick={(e) => {
                                 dispatch(deletePlayer(item.id));
                               }}
@@ -373,7 +365,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           />
                           <th>
                             <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
+                              className="btn btn-ghost btn-s bg-slate-600"
                               onClick={() => {
                                 if (displayedPlayerUpdater)
                                   displayedPlayerUpdater();
@@ -386,7 +378,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           </th>
                           <th>
                             <button
-                              className="btn btn-ghost btn-xs bg-slate-600"
+                              className="btn btn-ghost btn-s bg-slate-600"
                               onClick={(e) => {
                                 dispatch(deleteTeam(item.id));
                               }}
@@ -416,7 +408,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
           <div>
             <button
               disabled={isDividedIntoGroups}
-              className="btn btn-ghost btn-xs bg-slate-700 positionMeBottomCenterLeft"
+              className="btn btn-ghost btn-s bg-slate-700 positionMeBottomCenterLeft"
               onClick={
                 isParticipantsSingles
                   ? () =>
@@ -436,7 +428,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
               zapisz uczestników
             </button>
             <button
-              className="btn btn-ghost btn-xs bg-slate-700 positionMeBottomCenterRight"
+              className="btn btn-ghost btn-s bg-slate-700 positionMeBottomCenterRight"
               onClick={async () => {
                 const id: number | undefined =
                   idOfTournamentDisplayedForEditingParticipants;
