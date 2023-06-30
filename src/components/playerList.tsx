@@ -440,9 +440,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
               onClick={async () => {
                 const id: number | undefined =
                   idOfTournamentDisplayedForEditingParticipants;
-                console.log("ID: ", id);
-                console.log("isParticipantsSingles: ", isParticipantsSingles);
-                console.log("isDividedIntoGroups: ", isDividedIntoGroups);
+                // console.log("ID: ", id);
+                // console.log("isParticipantsSingles: ", isParticipantsSingles);
+                // console.log("isDividedIntoGroups: ", isDividedIntoGroups);
 
                 if (id) {
                   if (!isDividedIntoGroups && isParticipantsSingles) {

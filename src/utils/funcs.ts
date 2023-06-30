@@ -111,9 +111,7 @@ export const count = (
       .length;
   }
   if (items === "teams") {
-    return (
-      foundTournament.participatingTeams.filter((id) => id !== -1).length
-    );
+    return foundTournament.participatingTeams.filter((id) => id !== -1).length;
   }
   if (items === "groups") {
     return foundTournament.groups.length;
@@ -138,12 +136,12 @@ const isValid = (playerArr: Player[], size: number): boolean => {
 export const getSortedPlayerOrTeamGroups = (
   tournaments: Tournament[],
   id: number,
-  isSingles: boolean,
+  isParticipantsSingles: boolean,
   allGroups: Group[],
   allPlayers: Player[],
   allTeams: Team[]
 ): Array<Player | Team> => {
-  const type: string = isSingles
+  const type: string = isParticipantsSingles
     ? TournamentType.SINGLES
     : TournamentType.DOUBLES;
 
@@ -151,7 +149,7 @@ export const getSortedPlayerOrTeamGroups = (
   const itemsSorted: Player[] | Team[] = [];
   const undersizedGroupToGoLast: Player[] | Team[] = [];
 
-  log("CALCULATING FOR ", id, type, isSingles);
+  log("---------------------------------CALCULATING FOR ", id, type, isParticipantsSingles);
 
   if (
     (Array.isArray(tournaments) &&
@@ -163,7 +161,7 @@ export const getSortedPlayerOrTeamGroups = (
     !tournament.groups
   ) {
     log(
-      `cannot provide sorted ${isSingles ? "players" : "teams"}, are there any?`
+      `cannot provide sorted ${isParticipantsSingles ? "players" : "teams"}, are there any?`
     );
     return [];
   }
@@ -183,16 +181,16 @@ export const getSortedPlayerOrTeamGroups = (
     markedEmptyPlayer.comment = String(groupNumber);
     markedEmptyTeam.comment = String(groupNumber);
     groupNumber += 1;
-    if (isSingles) {
+    if (isParticipantsSingles) {
       itemsSorted.push(markedEmptyPlayer); // group display separator, item.id = 999
     }
-    if (!isSingles) {
+    if (!isParticipantsSingles) {
       itemsSorted.push(markedEmptyTeam); // group display separator, item.id = 999
     }
     const nextGroup: Group = iterableAllGroups.find(
       (group) => group.id === gId
     );
-    if (isSingles && nextGroup && nextGroup.members.length > 0) {
+    if (isParticipantsSingles && nextGroup && nextGroup.members.length > 0) {
       nextGroup.members.forEach((mId) => {
         const member: Player = findById(allPlayers, mId);
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -201,7 +199,7 @@ export const getSortedPlayerOrTeamGroups = (
           : undersizedGroupToGoLast.push(member);
       });
     }
-    if (!isSingles && nextGroup && nextGroup.members.length > 0) {
+    if (!isParticipantsSingles && nextGroup && nextGroup.members.length > 0) {
       nextGroup.members.forEach((mId) => {
         const member: Team = findById(allTeams, mId);
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -218,7 +216,7 @@ export const getSortedPlayerOrTeamGroups = (
     : getSortedPlayerOrTeamGroups(
         tournaments,
         id,
-        isSingles,
+        isParticipantsSingles,
         allGroups,
         allPlayers,
         allTeams

@@ -21,7 +21,7 @@ const TeamSeparator: React.FC<ITeamSeparatorProps> = ({
             <div />
           </div>
           <div>
-            <div> DIS BE THE TEAM SEPARATOR YO!!!
+            <div>
               <p className="font-bold">{`GRUPA ${groupStringId}`}</p>
             </div>
           </div>
