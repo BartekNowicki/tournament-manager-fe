@@ -311,13 +311,23 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                             );
                           }}
                         >
-                          uczestnicy (
-                          {count(
-                            "players",
-                            tournaments,
-                            tournament.id,
-                            tournament.type
-                          )}
+                          {tournament.type === TournamentType.SINGLES
+                            ? "uczestnicy"
+                            : "pary"}
+                          (
+                          {tournament.type === TournamentType.SINGLES
+                            ? count(
+                                "players",
+                                tournaments,
+                                tournament.id,
+                                tournament.type
+                              )
+                            : count(
+                                "teams",
+                                tournaments,
+                                tournament.id,
+                                tournament.type
+                              )}
                           ) grupy (
                           {count(
                             "groups",
@@ -431,13 +441,23 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                                   );
                                 }}
                               >
-                                uczestnicy (
-                                {count(
-                                  "players",
-                                  tournaments,
-                                  tournament.id,
-                                  tournament.type
-                                )}
+                                {tournament.type === TournamentType.SINGLES
+                                  ? "uczestnicy"
+                                  : "pary"}
+                                (
+                                {tournament.type === TournamentType.SINGLES
+                                  ? count(
+                                      "players",
+                                      tournaments,
+                                      tournament.id,
+                                      tournament.type
+                                    )
+                                  : count(
+                                      "teams",
+                                      tournaments,
+                                      tournament.id,
+                                      tournament.type
+                                    )}
                                 ) grupy (
                                 {count(
                                   "groups",

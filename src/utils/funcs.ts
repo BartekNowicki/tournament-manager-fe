@@ -112,7 +112,7 @@ export const count = (
   }
   if (items === "teams") {
     return (
-      foundTournament.participatingTeams.filter((id) => id !== -1).length * 2
+      foundTournament.participatingTeams.filter((id) => id !== -1).length
     );
   }
   if (items === "groups") {
