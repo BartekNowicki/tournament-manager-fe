@@ -24,15 +24,15 @@ export const log = console.log;
 export type Item = Player | Team | Tournament;
 
 export function isPlayer(someObj: Item): someObj is Player {
-  return "firstName" in someObj;
+  return someObj ? "firstName" in someObj : false;
 }
 
 export function isTeam(someObj: Item): someObj is Team {
-  return "playerOneId" in someObj;
+  return someObj ? "playerOneId" in someObj : false;
 }
 
 export function isTournament(someObj: Item): someObj is Tournament {
-  return "startDate" in someObj;
+  return someObj ? "startDate" in someObj : false;
 }
 
 function getGlobalCounterClosure() {

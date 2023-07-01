@@ -37,7 +37,7 @@ export const getIdOfItemToSaveOrEdit = (
   let idOfPlayerToSaveOrEdit = -2;
   if (params && params.action) {
     idOfPlayerToSaveOrEdit =
-      params.action !== "add"
+      params.action !== UserActions.ADD
         ? parseInt(params.action.split("").slice(4).join(""), 10)
         : idOfPlayerToSaveOrEdit;
   }
