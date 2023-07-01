@@ -39,7 +39,13 @@ import {
   log,
 } from "../utils/funcs";
 import Tournament, { TournamentType } from "./Tournament";
-import { btnDeleteColor, btnEditColor, btnShowParticipantsColor, maxHeightOfLists } from "../utils/settings";
+import {
+  btnDeleteColor,
+  btnEditColor,
+  btnShowParticipantsColor,
+  maxHeightOfLists,
+  maxHeightOfTournamentListWhenAddingOrEditing,
+} from "../utils/settings";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -198,9 +204,21 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     typeOfTournamentDisplayedForEditingParticipants,
   ]);
 
+  const isTournamentAddingOrEditingData = () =>
+    idOfTournamentDisplayedForEditingData === -2 ||
+    idOfTournamentDisplayedForEditingData > 0;
+
+  const getTournamentListClassName = () => {
+    // log("IDtoSE", idOfTournamentDisplayedForEditingData);
+    if (isTournamentAddingOrEditingData()) {
+      return `m-8  ${maxHeightOfTournamentListWhenAddingOrEditing} overflow-y-scroll`;
+    }
+    return `m-8  ${maxHeightOfLists} overflow-y-scroll`;
+  };
+
   return (
     <>
-      <div className={`m-8 ${maxHeightOfLists} overflow-y-scroll`}>
+      <div className={getTournamentListClassName()}>
         <div className="overflow-x-auto w-full">
           <table className="table w-full">
             {/* head */}

@@ -54,12 +54,14 @@ import {
   btnEditColor,
   btnSaveColor,
   maxHeightOfLists,
+  maxHeightOfPlayerListWhenAddingOrEditing,
+  maxHeightOfPlayerListWhenEditingTournamentParticipants,
 } from "../utils/settings";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
   isEditingTournamentParticipants: boolean;
-  idOfTournamentDisplayedForEditingParticipants?: number;
+  idOfTournamentDisplayedForEditingParticipants: number;
   isParticipantsSingles: boolean;
   assignPlayersToTournament: (tdata: TData) => void;
 }
@@ -67,7 +69,7 @@ interface IPlayerListProps {
 const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   displayedPlayerUpdater,
   isEditingTournamentParticipants: isEditingParticipantsOrGroups,
-  idOfTournamentDisplayedForEditingParticipants,
+  idOfTournamentDisplayedForEditingParticipants = -1,
   isParticipantsSingles,
   assignPlayersToTournament,
 }) => {
@@ -189,7 +191,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   useEffect(() => {
     const items = playersOrTeamsAssignedToGroups;
 
-    log("ITEMS ", items, isParticipantsSingles);
+    // log("ITEMS ", items, isParticipantsSingles);
 
     if (items.length > 0) {
       if (JSON.stringify(listedItems) !== JSON.stringify(items))
@@ -227,8 +229,12 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     log("RENDERING PLAYERLIST, LISTED ITEMS: ", listedItems);
     log("RENDERING PLAYERLIST, GROUPING DONE ? ", isDividedIntoGroups);
     log(
-      "RENDERING PLAYERLIST, TOURNAMENT EDITING PARTICIPANTS: ",
+      "RENDERING PLAYERLIST, IDOFTOURNAMENT EDITING PARTICIPANTS: ",
       idOfTournamentDisplayedForEditingParticipants
+    );
+    log(
+      "RENDERING PLAYERLIST, GETTING ID OF ITEM TO SAVE OR EDIT: ",
+      getIdOfItemToSaveOrEdit(params)
     );
   }, [
     isParticipantsSingles,
@@ -237,16 +243,44 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     idOfTournamentDisplayedForEditingParticipants,
     allPlayers,
     allTeams,
+    params,
   ]);
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
   useEffect(() => {}, [forceRenderCount]);
 
+  const isTournamentEdittingParticipants = () =>
+    idOfTournamentDisplayedForEditingParticipants > 0;
+  const isPlayerOrTeamBeingAdded = () =>
+    getIdOfItemToSaveOrEdit(params) === -2 ||
+    getIdOfItemToSaveOrEdit(params) > 0;
+  const isPlayerOrTeamBeingEdited = () => getIdOfItemToSaveOrEdit(params) > 0;
+
+  const getPLayerListClassName = () => {
+    log("IDofTP", idOfTournamentDisplayedForEditingParticipants);
+    log("IDtoSE", getIdOfItemToSaveOrEdit(params));
+
+    if (
+      !isTournamentEdittingParticipants() &&
+      (isPlayerOrTeamBeingAdded() || isPlayerOrTeamBeingEdited())
+    ) {
+      return `m-8  ${maxHeightOfPlayerListWhenAddingOrEditing} overflow-y-scroll`;
+    }
+    if (
+      isTournamentEdittingParticipants() &&
+      !isPlayerOrTeamBeingAdded() &&
+      !isPlayerOrTeamBeingEdited()
+    ) {
+      return `m-8  ${maxHeightOfPlayerListWhenEditingTournamentParticipants} overflow-y-scroll`;
+    }
+    return `m-8  ${maxHeightOfLists} overflow-y-scroll`;
+  };
+
   if (listedItems.length === 0)
     return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;
 
   return (
-    <div className={`m-8 ${maxHeightOfLists} overflow-y-scroll`}>
+    <div className={getPLayerListClassName()}>
       <div>
         <table className="table w-full">
           {/* head */}

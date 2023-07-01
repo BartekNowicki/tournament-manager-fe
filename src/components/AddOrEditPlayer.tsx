@@ -31,15 +31,28 @@ export const getUserAction = (params: Readonly<Params<string>>): string => {
   return UserActions.NONE;
 };
 
+// export const getIdOfItemToSaveOrEdit = (
+//   params: Readonly<Params<string>>
+// ): number => {
+//   let idOfPlayerToSaveOrEdit = -2;
+//   if (params && params.action) {
+//     idOfPlayerToSaveOrEdit =
+//       params.action !== UserActions.ADD
+//         ? parseInt(params.action.split("").slice(4).join(""), 10)
+//         : idOfPlayerToSaveOrEdit;
+//   }
+//   return idOfPlayerToSaveOrEdit;
+// };
+
 export const getIdOfItemToSaveOrEdit = (
   params: Readonly<Params<string>>
 ): number => {
-  let idOfPlayerToSaveOrEdit = -2;
+  let idOfPlayerToSaveOrEdit = -1;
   if (params && params.action) {
     idOfPlayerToSaveOrEdit =
       params.action !== UserActions.ADD
         ? parseInt(params.action.split("").slice(4).join(""), 10)
-        : idOfPlayerToSaveOrEdit;
+        : -2;
   }
   return idOfPlayerToSaveOrEdit;
 };

@@ -48,11 +48,11 @@ img {
 /* -------------------------------------------------------------------------- */
 
 .darkModal {
-  background-color: rgba(0, 0, 0, 0.75);
+  background-color: rgba(0, 0, 0, 0.85);
   position:absolute;
   top:0px;
   right:0px;
-  bottom:0px;
+  bottom:0vh;
   left:0px;
   z-index: 1000000000000000000000;
 }
@@ -81,9 +81,14 @@ img {
   border: 1px solid red !important;  
   bottom: -50px;
   left: 50%;
-  transform: translateX(-110%) translateY(-120%);  
+  transform: translateX(-110%) translateY(-120%);
   font-size: 1em !important;  
 }
+
+.positionMeBottomCenterLeft:active, .positionMeBottomCenterLeft:focus {
+  transform: translateX(-110%) translateY(-120%) !important;
+}
+
 .positionMeBottomCenterRight {
   display: block;
   width: 300px;
@@ -94,6 +99,10 @@ img {
   left: 50%;
   transform: translateX(10%) translateY(-120%);
   font-size: 1em !important;    
+}
+
+.positionMeBottomCenterRight:active, .positionMeBottomCenterRight:focus {
+  transform: translateX(10%) translateY(-120%) !important;
 }
 
 

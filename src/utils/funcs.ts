@@ -1,6 +1,7 @@
+/* eslint-disable no-console */
 /* eslint-disable import/no-cycle */
 import { TournamentType } from "../components/Tournament";
-import { Tournaments } from "../pages/Tournaments";
+// import { Tournaments } from "../pages/Tournaments";
 import { Group } from "../storeContent/storeSlices/groupSlice";
 import {
   Player,
@@ -32,7 +33,7 @@ export function isTeam(someObj: Item): someObj is Team {
 }
 
 export function isTournament(someObj: Item): someObj is Tournament {
-  return someObj ? "startDate" in someObj : false;
+  return someObj ? "type" in someObj : false;
 }
 
 function getGlobalCounterClosure() {
@@ -57,7 +58,7 @@ export const injectItemKey = (item: Item): string => {
   if (isTournament(item)) {
     return item.id + item.type;
   }
-  console.warn("something went wrong with key assignment");
+  console.warn("something went wrong with the key assignment");
   return new Date().getTime().toString();
 };
 
@@ -77,7 +78,10 @@ export const findById = (items: Item[], id: number, type?: string): Item => {
     return items.find((i) => i.id === id) || emptyTeam;
   }
   if (Array.isArray(items) && isTournament(items[0])) {
-    return items.find((i) => i.id === id && i.type === type) || emptyTournament;
+    return (
+      items.find((i) => isTournament(i) && i.id === id && i.type === type) ||
+      emptyTournament
+    );
   }
   console.warn("something is fishy with item type selection");
   return emptyPlayer;
@@ -106,22 +110,34 @@ export const count = (
   tournamentType: string
 ): number => {
   const foundTournament = findById(tournaments, tournamentId, tournamentType);
-  if (items === "players") {
+  if (
+    items === "players" &&
+    isTournament(foundTournament) &&
+    foundTournament.participatingPlayers
+  ) {
     return foundTournament.participatingPlayers.filter((id) => id !== -1)
       .length;
   }
-  if (items === "teams") {
+  if (
+    items === "teams" &&
+    isTournament(foundTournament) &&
+    foundTournament.participatingTeams
+  ) {
     return foundTournament.participatingTeams.filter((id) => id !== -1).length;
   }
-  if (items === "groups") {
+  if (
+    items === "groups" &&
+    isTournament(foundTournament) &&
+    foundTournament.groups
+  ) {
     return foundTournament.groups.length;
   }
   return -1;
 };
 
-const isValid = (playerArr: Player[], size: number): boolean => {
+const isValid = (itemArr: (Player | Team)[], size: number): boolean => {
   const isBelowGroupSize = (value: string) => String(value).length <= size;
-  const distribution = playerArr
+  const distribution = itemArr
     .map((p) => (p.id !== 999 ? "0" : "1"))
     .join("")
     .split("1")
@@ -129,7 +145,6 @@ const isValid = (playerArr: Player[], size: number): boolean => {
   if (!distribution.every(isBelowGroupSize)) {
     console.warn("invalid player grouping, trying again...");
   }
-  // log("AND: ", distribution, distribution.every(isBelowGroupSize), size);
   return distribution.every(isBelowGroupSize);
 };
 
@@ -146,30 +161,29 @@ export const getSortedPlayerOrTeamGroups = (
     : TournamentType.DOUBLES;
 
   const tournament = findById(tournaments, id, type);
-  const itemsSorted: Player[] | Team[] = [];
-  const undersizedGroupToGoLast: Player[] | Team[] = [];
-  // log("---------------------------------CALCULATING FOR ", id, type, isParticipantsSingles);
+  const itemsSorted: (Player | Team)[] = [];
+  const undersizedGroupToGoLast: (Player | Team)[] = [];
   if (
     (Array.isArray(tournaments) &&
+      isTournament(tournament) &&
+      tournament.groups &&
       Array.isArray(tournament.groups) &&
       isTournament(tournaments[0]) &&
-      tournament.groups &&
       tournament.groups.length === 0) ||
-    !tournament ||
-    !tournament.groups
+    !tournament
   ) {
-    // log(
-    //   `cannot provide sorted ${isParticipantsSingles ? "players" : "teams"}, are there any?`
-    // );
     return [];
   }
   let groupNumber = 1;
-  const iterableGroups: Group[] = Array.from(tournament.groups);
+  const iterableGroups =
+    isTournament(tournament) && tournament.groups
+      ? Array.from(tournament.groups)
+      : [];
   // the highest-id group is the only one that can be undersized
   const iterableGroupsSortedByNumberOfMembers = iterableGroups.sort(
     (a, b) => a - b
   );
-  const iterableAllGroups: Group[] = Array.from(allGroups);
+  const iterableAllGroups = Array.from(allGroups);
 
   iterableGroupsSortedByNumberOfMembers.forEach((gId) => {
     const markedEmptyPlayer = { ...emptyPlayer };
@@ -184,25 +198,27 @@ export const getSortedPlayerOrTeamGroups = (
     if (!isParticipantsSingles) {
       itemsSorted.push(markedEmptyTeam); // group display separator, item.id = 999
     }
-    const nextGroup: Group = iterableAllGroups.find(
-      (group) => group.id === gId
-    );
+    const nextGroup = iterableAllGroups.find((group) => group.id === gId);
     if (isParticipantsSingles && nextGroup && nextGroup.members.length > 0) {
       nextGroup.members.forEach((mId) => {
-        const member: Player = findById(allPlayers, mId);
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        nextGroup.members.length === tournament.groupSize
-          ? itemsSorted.push(member)
-          : undersizedGroupToGoLast.push(member);
+        const member = findById(allPlayers, mId);
+        if (isPlayer(member) && isTournament(tournament)) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          nextGroup.members.length === tournament.groupSize
+            ? itemsSorted.push(member)
+            : undersizedGroupToGoLast.push(member);
+        }
       });
     }
     if (!isParticipantsSingles && nextGroup && nextGroup.members.length > 0) {
       nextGroup.members.forEach((mId) => {
-        const member: Team = findById(allTeams, mId);
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        nextGroup.members.length === tournament.groupSize
-          ? itemsSorted.push(member)
-          : undersizedGroupToGoLast.push(member);
+        const member = findById(allTeams, mId);
+        if (isTeam(member) && isTournament(tournament)) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+          nextGroup.members.length === tournament.groupSize
+            ? itemsSorted.push(member)
+            : undersizedGroupToGoLast.push(member);
+        }
       });
     }
   });
