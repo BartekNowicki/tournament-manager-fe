@@ -39,6 +39,7 @@ import TeamInfoColumns from "./TeamInfoColumns";
 import { getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
 import {
   Item,
+  findById,
   findPlayerById,
   findTeamById,
   getSortedPlayerOrTeamGroups,
@@ -57,6 +58,7 @@ import {
   maxHeightOfPlayerListWhenAddingOrEditing,
   maxHeightOfPlayerListWhenEditingTournamentParticipants,
 } from "../utils/settings";
+import DialogModal from "./confirmation/DialogModal";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -88,6 +90,13 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     ? allPlayers
     : allTeams;
   const [listedItems, setListedItems] = useState<Item[]>(initialListedItems);
+  const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
+  const [idOfItemScheduledForDeletion, setIdOfItemScheduledForDeletion] =
+    useState<number>();
+  const [typeOfItemScheduledForDeletion, setTypeOfItemScheduledForDeletion] =
+    useState<string>();
+  const [dataOfItemScheduledForDeletion, setDataOfItemScheduledForDeletion] =
+    useState<string>();
 
   const dispatch = useAppDispatch();
   const params = useParams() ?? {};
@@ -108,11 +117,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   const isTeamChecked = useCallback(
     (id: number): boolean => {
-      const found: Team = findTeamById(allTeams, id);
-      if (found && found.isChecked) {
+      const found = findTeamById(allTeams, id);
+      if (found && isTeam(found) && found.isChecked) {
         return found.isChecked;
       }
-      if (found && found.checked) {
+      if (found && isTeam(found) && found.checked) {
         return found.checked;
       }
       return false;
@@ -132,7 +141,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       const newIdToCheckStatusMapping = new Map();
       if (key !== -1) {
         if (type === "player") {
-          const player: Player = findPlayerById(allPlayers, key);
+          const player = findPlayerById(allPlayers, key);
           newIdToCheckStatusMapping.set(player.id, !isPlayerChecked(player.id));
           dispatch(checkPlayers(newIdToCheckStatusMapping));
         } else if (type === "team") {
@@ -226,16 +235,16 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   useEffect(() => {
     log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
-    log("RENDERING PLAYERLIST, LISTED ITEMS: ", listedItems);
-    log("RENDERING PLAYERLIST, GROUPING DONE ? ", isDividedIntoGroups);
-    log(
-      "RENDERING PLAYERLIST, IDOFTOURNAMENT EDITING PARTICIPANTS: ",
-      idOfTournamentDisplayedForEditingParticipants
-    );
-    log(
-      "RENDERING PLAYERLIST, GETTING ID OF ITEM TO SAVE OR EDIT: ",
-      getIdOfItemToSaveOrEdit(params)
-    );
+    // log("RENDERING PLAYERLIST, LISTED ITEMS: ", listedItems);
+    // log("RENDERING PLAYERLIST, GROUPING DONE ? ", isDividedIntoGroups);
+    // log(
+    //   "RENDERING PLAYERLIST, IDOFTOURNAMENT EDITING PARTICIPANTS: ",
+    //   idOfTournamentDisplayedForEditingParticipants
+    // );
+    // log(
+    //   "RENDERING PLAYERLIST, GETTING ID OF ITEM TO SAVE OR EDIT: ",
+    //   getIdOfItemToSaveOrEdit(params)
+    // );
   }, [
     isParticipantsSingles,
     listedItems,
@@ -257,9 +266,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const isPlayerOrTeamBeingEdited = () => getIdOfItemToSaveOrEdit(params) > 0;
 
   const getPLayerListClassName = () => {
-    log("IDofTP", idOfTournamentDisplayedForEditingParticipants);
-    log("IDtoSE", getIdOfItemToSaveOrEdit(params));
-
     if (
       !isTournamentEdittingParticipants() &&
       (isPlayerOrTeamBeingAdded() || isPlayerOrTeamBeingEdited())
@@ -377,7 +383,17 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                             <button
                               className={`btn btn-ghost btn-s ${btnDeleteColor}`}
                               onClick={(e) => {
-                                dispatch(deletePlayer(item.id));
+                                setIdOfItemScheduledForDeletion(
+                                  (prev) => item.id
+                                );
+                                setTypeOfItemScheduledForDeletion(
+                                  (prev) => "player"
+                                );
+                                setDataOfItemScheduledForDeletion(
+                                  (prev) =>
+                                    `uczestnik ${item.firstName} ${item.lastName}`
+                                );
+                                setConfirmDeleteModalOpen((prev) => true);
                               }}
                             >
                               usuń
@@ -419,7 +435,25 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                             <button
                               className={`btn btn-ghost btn-s ${btnDeleteColor}`}
                               onClick={(e) => {
-                                dispatch(deleteTeam(item.id));
+                                const playerOne = findPlayerById(
+                                  allPlayers,
+                                  item.playerOneId
+                                );
+                                const playerTwo = findPlayerById(
+                                  allPlayers,
+                                  item.playerTwoId
+                                );
+                                setIdOfItemScheduledForDeletion(
+                                  (prev) => item.id
+                                );
+                                setTypeOfItemScheduledForDeletion(
+                                  (prev) => "team"
+                                );
+                                setDataOfItemScheduledForDeletion(
+                                  (prev) =>
+                                    `para ${playerOne.firstName} ${playerOne.lastName}, ${playerTwo.firstName} ${playerTwo.lastName}`
+                                );
+                                setConfirmDeleteModalOpen((prev) => true);
                               }}
                             >
                               usuń
@@ -498,6 +532,32 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             </button>
           </div>
         )}
+      </div>
+      {/* modal for deletion confirmation */}
+      <div>
+        <DialogModal
+          isOpen={confirmDeleteModalOpen}
+          onCancel={() => {
+            setConfirmDeleteModalOpen((prev) => false);
+            log("CANCELLING REQUEST");
+          }}
+          onConfirm={async () => {
+            log(
+              "USUWAM: ",
+              idOfItemScheduledForDeletion,
+              typeOfItemScheduledForDeletion
+            );
+            if (typeOfItemScheduledForDeletion === "player") {
+              await dispatch(deletePlayer(idOfItemScheduledForDeletion));
+            } else if (typeOfItemScheduledForDeletion === "team") {
+              await dispatch(deleteTeam(idOfItemScheduledForDeletion));
+            }
+            setConfirmDeleteModalOpen((prev) => false);
+          }}
+        >
+          Czy na pewno chcesz usunąć:&nbsp;&nbsp;
+          {`${dataOfItemScheduledForDeletion}`}?
+        </DialogModal>
       </div>
     </div>
   );

@@ -46,6 +46,7 @@ import {
   maxHeightOfLists,
   maxHeightOfTournamentListWhenAddingOrEditing,
 } from "../utils/settings";
+import DialogModal from "./confirmation/DialogModal";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -73,6 +74,20 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     typeOfTournamentDisplayedForEditingParticipants,
     setTypeOfTournamentDisplayedForEditingParticipants,
   ] = useState<string>(typeOfTournamentDisplayedForEditingData);
+
+  const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
+  const [
+    typeOfTournamentScheduledForDeletion,
+    setTypeOfTournamentScheduledForDeletion,
+  ] = useState<string>();
+  const [
+    idOfTournamentScheduledForDeletion,
+    setIdOfTournamentScheduledForDeletion,
+  ] = useState<number>();
+  const [
+    datesOfTournamentScheduledForDeletion,
+    setDatesOfTournamentScheduledForDeletion,
+  ] = useState<string>();
 
   const isAddingOrEditingTournamentMode = () =>
     idOfTournamentDisplayedForEditingData !== -1;
@@ -209,7 +224,6 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     idOfTournamentDisplayedForEditingData > 0;
 
   const getTournamentListClassName = () => {
-    // log("IDtoSE", idOfTournamentDisplayedForEditingData);
     if (isTournamentAddingOrEditingData()) {
       return `m-8  ${maxHeightOfTournamentListWhenAddingOrEditing} overflow-y-scroll`;
     }
@@ -300,16 +314,19 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                       <button
                         className={`btn btn-ghost btn-s ${btnDeleteColor}`}
                         onClick={(e) => {
-                          const tournamentType =
-                            tournament.type === "SINGLES"
-                              ? "singles"
-                              : "doubles";
-                          dispatch(
-                            deleteTournament({
-                              tournamentId: tournament.id,
-                              type: tournamentType,
-                            })
+                          setTypeOfTournamentScheduledForDeletion(
+                            (prev) => tournament.type
                           );
+                          setIdOfTournamentScheduledForDeletion(
+                            (prev) => tournament.id
+                          );
+                          setDatesOfTournamentScheduledForDeletion((prev) =>
+                            getAdjustedDates(
+                              tournament.startDate,
+                              tournament.endDate
+                            )
+                          );
+                          setConfirmDeleteModalOpen((prev) => true);
                         }}
                         disabled={isToBeHighlightedForEditingData(
                           tournament.id,
@@ -374,6 +391,38 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
               </tr>
             </tfoot>
           </table>
+        </div>
+        {/* modal for deletion confirmation */}
+        <div>
+          <DialogModal
+            isOpen={confirmDeleteModalOpen}
+            onCancel={() => {
+              setConfirmDeleteModalOpen((prev) => false);
+              log("CANCELLING REQUEST");
+            }}
+            onConfirm={async () => {
+              log(
+                "USUWAM: ",
+                idOfTournamentScheduledForDeletion,
+                typeOfTournamentScheduledForDeletion
+              );
+              const tournamentType =
+                typeOfTournamentScheduledForDeletion === "SINGLES"
+                  ? "singles"
+                  : "doubles";
+              await dispatch(
+                deleteTournament({
+                  tournamentId: idOfTournamentScheduledForDeletion,
+                  type: tournamentType,
+                })
+              );
+              setConfirmDeleteModalOpen((prev) => false);
+            }}
+          >
+            Czy na pewno chcesz usunąć turniej{" "}
+            {`${datesOfTournamentScheduledForDeletion} / ${typeOfTournamentScheduledForDeletion}`}
+            ?
+          </DialogModal>
         </div>
       </div>
 
