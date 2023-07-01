@@ -139,7 +139,7 @@ function AddOrEditTournament() {
                       />
                     </div>
                   </td>
-                  {params.action === "add" && (
+                  {params.action === UserActions.ADD && (
                     <td className="text text-center">
                       <label htmlFor="" />
                       <select
@@ -158,7 +158,7 @@ function AddOrEditTournament() {
                       </select>
                     </td>
                   )}
-                  {params.action !== "add" && (
+                  {params.action !== UserActions.ADD && (
                     <td className="text text-center">{type}</td>
                   )}
                   {displayedTournament.groups.length === 0 && (
