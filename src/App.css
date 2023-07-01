@@ -1,5 +1,5 @@
 :root {
-  --main-brick: rgba(235, 64, 52, 0.8);
+  --main-green: rgba(97, 236, 33, 0.9);  
   --main-sky: rgba(14, 165, 233,1);
 }
 
@@ -14,7 +14,7 @@ html {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-color: var(--main-brick);
+  background-color: var(--main-green);
 }
 
 *, *:before, *:after {
@@ -25,7 +25,11 @@ body, h1, h2, h3, h4, h5, h6, p, ol, ul {
   margin: 0;
   padding: 0;
   font-weight: normal;
-  color: var(--main-brick);
+  color: var(--main-green);
+}
+
+button p, h1, h2, h3, h4, h5, h6 {
+  color: red;
 }
 
 body {
@@ -57,7 +61,7 @@ img {
   position: absolute;
   top: 0;
   right: 0;
-  color: rgba(73, 233, 73, 0.559);
+  color: var(--main-sky) !important;
   align-self: flex-end;
   justify-self: flex-end;
   z-index: 1000000000000000000001;
@@ -71,26 +75,24 @@ img {
 
 .positionMeBottomCenterLeft {
   display: block;
-  width: 200px;
+  width: 300px;
   height: 40px !important;  
   position: absolute;
   border: 1px solid red !important;  
   bottom: -50px;
   left: 50%;
-  transform: translateX(-110%);
-  color: var(--main-sky) !important;
-  font-size: 1em !important;    
+  transform: translateX(-110%) translateY(-120%);  
+  font-size: 1em !important;  
 }
 .positionMeBottomCenterRight {
   display: block;
-  width: 200px;
+  width: 300px;
   height: 40px !important;  
   position: absolute;
   border: 1px solid red !important;  
   bottom: -50px;
   left: 50%;
-  transform: translateX(10%);
-  color: var(--main-sky) !important;
+  transform: translateX(10%) translateY(-120%);
   font-size: 1em !important;    
 }
 

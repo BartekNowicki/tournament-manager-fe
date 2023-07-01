@@ -16,6 +16,7 @@ import {
 } from "./AddOrEditPlayer";
 import { Team, saveTeam } from "../storeContent/storeSlices/teamSlice";
 import { findPlayerById, findTeamById } from "../utils/funcs";
+import { btnSaveColor } from "../utils/settings";
 
 function AddOrEditTeam() {
   const navigate = useNavigate();
@@ -234,7 +235,7 @@ function AddOrEditTeam() {
                   <th />
                   <th>
                     <button
-                      className="btn btn-ghost btn-s bg-slate-600"
+                      className={`btn btn-ghost btn-s ${btnSaveColor}`}
                       onClick={(e) => {
                         e.preventDefault();
                         const id = getIdOfItemToSaveOrEdit(params);

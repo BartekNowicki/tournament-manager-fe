@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from "../storeContent/store";
 import PlayerList from "./PlayerList";
 import { numericOptions } from "./numericOptions";
 import { findPlayerById } from "../utils/funcs";
+import { btnSaveColor } from "../utils/settings";
 
 export enum UserActions {
   ADD = "add",
@@ -220,7 +221,7 @@ function AddOrEditPlayer() {
                   </td>
                   <th>
                     <button
-                      className="btn btn-ghost btn-s bg-slate-600"
+                      className={`btn btn-ghost btn-s ${btnSaveColor}`}
                       onClick={(e) => {
                         e.preventDefault();
                         const id: number = getIdOfItemToSaveOrEdit(params);

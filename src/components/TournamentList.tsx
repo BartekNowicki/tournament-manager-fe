@@ -39,7 +39,7 @@ import {
   log,
 } from "../utils/funcs";
 import Tournament, { TournamentType } from "./Tournament";
-import { maxHeightOfLists } from "../utils/settings";
+import { btnDeleteColor, btnEditColor, btnShowParticipantsColor, maxHeightOfLists } from "../utils/settings";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -258,7 +258,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     <td className="text text-center">{tournament.comment}</td>
                     <th>
                       <button
-                        className="btn btn-ghost btn-s bg-slate-600"
+                        className={`btn btn-ghost btn-s ${btnEditColor}`}
                         onClick={() => {
                           if (displayedTournamentUpdater)
                             displayedTournamentUpdater(
@@ -280,7 +280,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     </th>
                     <th>
                       <button
-                        className="btn btn-ghost btn-s bg-slate-600"
+                        className={`btn btn-ghost btn-s ${btnDeleteColor}`}
                         onClick={(e) => {
                           const tournamentType =
                             tournament.type === "SINGLES"
@@ -304,7 +304,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                     {!isAddingOrEditingTournamentMode() && (
                       <th>
                         <button
-                          className="btn btn-ghost btn-s bg-slate-600"
+                          className={`btn btn-ghost btn-s ${btnShowParticipantsColor}`}
                           onClick={() => {
                             handleParticipantsClick(
                               tournament.id,
@@ -434,7 +434,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
                           {!isAddingOrEditingTournamentMode() && (
                             <th>
                               <button
-                                className="btn btn-ghost btn-s bg-slate-600"
+                                className={`btn btn-ghost btn-s ${btnShowParticipantsColor}`}
                                 onClick={() => {
                                   handleParticipantsClick(
                                     tournament.id,

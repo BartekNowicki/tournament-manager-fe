@@ -49,7 +49,12 @@ import {
   log,
 } from "../utils/funcs";
 import { fetchAllGroups } from "../storeContent/storeSlices/groupSlice";
-import { maxHeightOfLists } from "../utils/settings";
+import {
+  btnDeleteColor,
+  btnEditColor,
+  btnSaveColor,
+  maxHeightOfLists,
+} from "../utils/settings";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -323,7 +328,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           <PlayerInfoColumns player={item} />
                           <th>
                             <button
-                              className="btn btn-ghost btn-s bg-slate-700"
+                              className={`btn btn-ghost btn-s ${btnEditColor}`}
                               onClick={() => {
                                 if (displayedPlayerUpdater)
                                   displayedPlayerUpdater();
@@ -336,7 +341,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           </th>
                           <th>
                             <button
-                              className="btn btn-ghost btn-s bg-slate-600"
+                              className={`btn btn-ghost btn-s ${btnDeleteColor}`}
                               onClick={(e) => {
                                 dispatch(deletePlayer(item.id));
                               }}
@@ -365,7 +370,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           />
                           <th>
                             <button
-                              className="btn btn-ghost btn-s bg-slate-600"
+                              className={`btn btn-ghost btn-s ${btnEditColor}`}
                               onClick={() => {
                                 if (displayedPlayerUpdater)
                                   displayedPlayerUpdater();
@@ -378,7 +383,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                           </th>
                           <th>
                             <button
-                              className="btn btn-ghost btn-s bg-slate-600"
+                              className={`btn btn-ghost btn-s ${btnDeleteColor}`}
                               onClick={(e) => {
                                 dispatch(deleteTeam(item.id));
                               }}
@@ -408,7 +413,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
           <div>
             <button
               disabled={isDividedIntoGroups}
-              className="btn btn-ghost btn-s bg-slate-700 positionMeBottomCenterLeft"
+              className={`btn btn-ghost btn-s ${btnSaveColor} positionMeBottomCenterLeft`}
               onClick={
                 isParticipantsSingles
                   ? () =>
@@ -428,7 +433,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
               zapisz uczestników
             </button>
             <button
-              className="btn btn-ghost btn-s bg-slate-700 positionMeBottomCenterRight"
+              className={`btn btn-ghost btn-s ${btnSaveColor} positionMeBottomCenterRight`}
               onClick={async () => {
                 const id: number | undefined =
                   idOfTournamentDisplayedForEditingParticipants;

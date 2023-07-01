@@ -17,6 +17,7 @@ import { TournamentType } from "./Tournament";
 import TournamentList from "./TournamentList";
 import { numericOptions } from "./numericOptions";
 import { findTournamentById, log } from "../utils/funcs";
+import { btnSaveColor } from "../utils/settings";
 
 function AddOrEditTournament() {
   const navigate = useNavigate();
@@ -192,7 +193,7 @@ function AddOrEditTournament() {
                   </td>
                   <th>
                     <button
-                      className="btn btn-ghost btn-s bg-slate-600"
+                      className={`btn btn-ghost btn-s ${btnSaveColor}`}
                       onClick={(e) => {
                         e.preventDefault();
                         dispatch(
