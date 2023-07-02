@@ -64,7 +64,8 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 
 export const baseUrl = "http://localhost:8080";
 
-export const fetchAllTeams = createAsyncThunk("teams/get", async (thunkAPI) => {
+// export const fetchAllTeams = createAsyncThunk("teams/get", async (thunkAPI) => {
+export const fetchAllTeams = createAsyncThunk("teams/get", async () => {
   const response = await axios.get(`${baseUrl}/api/data/teams`);
   return response.data;
 });
@@ -149,12 +150,14 @@ interface TeamSliceState {
   teams: Team[];
   forceRerenderTeamListCount: number;
   loading: "idle" | "pending" | "succeeded" | "failed";
+  error: string | null;
 }
 
 const initialState = {
   teams: [],
   forceRerenderTeamListCount: 0,
   loading: "idle",
+  error: null,
 } as TeamSliceState;
 
 export const TeamSlice = createSlice({
@@ -222,7 +225,8 @@ export const TeamSlice = createSlice({
     builder
       .addCase(fetchAllTeams.fulfilled, (state, action) => {
         state.teams = action.payload;
-        console.info("fetch teams promise fulfilled", state.teams);
+        // console.info("fetch teams promise fulfilled", state.teams);
+        console.info("fetch teams promise fulfilled");
         state.forceRerenderTeamListCount += 1;
       })
       .addCase(fetchAllTeams.pending, () => {
@@ -283,7 +287,8 @@ export const TeamSlice = createSlice({
                 belongsToGroupIds: action.payload.belongsToDoublesGroupIds,
               };
         });
-        console.info("check teams promise fulfilled", state.teams[1]);
+        // console.info("check teams promise fulfilled", state.teams[1]);
+        console.info("check teams promise fulfilled");
         state.forceRerenderTeamListCount += 1;
       })
       .addCase(checkTeams.rejected, () => {

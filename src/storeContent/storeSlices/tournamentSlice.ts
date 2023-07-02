@@ -78,7 +78,8 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 
 export const fetchAllTournaments = createAsyncThunk(
   "tournaments/get",
-  async (thunkAPI) => {
+  // async (thunkAPI) => {
+  async () => {
     const response = await axios.get(`${baseUrl}/api/data/tournaments`);
     return response.data;
   }
@@ -188,11 +189,13 @@ export const deleteTournament = createAsyncThunk(
 interface TournamentSliceState {
   tournaments: Tournament[];
   loading: "idle" | "pending" | "succeeded" | "failed";
+  error: string | null;
 }
 
 const initialState = {
   tournaments: [],
   loading: "idle",
+  error: null,
 } as TournamentSliceState;
 
 export const TournamentSlice = createSlice({
@@ -238,7 +241,8 @@ export const TournamentSlice = createSlice({
     builder
       .addCase(fetchAllTournaments.fulfilled, (state, action) => {
         state.tournaments = action.payload;
-        console.info("fetch tournaments promise fulfilled", state.tournaments);
+        // console.info("fetch tournaments promise fulfilled", state.tournaments);
+        console.info("fetch tournaments promise fulfilled");
       })
       .addCase(fetchAllTournaments.pending, () => {
         // console.info("fetch tournaments promise pending...");

@@ -11,7 +11,7 @@ import {
 } from "@reduxjs/toolkit";
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
-import { TData, Tournament } from "./tournamentSlice";
+import { Tournament } from "./tournamentSlice";
 import { Group } from "./groupSlice";
 
 export interface Player {
@@ -63,9 +63,11 @@ function isRejectedAction(action: AnyAction): action is RejectedAction {
 
 export const baseUrl = "http://localhost:8080";
 
+// we pass in 'players/get' as the action type prefix
 export const fetchAllPlayers = createAsyncThunk(
   "players/get",
-  async (thunkAPI) => {
+  // async (thunkAPI) => { uu if ok
+  async () => {
     const response = await axios.get(`${baseUrl}/api/data/players`);
     return response.data;
   }
@@ -152,13 +154,15 @@ export const unGroupPlayers = createAsyncThunk(
 interface PlayerSliceState {
   players: Player[];
   forceRerenderPlayerListCount: number;
-  loading: "idle" | "pending" | "succeeded" | "failed";
+  status: "idle" | "pending" | "succeeded" | "failed";
+  error: string | null;
 }
 
 const initialState = {
   players: [],
   forceRerenderPlayerListCount: 0,
-  loading: "idle",
+  status: "idle",
+  error: null,
 } as PlayerSliceState;
 
 export const PlayerSlice = createSlice({
@@ -226,10 +230,13 @@ export const PlayerSlice = createSlice({
     builder
       .addCase(fetchAllPlayers.fulfilled, (state, action) => {
         state.players = action.payload;
-        console.info("fetch players promise fulfilled", state.players);
+        state.status = "succeeded";
+        // console.info("fetch players promise fulfilled", state.players);
+        console.info("fetch players promise fulfilled");
         state.forceRerenderPlayerListCount += 1;
       })
-      .addCase(fetchAllPlayers.pending, () => {
+      .addCase(fetchAllPlayers.pending, (state) => {
+        state.status = "pending";
         // console.info("fetch promise pending...");
       })
       .addCase(savePlayer.fulfilled, (state, action) => {
@@ -258,14 +265,17 @@ export const PlayerSlice = createSlice({
         } else {
           state.players = [...state.players, action.payload];
         }
-        console.info("save player promise fulfilled");
+        // console.info("save player promise fulfilled");
+        state.status = "succeeded";
         state.forceRerenderPlayerListCount += 1;
       })
-      .addCase(savePlayer.rejected, () => {
+      .addCase(savePlayer.rejected, (state) => {
         console.warn("save player promise rejected!");
+        state.status = "failed";
       })
-      .addCase(savePlayer.pending, () => {
+      .addCase(savePlayer.pending, (state) => {
         // console.info("save player promise pending...");
+        state.status = "pending";
       })
       .addCase(checkPlayers.fulfilled, (state, action) => {
         // console.log("PAYLOAD: ", action.payload);
@@ -288,14 +298,17 @@ export const PlayerSlice = createSlice({
                 belongsToGroupIds: action.payload.belongsToSinglesGroupIds,
               };
         });
-        console.info("check player promise fulfilled", state.players[1]);
+        // console.info("check player promise fulfilled", state.players[1]);
+        state.status = "succeeded";
         state.forceRerenderPlayerListCount += 1;
       })
-      .addCase(checkPlayers.rejected, () => {
+      .addCase(checkPlayers.rejected, (state) => {
         console.warn("check player promise rejected!");
+        state.status = "failed";
       })
-      .addCase(checkPlayers.pending, () => {
+      .addCase(checkPlayers.pending, (state) => {
         // console.info("check player promise pending...");
+        state.status = "pending";
       })
       .addCase(deletePlayer.fulfilled, (state, action) => {
         const playerIdNotInState = (id: number) => {
@@ -309,28 +322,36 @@ export const PlayerSlice = createSlice({
           );
         }
         console.info("delete player promise fulfilled");
+        state.status = "succeeded";
         state.forceRerenderPlayerListCount += 1;
       })
-      .addCase(deletePlayer.rejected, () => {
+      .addCase(deletePlayer.rejected, (state) => {
         console.warn("delete player promise rejected!");
+        state.status = "failed";
       })
-      .addCase(deletePlayer.pending, () => {
+      .addCase(deletePlayer.pending, (state) => {
         // console.info("delete player promise pending...");
+        state.status = "pending";
       })
-      .addCase(groupPlayers.fulfilled, (state, action) => {
+      .addCase(groupPlayers.fulfilled, (state) => {
         console.info("group players promise fulfilled");
+        state.status = "succeeded";
       })
-      .addCase(groupPlayers.rejected, () => {
+      .addCase(groupPlayers.rejected, (state) => {
         console.warn("group players promise rejected!");
+        state.status = "failed";
       })
-      .addCase(unGroupPlayers.fulfilled, (state, action) => {
+      .addCase(unGroupPlayers.fulfilled, (state) => {
         console.info("ungroup players promise fulfilled");
+        state.status = "succeeded";
       })
-      .addCase(unGroupPlayers.rejected, () => {
+      .addCase(unGroupPlayers.rejected, (state) => {
         console.warn("ungroup players promise rejected!");
+        state.status = "failed";
       })
-      .addMatcher(isRejectedAction, () => {
+      .addMatcher(isRejectedAction, (state) => {
         console.info("promise rejected");
+        state.status = "failed";
       })
       .addDefaultCase(() => {
         // console.log("thunk in default mode");

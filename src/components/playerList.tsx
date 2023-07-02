@@ -21,7 +21,7 @@ import {
   unGroupPlayers,
 } from "../storeContent/storeSlices/playerSlice";
 import {
-  Team,
+  // Team,
   checkTeams,
   deleteTeam,
   // fetchAllTeams,
@@ -39,7 +39,7 @@ import TeamInfoColumns from "./TeamInfoColumns";
 import { getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
 import {
   Item,
-  findById,
+  // findById,
   findPlayerById,
   findTeamById,
   getSortedPlayerOrTeamGroups,
@@ -234,7 +234,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   ]);
 
   useEffect(() => {
-    log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
+    // log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
     // log("RENDERING PLAYERLIST, LISTED ITEMS: ", listedItems);
     // log("RENDERING PLAYERLIST, GROUPING DONE ? ", isDividedIntoGroups);
     // log(

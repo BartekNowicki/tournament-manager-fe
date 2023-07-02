@@ -32,35 +32,23 @@ export const baseUrl = "http://localhost:8080";
 
 export const fetchAllGroups = createAsyncThunk(
   "groups/get",
-  async (thunkAPI) => {
+  // async (thunkAPI) => {
+    async () => {
     const response = await axios.get(`${baseUrl}/api/data/groups`);
     return response.data;
   }
 );
 
-// TODO: use in V2
-// export const saveGroup = createAsyncThunk(
-//   "groups/save",
-//   async (group: Group, { rejectWithValue }) => {
-//     try {
-//       const response = await axios.put(`${baseUrl}/api/data/groups`, group);
-
-//       return response.data;
-//     } catch (error) {
-//       // return rejectWithValue(error.message);
-//       return rejectWithValue("error saving the player");
-//     }
-//   }
-// );
-
 interface GroupSliceState {
   groups: Group[];
   loading: "idle" | "pending" | "succeeded" | "failed";
+  error: string | null;
 }
 
 const initialState = {
   groups: [],
   loading: "idle",
+  error: null,
 } as GroupSliceState;
 
 export const GroupSlice = createSlice({
@@ -71,7 +59,8 @@ export const GroupSlice = createSlice({
     builder
       .addCase(fetchAllGroups.fulfilled, (state, action) => {
         state.groups = action.payload;
-        console.info("fetch groups promise fulfilled", state.groups);
+        // console.info("fetch groups promise fulfilled", state.groups);
+        console.info("fetch groups promise fulfilled");
       })
       .addCase(fetchAllGroups.pending, () => {
         // console.info("fetch promise pending...");

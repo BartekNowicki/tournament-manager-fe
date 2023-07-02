@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from "../storeContent/store";
 // eslint-disable-next-line import/no-cycle
 import PlayerList from "./PlayerList";
 import { numericOptions } from "./numericOptions";
-import { findPlayerById } from "../utils/funcs";
+import { findPlayerById, log } from "../utils/funcs";
 import { btnSaveColor } from "../utils/settings";
 
 export enum UserActions {
@@ -66,6 +66,7 @@ function AddOrEditPlayer() {
   // id = -1 => reserved for hidden allPlayers isChecked (shown only on assignment)
 
   const players = useAppSelector((state) => state.player.players);
+  const playerStatus = useAppSelector((state) => state.player.status);
 
   const initialDisplayedPlayer: Player = findPlayerById(
     players,
@@ -85,6 +86,10 @@ function AddOrEditPlayer() {
       navigate("/nosuchpath");
     }
   }, [navigate, params]);
+
+  useEffect(() => {
+    log("PLAYER SLICE STATUS: ", playerStatus);
+  }, [playerStatus]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateDisplayedPlayer = () => {
@@ -199,24 +204,6 @@ function AddOrEditPlayer() {
                         value={strength}
                         onChange={(e) => setStrength((prev) => +e.target.value)}
                       >
-                        {/* <option value={0}>0</option>
-                        <option value={1}>1</option>
-                        <option value={2}>2</option>
-                        <option value={3}>3</option>
-                        <option value={4}>4</option>
-                        <option value={5}>5</option>
-                        <option value={6}>6</option>
-                        <option value={7}>7</option>
-                        <option value={8}>8</option>
-                        <option value={9}>9</option>
-                        <option value={10}>10</option> */}
-
-                        {/* {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((o) => (
-                          <option key={o} value={o}>
-                            {o}
-                          </option>
-                        ))} */}
-
                         {numericOptions(11)}
                       </select>
                     </div>
@@ -238,7 +225,7 @@ function AddOrEditPlayer() {
                       onClick={(e) => {
                         e.preventDefault();
                         const id: number = getIdOfItemToSaveOrEdit(params);
-                        console.log("idToEdit: ", id);
+                        // console.log("idToEdit: ", id);
                         const p = findPlayerById(players, id);
                         const isChecked = p.isChecked || false;
                         const { playedSinglesTournaments } = p;
