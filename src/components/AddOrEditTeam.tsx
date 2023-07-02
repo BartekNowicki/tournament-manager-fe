@@ -26,6 +26,7 @@ function AddOrEditTeam() {
   // id = -1 => reserved for hidden allTeams isChecked (shown only on assignment)
 
   const teams = useAppSelector((state) => state.team.teams);
+  const teamSliceStatus = useAppSelector((state) => state.team.status);
   const players = useAppSelector((state) => state.player.players);
 
   const initialDisplayedTeam = findTeamById(

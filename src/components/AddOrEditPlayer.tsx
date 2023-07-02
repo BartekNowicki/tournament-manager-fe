@@ -66,7 +66,6 @@ function AddOrEditPlayer() {
   // id = -1 => reserved for hidden allPlayers isChecked (shown only on assignment)
 
   const players = useAppSelector((state) => state.player.players);
-  const playerStatus = useAppSelector((state) => state.player.status);
 
   const initialDisplayedPlayer: Player = findPlayerById(
     players,
@@ -86,10 +85,6 @@ function AddOrEditPlayer() {
       navigate("/nosuchpath");
     }
   }, [navigate, params]);
-
-  useEffect(() => {
-    log("PLAYER SLICE STATUS: ", playerStatus);
-  }, [playerStatus]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const updateDisplayedPlayer = () => {

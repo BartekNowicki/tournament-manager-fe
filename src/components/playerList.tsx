@@ -76,6 +76,10 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   assignPlayersToTournament,
 }) => {
   const allPlayers = useAppSelector((state) => state.player.players);
+  const playerSliceStatus = useAppSelector((state) => state.player.status);
+  const teamSliceStatus = useAppSelector((state) => state.team.status);
+  const groupSliceStatus = useAppSelector((state) => state.group.status);
+
   const allTeams = useAppSelector((state) => state.team.teams);
   const allTournaments = useAppSelector(
     (state) => state.tournament.tournaments
@@ -135,6 +139,32 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     );
   };
 
+  const isTournamentEdittingParticipants = () =>
+    idOfTournamentDisplayedForEditingParticipants > 0;
+
+  const isPlayerOrTeamBeingAdded = () =>
+    getIdOfItemToSaveOrEdit(params) === -2 ||
+    getIdOfItemToSaveOrEdit(params) > 0;
+
+  const isPlayerOrTeamBeingEdited = () => getIdOfItemToSaveOrEdit(params) > 0;
+
+  const getPLayerListClassName = () => {
+    if (
+      !isTournamentEdittingParticipants() &&
+      (isPlayerOrTeamBeingAdded() || isPlayerOrTeamBeingEdited())
+    ) {
+      return `m-8  ${maxHeightOfPlayerListWhenAddingOrEditing} overflow-y-scroll`;
+    }
+    if (
+      isTournamentEdittingParticipants() &&
+      !isPlayerOrTeamBeingAdded() &&
+      !isPlayerOrTeamBeingEdited()
+    ) {
+      return `m-8  ${maxHeightOfPlayerListWhenEditingTournamentParticipants} overflow-y-scroll`;
+    }
+    return `m-8  ${maxHeightOfLists} overflow-y-scroll`;
+  };
+
   const handleCheck = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
       const key: number = +e.target.id;
@@ -175,8 +205,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     [dispatch, isPlayerChecked, isTeamChecked, allPlayers, allTeams]
   );
 
-  // useEffect(() => {});
-
   const playersOrTeamsAssignedToGroups = useMemo(
     () =>
       getSortedPlayerOrTeamGroups(
@@ -196,6 +224,8 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       allTeams,
     ]
   );
+
+  // useEffect(() => {});
 
   useEffect(() => {
     const items = playersOrTeamsAssignedToGroups;
@@ -233,6 +263,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     isParticipantsSingles,
   ]);
 
+  // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
+  useEffect(() => {}, [forceRenderCount]);
+
   useEffect(() => {
     // log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
     // log("RENDERING PLAYERLIST, LISTED ITEMS: ", listedItems);
@@ -255,32 +288,17 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     params,
   ]);
 
-  // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
-  useEffect(() => {}, [forceRenderCount]);
+  useEffect(() => {
+    log("PLAYER SLICE STATUS: ", playerSliceStatus);
+  }, [playerSliceStatus]);
 
-  const isTournamentEdittingParticipants = () =>
-    idOfTournamentDisplayedForEditingParticipants > 0;
-  const isPlayerOrTeamBeingAdded = () =>
-    getIdOfItemToSaveOrEdit(params) === -2 ||
-    getIdOfItemToSaveOrEdit(params) > 0;
-  const isPlayerOrTeamBeingEdited = () => getIdOfItemToSaveOrEdit(params) > 0;
+  useEffect(() => {
+    log("TEAM SLICE STATUS: ", teamSliceStatus);
+  }, [teamSliceStatus]);
 
-  const getPLayerListClassName = () => {
-    if (
-      !isTournamentEdittingParticipants() &&
-      (isPlayerOrTeamBeingAdded() || isPlayerOrTeamBeingEdited())
-    ) {
-      return `m-8  ${maxHeightOfPlayerListWhenAddingOrEditing} overflow-y-scroll`;
-    }
-    if (
-      isTournamentEdittingParticipants() &&
-      !isPlayerOrTeamBeingAdded() &&
-      !isPlayerOrTeamBeingEdited()
-    ) {
-      return `m-8  ${maxHeightOfPlayerListWhenEditingTournamentParticipants} overflow-y-scroll`;
-    }
-    return `m-8  ${maxHeightOfLists} overflow-y-scroll`;
-  };
+  useEffect(() => {
+    log("GROUP SLICE STATUS: ", groupSliceStatus);
+  }, [groupSliceStatus]);
 
   if (listedItems.length === 0)
     return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;

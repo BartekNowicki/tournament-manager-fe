@@ -53,7 +53,7 @@ export const emptyPlayer: Player = {
 
 export type IdToCheckStatusMapping = Map<string, boolean>;
 
-interface RejectedAction extends Action {
+export interface RejectedAction extends Action {
   error: Error;
 }
 
@@ -151,10 +151,12 @@ export const unGroupPlayers = createAsyncThunk(
   }
 );
 
+export type StateStatus = "idle" | "pending" | "succeeded" | "failed";
+
 interface PlayerSliceState {
   players: Player[];
   forceRerenderPlayerListCount: number;
-  status: "idle" | "pending" | "succeeded" | "failed";
+  status: StateStatus;
   error: string | null;
 }
 

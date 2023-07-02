@@ -4,16 +4,16 @@ import {
   createAsyncThunk,
   createSlice,
   PayloadAction,
-  Action,
+  // Action,
   AnyAction,
-  createAction,
-  isPending,
+  // createAction,
+  // isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
 import { Tournament } from "./tournamentSlice";
 // eslint-disable-next-line import/no-cycle
-import { IdToCheckStatusMapping } from "./playerSlice";
+import { IdToCheckStatusMapping, RejectedAction, StateStatus, baseUrl } from "./playerSlice";
 // eslint-disable-next-line import/no-cycle
 import { Group } from "./groupSlice";
 
@@ -54,15 +54,11 @@ export const emptyTeam = {
   belongsToGroupIds: [],
 };
 
-interface RejectedAction extends Action {
-  error: Error;
-}
-
 function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
-export const baseUrl = "http://localhost:8080";
+// export const baseUrl = "http://localhost:8080";
 
 // export const fetchAllTeams = createAsyncThunk("teams/get", async (thunkAPI) => {
 export const fetchAllTeams = createAsyncThunk("teams/get", async () => {
@@ -88,7 +84,7 @@ export const checkTeams = createAsyncThunk(
   "teams/check",
   async (mapping: IdToCheckStatusMapping, { rejectWithValue }) => {
     try {
-      console.log("SENDING : ", Object.fromEntries(mapping));
+      // console.log("SENDING : ", Object.fromEntries(mapping));
       const response = await axios.patch(
         `${baseUrl}/api/data/teams`,
         Object.fromEntries(mapping)
@@ -149,14 +145,14 @@ export const unGroupTeams = createAsyncThunk(
 interface TeamSliceState {
   teams: Team[];
   forceRerenderTeamListCount: number;
-  loading: "idle" | "pending" | "succeeded" | "failed";
+  status: StateStatus;
   error: string | null;
 }
 
 const initialState = {
   teams: [],
   forceRerenderTeamListCount: 0,
-  loading: "idle",
+  status: "idle",
   error: null,
 } as TeamSliceState;
 
@@ -227,10 +223,12 @@ export const TeamSlice = createSlice({
         state.teams = action.payload;
         // console.info("fetch teams promise fulfilled", state.teams);
         console.info("fetch teams promise fulfilled");
+        state.status = "succeeded";
         state.forceRerenderTeamListCount += 1;
       })
-      .addCase(fetchAllTeams.pending, () => {
+      .addCase(fetchAllTeams.pending, (state) => {
         //        console.info("fetch teams promise pending...");
+        state.status = "pending";
       })
       .addCase(saveTeam.fulfilled, (state, action) => {
         const teamIdAlreadyInState = (id: number) => {
@@ -259,13 +257,16 @@ export const TeamSlice = createSlice({
           state.teams = [...state.teams, action.payload];
         }
         console.info("save team promise fulfilled");
+        state.status = "succeeded";
         state.forceRerenderTeamListCount += 1;
       })
-      .addCase(saveTeam.rejected, () => {
+      .addCase(saveTeam.rejected, (state) => {
         console.warn("save team promise rejected!");
+        state.status = "failed";
       })
-      .addCase(saveTeam.pending, () => {
+      .addCase(saveTeam.pending, (state) => {
         // console.info("save team promise pending...");
+        state.status = "pending";
       })
       .addCase(checkTeams.fulfilled, (state, action) => {
         const newIdToCheckStatusMapping: IdToCheckStatusMapping = new Map(
@@ -289,13 +290,16 @@ export const TeamSlice = createSlice({
         });
         // console.info("check teams promise fulfilled", state.teams[1]);
         console.info("check teams promise fulfilled");
+        state.status = "succeeded";
         state.forceRerenderTeamListCount += 1;
       })
-      .addCase(checkTeams.rejected, () => {
+      .addCase(checkTeams.rejected, (state) => {
         console.warn("check teams promise rejected!");
+        state.status = "failed";
       })
-      .addCase(checkTeams.pending, () => {
+      .addCase(checkTeams.pending, (state) => {
         // console.info("check teams promise pending...");
+        state.status = "pending";
       })
       .addCase(deleteTeam.fulfilled, (state, action) => {
         const teamIdNotInState = (id: number) => {
@@ -307,16 +311,20 @@ export const TeamSlice = createSlice({
           state.teams = state.teams.filter((t) => t.id !== action.payload.id);
         }
         console.info("delete team promise fulfilled");
+        state.status = "succeeded";
         state.forceRerenderTeamListCount += 1;
       })
-      .addCase(deleteTeam.rejected, () => {
+      .addCase(deleteTeam.rejected, (state) => {
         console.warn("delete team promise rejected!");
+        state.status = "failed";
       })
-      .addCase(deleteTeam.pending, () => {
+      .addCase(deleteTeam.pending, (state) => {
         // console.info("delete team promise pending...");
+        state.status = "pending";
       })
-      .addMatcher(isRejectedAction, () => {
+      .addMatcher(isRejectedAction, (state) => {
         console.info("promise rejected");
+        state.status = "failed";
       })
       .addDefaultCase(() => {
         // console.log("thunk in default mode");

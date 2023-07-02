@@ -11,8 +11,8 @@ import {
 } from "@reduxjs/toolkit";
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
-import { Tournament } from "./tournamentSlice";
-import { Player } from "./playerSlice";
+// import { Tournament } from "./tournamentSlice";
+import { Player, RejectedAction, StateStatus, baseUrl } from "./playerSlice";
 import { Team } from "./teamSlice";
 
 export interface Group {
@@ -20,20 +20,16 @@ export interface Group {
   members: Player[] | Team[];
 }
 
-interface RejectedAction extends Action {
-  error: Error;
-}
-
 function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
-export const baseUrl = "http://localhost:8080";
+// export const baseUrl = "http://localhost:8080";
 
 export const fetchAllGroups = createAsyncThunk(
   "groups/get",
   // async (thunkAPI) => {
-    async () => {
+  async () => {
     const response = await axios.get(`${baseUrl}/api/data/groups`);
     return response.data;
   }
@@ -41,13 +37,13 @@ export const fetchAllGroups = createAsyncThunk(
 
 interface GroupSliceState {
   groups: Group[];
-  loading: "idle" | "pending" | "succeeded" | "failed";
+  status: StateStatus;
   error: string | null;
 }
 
 const initialState = {
   groups: [],
-  loading: "idle",
+  status: "idle",
   error: null,
 } as GroupSliceState;
 
@@ -61,12 +57,15 @@ export const GroupSlice = createSlice({
         state.groups = action.payload;
         // console.info("fetch groups promise fulfilled", state.groups);
         console.info("fetch groups promise fulfilled");
+        state.status = "succeeded";
       })
-      .addCase(fetchAllGroups.pending, () => {
+      .addCase(fetchAllGroups.pending, (state) => {
         // console.info("fetch promise pending...");
+        state.status = "pending";
       })
-      .addMatcher(isRejectedAction, () => {
+      .addMatcher(isRejectedAction, (state) => {
         console.info("promise rejected");
+        state.status = "failed";
       })
       .addDefaultCase(() => {
         // console.log("thunk in default mode");

@@ -31,6 +31,9 @@ function AddOrEditTournament() {
   const getUserAction = (): string => params.action ?? UserActions.NONE;
 
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
+  const tournamentSliceStatus = useAppSelector(
+    (state) => state.tournament.status
+  );
 
   const [id, setId] = useState<number>(getIdOfTournamentToSaveOrEdit());
   const [type, setType] = useState<string>(getTypeOfTournamentToSaveOrEdit());

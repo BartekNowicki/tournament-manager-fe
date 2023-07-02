@@ -63,6 +63,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   displayedTournamentUpdater,
 }) => {
   const tournaments = useAppSelector((state) => state.tournament.tournaments);
+  const tournamentSliceStatus = useAppSelector(
+    (state) => state.tournament.status
+  );
+
   const players = useAppSelector((state) => state.player.players);
   const teams = useAppSelector((state) => state.team.teams);
   const dispatch = useAppDispatch();
@@ -91,6 +95,17 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
   const isAddingOrEditingTournamentMode = () =>
     idOfTournamentDisplayedForEditingData !== -1;
+
+  const isTournamentAddingOrEditingData = () =>
+    idOfTournamentDisplayedForEditingData === -2 ||
+    idOfTournamentDisplayedForEditingData > 0;
+
+  const getTournamentListClassName = () => {
+    if (isTournamentAddingOrEditingData()) {
+      return `m-8  ${maxHeightOfTournamentListWhenAddingOrEditing} overflow-y-scroll`;
+    }
+    return `m-8  ${maxHeightOfLists} overflow-y-scroll`;
+  };
 
   const injectHeaders = () => (
     <>
@@ -219,16 +234,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     typeOfTournamentDisplayedForEditingParticipants,
   ]);
 
-  const isTournamentAddingOrEditingData = () =>
-    idOfTournamentDisplayedForEditingData === -2 ||
-    idOfTournamentDisplayedForEditingData > 0;
-
-  const getTournamentListClassName = () => {
-    if (isTournamentAddingOrEditingData()) {
-      return `m-8  ${maxHeightOfTournamentListWhenAddingOrEditing} overflow-y-scroll`;
-    }
-    return `m-8  ${maxHeightOfLists} overflow-y-scroll`;
-  };
+  useEffect(() => {
+    log("TOURNAMENT SLICE STATUS: ", tournamentSliceStatus);
+  }, [tournamentSliceStatus]);
 
   return (
     <>

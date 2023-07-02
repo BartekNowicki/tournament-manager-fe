@@ -1,16 +1,17 @@
+/* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
 import {
   createAsyncThunk,
   createSlice,
   PayloadAction,
-  Action,
+  // Action,
   AnyAction,
-  createAction,
-  isPending,
+  // createAction,
+  // isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
-import { Player, baseUrl } from "./playerSlice";
+import { Player, RejectedAction, StateStatus, baseUrl } from "./playerSlice";
 // eslint-disable-next-line import/no-cycle
 import { Team } from "./teamSlice";
 // eslint-disable-next-line import/no-cycle
@@ -68,10 +69,6 @@ interface TournamentSliceState {
   tournaments: Tournament[];
 }
 
-interface RejectedAction extends Action {
-  error: Error;
-}
-
 function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
@@ -85,59 +82,13 @@ export const fetchAllTournaments = createAsyncThunk(
   }
 );
 
-// const getEnumKeyByValue = (val: string): string => {
-//   if (val === "SINGLES") return "SINGLES";
-//   if (val === "DOUBLES") return "DOUBLES";
-//   console.warn("HERE IS THE ERROR WHEN SAVING SINGLES!!!");
-//   return "DOUBLES";
-// };
-
-// export const convertToMysqlDatetime6 = (dateString: string): Date => {
-//   // required by mysql: datetime(6)
-//   // e.g. `java.util.Date` from String "5.04.2023"
-//   const dateArr: string[] = dateString.split(".");
-//   // return new Date(`"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`).getTime();
-//   const convertedDate: Date = new Date(
-//     `"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`
-//   );
-//   // need to set the date one day after as sql stores the date one day before
-//   convertedDate.setDate(convertedDate.getDate() + 1);
-//   return convertedDate;
-// };
-
-// export const convertFromMysqlDatetime6 = (mysqlDatetime6: Date): string => {
-//   console.log(
-//     "CONVERTED FROM  DB: ",
-//     mysqlDatetime6.getFullYear(),
-//     mysqlDatetime6.getDate()
-//   );
-//   // required by mysql: datetime(6)
-//   // e.g. `java.util.Date` from String "5.04.2023"
-//   // const dateArr: string[] = dateString.split(".");
-//   // return new Date(`"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`).getTime();
-//   // const convertedDate: Date = new Date(
-//   //   `"${dateArr[2]}.${dateArr[1]}.${dateArr[0]}"`
-//   // );
-//   // need to set the date one day after as sql stores the date one day before
-//   // convertedDate.setDate(convertedDate.getDate() + 1);
-//   return "convertedDate";
-// };
-
 export const saveTournament = createAsyncThunk(
   "tournaments/save",
   async (tournament: Tournament, { rejectWithValue }) => {
-    // console.log("ASYNC THUNK RECEIVED TYPE: ", tournament.type);
-    // const tournamentWithTypeConvertedToEnumKey = {
-    //   ...tournament,
-    //   // type: getEnumKeyByValue(tournament.type),  IS THIS CONVERSION NECESSARY?? PROBABLY NOT IF YOU JUST SET THE ENUM VALUE TO "SINGLES" AND "DOUBLES" AND NOT TO "singles" and "doubles" because BE EXPECTS IN ITS ENUM CONVERSION TO RECEIVE SINGLES OR DOUBLES, IF YOU SEND "singles" THEN YOU NEED TO CONVERT... IS IT NOT BETTER TO JUST USE CAPITALS EVERYWHERE?
-    // };
     try {
-      log("SAVE REQUEST: ", tournament);
+      // log("SAVE REQUEST: ", tournament);
       const response = await axios.put(`${baseUrl}/api/data/tournaments`, {
-        // ...tournamentWithTypeConvertedToEnumKey,
         ...tournament,
-        // startDate: convertToMysqlDatetime6(tournament.startDate),
-        // endDate: convertToMysqlDatetime6(tournament.endDate),
       });
       // console.log("SAVE RESPONSE: tournament, response.data");
       return response.data;
@@ -160,7 +111,7 @@ export const assignPlayersToTournament = createAsyncThunk(
         type === "singles"
           ? `${baseUrl}/api/data/tournaments/assignToSingles?tournamentId=${tournamentId}`
           : `${baseUrl}/api/data/tournaments/assignToDoubles?tournamentId=${tournamentId}`;
-      console.log("ASSIGNING: ", tournamentId, type);
+      // console.log("ASSIGNING: ", tournamentId, type);
       const response = await axios.get(URL);
       return response.data;
     } catch (error: any) {
@@ -188,13 +139,13 @@ export const deleteTournament = createAsyncThunk(
 
 interface TournamentSliceState {
   tournaments: Tournament[];
-  loading: "idle" | "pending" | "succeeded" | "failed";
+  status: StateStatus;
   error: string | null;
 }
 
 const initialState = {
   tournaments: [],
-  loading: "idle",
+  status: "idle",
   error: null,
 } as TournamentSliceState;
 
@@ -210,12 +161,15 @@ export const TournamentSlice = createSlice({
         endDate: Date;
         groupSize: number;
         comment: string;
-        participatingPlayers: Player[];
-        participatingPlayerIds: number[];
-        participatingTeams: Team[];
-        participatingTeamIds: number[];
-        groups: Group[];
-        groupIds: number[];
+        // participatingPlayers: Player[];
+        // participatingPlayerIds: number[];
+        participatingPlayers: number[];
+        // participatingTeams: Team[];
+        participatingTeams: number[];
+        // participatingTeamIds: number[];
+        // groups: Group[];
+        groups: number[];
+        // groupIds: number[];
       }>
     ) => {
       state.tournaments = [
@@ -228,11 +182,11 @@ export const TournamentSlice = createSlice({
           groupSize: action.payload.groupSize,
           comment: action.payload.comment,
           participatingPlayers: action.payload.participatingPlayers,
-          participatingPlayerIds: action.payload.participatingPlayerIds,
+          // participatingPlayerIds: action.payload.participatingPlayerIds,
           participatingTeams: action.payload.participatingTeams,
-          participatingTeamIds: action.payload.participatingTeamIds,
+          // participatingTeamIds: action.payload.participatingTeamIds,
           groups: action.payload.groups,
-          groupIds: action.payload.groupIds,
+          // groupIds: action.payload.groupIds,
         },
       ];
     },
@@ -243,12 +197,15 @@ export const TournamentSlice = createSlice({
         state.tournaments = action.payload;
         // console.info("fetch tournaments promise fulfilled", state.tournaments);
         console.info("fetch tournaments promise fulfilled");
+        state.status = "succeeded";
       })
-      .addCase(fetchAllTournaments.pending, () => {
+      .addCase(fetchAllTournaments.pending, (state) => {
         // console.info("fetch tournaments promise pending...");
+        state.status = "pending";
       })
-      .addCase(fetchAllTournaments.rejected, () => {
+      .addCase(fetchAllTournaments.rejected, (state) => {
         console.warn("fetch tournaments promise rejected!");
+        state.status = "failed";
       })
       .addCase(saveTournament.fulfilled, (state, action) => {
         // console.log("PAYLOAD: ", action.payload);
@@ -280,12 +237,15 @@ export const TournamentSlice = createSlice({
           state.tournaments = [...state.tournaments, action.payload];
         }
         console.info("save tournament promise fulfilled");
+        state.status = "succeeded";
       })
-      .addCase(saveTournament.rejected, (e) => {
+      .addCase(saveTournament.rejected, (state) => {
         console.warn("save tournament promise rejected!");
+        state.status = "failed";
       })
-      .addCase(saveTournament.pending, () => {
+      .addCase(saveTournament.pending, (state) => {
         // console.info("save tournament promise pending...");
+        state.status = "pending";
       })
       .addCase(deleteTournament.fulfilled, (state, action) => {
         const tournamentIdNotInState = (id: number) => {
@@ -299,23 +259,29 @@ export const TournamentSlice = createSlice({
           );
         }
         console.info("delete tournament promise fulfilled");
+        state.status = "succeeded";
       })
-      .addCase(deleteTournament.rejected, () => {
+      .addCase(deleteTournament.rejected, (state) => {
         console.warn("delete tournament promise rejected!");
+        state.status = "failed";
       })
-      .addCase(deleteTournament.pending, () => {
+      .addCase(deleteTournament.pending, (state) => {
         // console.info("delete tournament promise pending...");
+        state.status = "pending";
       })
       .addCase(assignPlayersToTournament.fulfilled, (state, action) => {
         console.info(
           "assignPlayersToTournament promise fulfilled, fetching updates..."
         );
+        state.status = "succeeded";
       })
-      .addCase(assignPlayersToTournament.rejected, () => {
+      .addCase(assignPlayersToTournament.rejected, (state) => {
         console.warn("assignPlayersToTournament promise rejected!");
+        state.status = "failed";
       })
-      .addMatcher(isRejectedAction, () => {
+      .addMatcher(isRejectedAction, (state) => {
         console.info("promise rejected");
+        state.status = "failed";
       })
       .addDefaultCase(() => {
         // console.log("thunk in default mode");
