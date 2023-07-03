@@ -79,7 +79,7 @@ function AddOrEditTournament() {
   }, [navigate, getUserAction]);
 
   useEffect(() => {
-    log("ADDOREDIT TOURNAMENT - PARAMS: ", params);
+    // log("ADDOREDIT TOURNAMENT - PARAMS: ", params);
   });
 
   useEffect(() => {

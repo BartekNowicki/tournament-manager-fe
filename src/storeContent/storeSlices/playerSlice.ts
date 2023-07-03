@@ -156,13 +156,24 @@ export type StateStatus =
   | "pending"
   | "succeeded"
   | "failed"
+  | "pendingFetching"
+  | "succeededFetching"
+  | "failedFetching"
   | "pendingSaving"
   | "succeededSaving"
   | "failedSaving"
   | "pendingDeleting"
   | "succeededDeleting"
   | "failedDeleting"
-  | "succeededFetching";
+  | "pendingAssigning"
+  | "succeededAssigning"
+  | "failedAssigning"
+  | "pendingGrouping"
+  | "succeededGrouping"
+  | "failedGrouping"
+  | "pendingUnGrouping"
+  | "succeededUnGrouping"
+  | "failedUnGrouping";
 
 interface PlayerSliceState {
   players: Player[];
@@ -246,11 +257,15 @@ export const PlayerSlice = createSlice({
         state.status = "succeededFetching";
         // console.info("fetch players promise fulfilled", state.players);
         console.info("fetch players promise fulfilled");
-        state.forceRerenderPlayerListCount += 1;
+        // state.forceRerenderPlayerListCount += 1;
       })
       .addCase(fetchAllPlayers.pending, (state) => {
-        state.status = "pending";
+        state.status = "pendingFetching";
         // console.info("fetch promise pending...");
+      })
+      .addCase(fetchAllPlayers.rejected, (state) => {
+        state.status = "failedFetching";
+        // console.info("fetch promise failed...");
       })
       .addCase(savePlayer.fulfilled, (state, action) => {
         const playerIdAlreadyInState = (id: number) => {
@@ -346,21 +361,29 @@ export const PlayerSlice = createSlice({
         // console.info("delete player promise pending...");
         state.status = "pendingDeleting";
       })
+      .addCase(groupPlayers.pending, (state) => {
+        // console.info("group players promise pending");
+        state.status = "pendingGrouping";
+      })
       .addCase(groupPlayers.fulfilled, (state) => {
         console.info("group players promise fulfilled");
-        state.status = "succeeded";
+        state.status = "succeededGrouping";
       })
       .addCase(groupPlayers.rejected, (state) => {
         console.warn("group players promise rejected!");
-        state.status = "failed";
+        state.status = "failedGrouping";
+      })
+      .addCase(unGroupPlayers.pending, (state) => {
+        console.info("ungroup players promise pending");
+        state.status = "pendingUnGrouping";
       })
       .addCase(unGroupPlayers.fulfilled, (state) => {
         console.info("ungroup players promise fulfilled");
-        state.status = "succeeded";
+        state.status = "succeededUnGrouping";
       })
       .addCase(unGroupPlayers.rejected, (state) => {
         console.warn("ungroup players promise rejected!");
-        state.status = "failed";
+        state.status = "failedUnGrouping";
       })
       .addMatcher(isRejectedAction, (state) => {
         console.info("promise rejected");

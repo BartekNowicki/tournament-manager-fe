@@ -80,6 +80,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const playerSliceStatus = useAppSelector((state) => state.player.status);
   const teamSliceStatus = useAppSelector((state) => state.team.status);
   const groupSliceStatus = useAppSelector((state) => state.group.status);
+  const tournamentSliceStatus = useAppSelector(
+    (state) => state.tournament.status
+  );
 
   const allTeams = useAppSelector((state) => state.team.teams);
   const allTournaments = useAppSelector(
@@ -102,7 +105,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     useState<string>();
   const [dataOfItemScheduledForDeletion, setDataOfItemScheduledForDeletion] =
     useState<string>();
-  const [actionCompleteModalOpen, setActionCompleteModalOpen] =
+  const [isActionCompleteModalOpen, setIsActionCompleteModalOpen] =
     useState<boolean>(false);
   const [actionCompleteModalText, setActionCompleteModalText] =
     useState<string>("");
@@ -233,7 +236,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const closeActionCompleteModal = (ms: number) => {
     const timer = setTimeout(() => {
       setActionCompleteModalText((prev) => ``);
-      setActionCompleteModalOpen((prev) => false);
+      setIsActionCompleteModalOpen((prev) => false);
       clearTimeout(timer);
     }, ms);
   };
@@ -277,7 +280,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   ]);
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
-  // useEffect(() => {}, [forceRenderCount]);
+  // useEffect(() => {}, [forceRenderCount]);   I AM GETTING RID OF THIS
 
   useEffect(() => {
     // log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
@@ -307,45 +310,185 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   ]);
 
   useEffect(() => {
-    if (playerSliceStatus === "pendingSaving") {
+    if (
+      (isParticipantsSingles && playerSliceStatus === "pendingSaving") ||
+      (!isParticipantsSingles && teamSliceStatus === "pendingSaving")
+    ) {
       // log("ZMIANA STATUSU", playerSliceStatus);
-      setActionCompleteModalText((prev) => `zapisuję...`);
-      setActionCompleteModalOpen((prev) => true);
-    } else if (playerSliceStatus === "succeededSaving") {
-      setActionCompleteModalText((prev) => `uczestnik zapisany`);
-      closeActionCompleteModal(2000);
-    } else if (playerSliceStatus === "failedSaving") {
       setActionCompleteModalText(
-        (prev) => `zapis nie powiódł się, skontaktuj się z administratorem`
+        (prev) => `zapisuję ${isParticipantsSingles ? "uczestnika" : "parę"}...`
+      );
+      setIsActionCompleteModalOpen((prev) => true);
+    } else if (
+      (isParticipantsSingles && playerSliceStatus === "succeededSaving") ||
+      (!isParticipantsSingles && teamSliceStatus === "succeededSaving")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `${isParticipantsSingles ? "uczestnik zapisany" : "para zapisana"}`
+      );
+      closeActionCompleteModal(2000);
+    } else if (
+      (isParticipantsSingles && playerSliceStatus === "failedSaving") ||
+      (!isParticipantsSingles && teamSliceStatus === "failedSaving")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `zapis ${
+            isParticipantsSingles ? "uczestnika" : "pary"
+          } nie powiódł się, skontaktuj się z administratorem`
       );
       closeActionCompleteModal(2000);
     }
   }, [
-    actionCompleteModalOpen,
+    isActionCompleteModalOpen,
     actionCompleteModalText,
-    isPlayerOrTeamBeingAdded,
     playerSliceStatus,
+    isParticipantsSingles,
+    teamSliceStatus,
   ]);
 
   useEffect(() => {
-    if (playerSliceStatus === "pendingDeleting") {
+    if (
+      (isParticipantsSingles && playerSliceStatus === "pendingDeleting") ||
+      (!isParticipantsSingles && teamSliceStatus === "pendingDeleting")
+    ) {
       // log("ZMIANA STATUSU", playerSliceStatus);
-      setActionCompleteModalText((prev) => `usuwam...`);
-      setActionCompleteModalOpen((prev) => true);
-    } else if (playerSliceStatus === "succeededDeleting") {
-      setActionCompleteModalText((prev) => `uczestnik usunięty`);
-      closeActionCompleteModal(2000);
-    } else if (playerSliceStatus === "failedDeleting") {
       setActionCompleteModalText(
-        (prev) => `usunięcie nie powiodło się, skontaktuj się z administratorem`
+        (prev) => `usuwam ${isParticipantsSingles ? "uczestnika" : "parę"}...`
+      );
+      setIsActionCompleteModalOpen((prev) => true);
+    } else if (
+      (isParticipantsSingles && playerSliceStatus === "succeededDeleting") ||
+      (!isParticipantsSingles && teamSliceStatus === "succeededDeleting")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `${isParticipantsSingles ? "uczestnik usunięty" : "para usunięta"}`
+      );
+      closeActionCompleteModal(2000);
+    } else if (
+      (isParticipantsSingles && playerSliceStatus === "failedDeleting") ||
+      (!isParticipantsSingles && teamSliceStatus === "failedDeleting")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `usunięcie ${
+            isParticipantsSingles ? "uczestnika" : "pary"
+          } nie powiodło się, skontaktuj się z administratorem`
       );
       closeActionCompleteModal(2000);
     }
   }, [
-    actionCompleteModalOpen,
+    isActionCompleteModalOpen,
     actionCompleteModalText,
     isPlayerOrTeamBeingAdded,
     playerSliceStatus,
+    isParticipantsSingles,
+    teamSliceStatus,
+  ]);
+
+  useEffect(() => {
+    if (
+      (isParticipantsSingles && tournamentSliceStatus === "pendingAssigning") ||
+      (!isParticipantsSingles && tournamentSliceStatus === "pendingAssigning")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `przypisuję ${isParticipantsSingles ? "uczestników" : "pary"}...`
+      );
+      setIsActionCompleteModalOpen((prev) => true);
+    } else if (
+      (isParticipantsSingles &&
+        tournamentSliceStatus === "succeededAssigning") ||
+      (!isParticipantsSingles && tournamentSliceStatus === "succeededAssigning")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `${
+            isParticipantsSingles ? "uczestnicy przypisani" : "pary przypisane"
+          }`
+      );
+      closeActionCompleteModal(2000);
+    } else if (
+      (isParticipantsSingles && tournamentSliceStatus === "failedAssigning") ||
+      (!isParticipantsSingles && tournamentSliceStatus === "failedAssigning")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `przypisanie ${
+            isParticipantsSingles ? "uczestników" : "par"
+          } nie powiodło się, skontaktuj się z administratorem`
+      );
+      closeActionCompleteModal(2000);
+    }
+  }, [
+    isActionCompleteModalOpen,
+    actionCompleteModalText,
+    playerSliceStatus,
+    isParticipantsSingles,
+    teamSliceStatus,
+    tournamentSliceStatus,
+  ]);
+
+  useEffect(() => {
+    if (
+      (isParticipantsSingles && playerSliceStatus === "pendingGrouping") ||
+      (!isParticipantsSingles && teamSliceStatus === "pendingGrouping") ||
+      (isParticipantsSingles && playerSliceStatus === "pendingUnGrouping") ||
+      (!isParticipantsSingles && teamSliceStatus === "pendingUnGrouping")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `${
+            playerSliceStatus === "pendingGrouping" ||
+            teamSliceStatus === "pendingGrouping"
+              ? "rozpoczynam"
+              : "cofam"
+          } losowanie ${
+            isParticipantsSingles ? "uczestników" : "par"
+          } do grup...`
+      );
+      setIsActionCompleteModalOpen((prev) => true);
+    } else if (
+      (isParticipantsSingles && playerSliceStatus === "succeededGrouping") ||
+      (isParticipantsSingles && playerSliceStatus === "succeededUnGrouping") ||
+      (!isParticipantsSingles && teamSliceStatus === "succeededGrouping") ||
+      (!isParticipantsSingles && teamSliceStatus === "succeededUnGrouping")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `${
+            playerSliceStatus === "succeededGrouping" ||
+            teamSliceStatus === "succeededGrouping"
+              ? isParticipantsSingles
+                ? "uczestnicy przypisani"
+                : "pary przypisane"
+              : "losowy przydział uczestników do grup został wycofany"
+          }`
+      );
+      closeActionCompleteModal(2000);
+    } else if (
+      (isParticipantsSingles && playerSliceStatus === "failedGrouping") ||
+      (!isParticipantsSingles && teamSliceStatus === "failedGrouping") ||
+      (isParticipantsSingles && playerSliceStatus === "failedUnGrouping") ||
+      (!isParticipantsSingles && teamSliceStatus === "failedUnGrouping")
+    ) {
+      setActionCompleteModalText(
+        (prev) =>
+          `przypisanie ${
+            isParticipantsSingles ? "uczestników" : "par"
+          } nie powiodło się, skontaktuj się z administratorem`
+      );
+      closeActionCompleteModal(2000);
+    }
+  }, [
+    isActionCompleteModalOpen,
+    actionCompleteModalText,
+    playerSliceStatus,
+    isParticipantsSingles,
+    teamSliceStatus,
+    tournamentSliceStatus,
   ]);
 
   useEffect(() => {
@@ -355,6 +498,10 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   useEffect(() => {
     // log("GROUP SLICE STATUS: ", groupSliceStatus);
   }, [groupSliceStatus]);
+
+  useEffect(() => {
+    // log("TOURNAMENT SLICE STATUS: ", tournamentSliceStatus);
+  }, [tournamentSliceStatus]);
 
   if (listedItems.length === 0)
     return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;
@@ -572,7 +719,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                       })
               }
             >
-              zapisz uczestników
+              przypisz uczestników
             </button>
             <button
               className={`btn btn-ghost btn-s ${btnSaveColor} positionMeBottomCenterRight`}
@@ -634,19 +781,13 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
         </DialogModal>
       </div>
       {/* modal for the user to see a confirmation of their action */}
-      {actionCompleteModalOpen && isPlayerOrTeamBeingAdded() && (
+      {isActionCompleteModalOpen && (
         <div>
-          <ActionCompleteModal isOpen={actionCompleteModalOpen}>
+          <ActionCompleteModal isOpen={isActionCompleteModalOpen}>
             {actionCompleteModalText}
           </ActionCompleteModal>
         </div>
       )}
-
-      {/* <div>
-        <ActionCompleteModal isOpen={actionCompleteModalOpen}>
-          {actionCompleteModalText + new Date().toLocaleDateString()}
-        </ActionCompleteModal>
-      </div> */}
     </div>
   );
 };

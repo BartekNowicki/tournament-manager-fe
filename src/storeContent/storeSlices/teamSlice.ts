@@ -13,7 +13,12 @@ import axios from "axios";
 // eslint-disable-next-line import/no-cycle
 import { Tournament } from "./tournamentSlice";
 // eslint-disable-next-line import/no-cycle
-import { IdToCheckStatusMapping, RejectedAction, StateStatus, baseUrl } from "./playerSlice";
+import {
+  IdToCheckStatusMapping,
+  RejectedAction,
+  StateStatus,
+  baseUrl,
+} from "./playerSlice";
 // eslint-disable-next-line import/no-cycle
 import { Group } from "./groupSlice";
 
@@ -223,12 +228,16 @@ export const TeamSlice = createSlice({
         state.teams = action.payload;
         // console.info("fetch teams promise fulfilled", state.teams);
         console.info("fetch teams promise fulfilled");
-        state.status = "succeeded";
-        state.forceRerenderTeamListCount += 1;
+        state.status = "succeededFetching";
+        // state.forceRerenderTeamListCount += 1;
       })
       .addCase(fetchAllTeams.pending, (state) => {
         //        console.info("fetch teams promise pending...");
-        state.status = "pending";
+        state.status = "pendingFetching";
+      })
+      .addCase(fetchAllTeams.rejected, (state) => {
+        //        console.info("fetch teams promise rejected...");
+        state.status = "failedFetching";
       })
       .addCase(saveTeam.fulfilled, (state, action) => {
         const teamIdAlreadyInState = (id: number) => {
@@ -257,16 +266,16 @@ export const TeamSlice = createSlice({
           state.teams = [...state.teams, action.payload];
         }
         console.info("save team promise fulfilled");
-        state.status = "succeeded";
-        state.forceRerenderTeamListCount += 1;
+        state.status = "succeededSaving";
+        // state.forceRerenderTeamListCount += 1;
       })
       .addCase(saveTeam.rejected, (state) => {
         console.warn("save team promise rejected!");
-        state.status = "failed";
+        state.status = "failedSaving";
       })
       .addCase(saveTeam.pending, (state) => {
         // console.info("save team promise pending...");
-        state.status = "pending";
+        state.status = "pendingSaving";
       })
       .addCase(checkTeams.fulfilled, (state, action) => {
         const newIdToCheckStatusMapping: IdToCheckStatusMapping = new Map(
@@ -311,16 +320,41 @@ export const TeamSlice = createSlice({
           state.teams = state.teams.filter((t) => t.id !== action.payload.id);
         }
         console.info("delete team promise fulfilled");
-        state.status = "succeeded";
-        state.forceRerenderTeamListCount += 1;
+        state.status = "succeededDeleting";
+        // state.forceRerenderTeamListCount += 1;
       })
       .addCase(deleteTeam.rejected, (state) => {
         console.warn("delete team promise rejected!");
-        state.status = "failed";
+        state.status = "failedDeleting";
       })
       .addCase(deleteTeam.pending, (state) => {
         // console.info("delete team promise pending...");
-        state.status = "pending";
+        state.status = "pendingDeleting";
+      })
+
+      .addCase(groupTeams.pending, (state) => {
+        // console.info("group teams promise pending");
+        state.status = "pendingGrouping";
+      })
+      .addCase(groupTeams.fulfilled, (state) => {
+        // console.info("group teams promise fulfilled");
+        state.status = "succeededGrouping";
+      })
+      .addCase(groupTeams.rejected, (state) => {
+        console.warn("group teams promise rejected!");
+        state.status = "failedGrouping";
+      })
+      .addCase(unGroupTeams.pending, (state) => {
+        // console.info("ungroup teams promise pending");
+        state.status = "pendingUnGrouping";
+      })
+      .addCase(unGroupTeams.fulfilled, (state) => {
+        console.info("ungroup teams promise fulfilled");
+        state.status = "succeededUnGrouping";
+      })
+      .addCase(unGroupTeams.rejected, (state) => {
+        console.warn("ungroup teams promise rejected!");
+        state.status = "failedUnGrouping";
       })
       .addMatcher(isRejectedAction, (state) => {
         console.info("promise rejected");

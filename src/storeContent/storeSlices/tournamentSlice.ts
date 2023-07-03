@@ -197,15 +197,15 @@ export const TournamentSlice = createSlice({
         state.tournaments = action.payload;
         // console.info("fetch tournaments promise fulfilled", state.tournaments);
         console.info("fetch tournaments promise fulfilled");
-        state.status = "succeeded";
+        // state.status = "succeededFetching";
       })
       .addCase(fetchAllTournaments.pending, (state) => {
         // console.info("fetch tournaments promise pending...");
-        state.status = "pending";
+        // state.status = "pendingFetching";
       })
       .addCase(fetchAllTournaments.rejected, (state) => {
         console.warn("fetch tournaments promise rejected!");
-        state.status = "failed";
+        state.status = "failedFetching";
       })
       .addCase(saveTournament.fulfilled, (state, action) => {
         // console.log("PAYLOAD: ", action.payload);
@@ -237,15 +237,15 @@ export const TournamentSlice = createSlice({
           state.tournaments = [...state.tournaments, action.payload];
         }
         console.info("save tournament promise fulfilled");
-        state.status = "succeeded";
+        state.status = "succeededSaving";
       })
       .addCase(saveTournament.rejected, (state) => {
         console.warn("save tournament promise rejected!");
-        state.status = "failed";
+        state.status = "failedSaving";
       })
       .addCase(saveTournament.pending, (state) => {
         // console.info("save tournament promise pending...");
-        state.status = "pending";
+        state.status = "pendingSaving";
       })
       .addCase(deleteTournament.fulfilled, (state, action) => {
         const tournamentIdNotInState = (id: number) => {
@@ -259,25 +259,29 @@ export const TournamentSlice = createSlice({
           );
         }
         console.info("delete tournament promise fulfilled");
-        state.status = "succeeded";
+        state.status = "succeededDeleting";
       })
       .addCase(deleteTournament.rejected, (state) => {
         console.warn("delete tournament promise rejected!");
-        state.status = "failed";
+        state.status = "failedDeleting";
       })
       .addCase(deleteTournament.pending, (state) => {
         // console.info("delete tournament promise pending...");
-        state.status = "pending";
+        state.status = "pendingDeleting";
+      })
+      .addCase(assignPlayersToTournament.pending, (state) => {
+        // console.info("assignPlayersToTournament promise pending...");
+        state.status = "pendingAssigning";
       })
       .addCase(assignPlayersToTournament.fulfilled, (state, action) => {
         console.info(
           "assignPlayersToTournament promise fulfilled, fetching updates..."
         );
-        state.status = "succeeded";
+        state.status = "succeededAssigning";
       })
       .addCase(assignPlayersToTournament.rejected, (state) => {
         console.warn("assignPlayersToTournament promise rejected!");
-        state.status = "failed";
+        state.status = "failedAssigning";
       })
       .addMatcher(isRejectedAction, (state) => {
         console.info("promise rejected");

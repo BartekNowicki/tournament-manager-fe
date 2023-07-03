@@ -47,6 +47,7 @@ import {
   maxHeightOfTournamentListWhenAddingOrEditing,
 } from "../utils/settings";
 import DialogModal from "./confirmation/DialogModal";
+import ActionCompleteModal from "./confirmation/ActionCompleteModal";
 
 interface ITournamentListProps {
   idOfTournamentDisplayedForEditingData: number;
@@ -92,6 +93,10 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     datesOfTournamentScheduledForDeletion,
     setDatesOfTournamentScheduledForDeletion,
   ] = useState<string>();
+  const [isActionCompleteModalOpen, setIsActionCompleteModalOpen] =
+    useState<boolean>(false);
+  const [actionCompleteModalText, setActionCompleteModalText] =
+    useState<string>("");
 
   const isAddingOrEditingTournamentMode = () =>
     idOfTournamentDisplayedForEditingData !== -1;
@@ -213,6 +218,14 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
     );
   };
 
+  const closeActionCompleteModal = (ms: number) => {
+    const timer = setTimeout(() => {
+      setActionCompleteModalText((prev) => ``);
+      setIsActionCompleteModalOpen((prev) => false);
+      clearTimeout(timer);
+    }, ms);
+  };
+
   useEffect(() => {
     // console.log(
     //   `TournamentList showing participants of: ${idOfTournamentDisplayedForEditingParticipants} data: ${idOfTournamentDisplayedForEditingData}`
@@ -235,7 +248,49 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
   ]);
 
   useEffect(() => {
-    log("TOURNAMENT SLICE STATUS: ", tournamentSliceStatus);
+    if (tournamentSliceStatus === "pendingSaving") {
+      // log("ZMIANA STATUSU", playerSliceStatus);
+      setActionCompleteModalText((prev) => `zapisuję turniej...`);
+      setIsActionCompleteModalOpen((prev) => true);
+    } else if (tournamentSliceStatus === "succeededSaving") {
+      setActionCompleteModalText((prev) => `turniej zapisany`);
+      closeActionCompleteModal(2000);
+    } else if (tournamentSliceStatus === "failedSaving") {
+      setActionCompleteModalText(
+        (prev) =>
+          `zapis turnieju nie powiódł się, skontaktuj się z administratorem`
+      );
+      closeActionCompleteModal(2000);
+    }
+  }, [
+    isActionCompleteModalOpen,
+    actionCompleteModalText,
+    tournamentSliceStatus,
+  ]);
+
+  useEffect(() => {
+    if (tournamentSliceStatus === "pendingDeleting") {
+      // log("ZMIANA STATUSU", tournamentSliceStatus);
+      setActionCompleteModalText((prev) => `usuwam turniej...`);
+      setIsActionCompleteModalOpen((prev) => true);
+    } else if (tournamentSliceStatus === "succeededDeleting") {
+      setActionCompleteModalText((prev) => `turniej usunięty`);
+      closeActionCompleteModal(2000);
+    } else if (tournamentSliceStatus === "failedDeleting") {
+      setActionCompleteModalText(
+        (prev) =>
+          `usunięcie turnieju nie powiodło się, skontaktuj się z administratorem`
+      );
+      closeActionCompleteModal(2000);
+    }
+  }, [
+    isActionCompleteModalOpen,
+    actionCompleteModalText,
+    tournamentSliceStatus,
+  ]);
+
+  useEffect(() => {
+    // log("TOURNAMENT SLICE STATUS: ", tournamentSliceStatus);
   }, [tournamentSliceStatus]);
 
   return (
@@ -400,7 +455,7 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             </tfoot>
           </table>
         </div>
-        {/* modal for deletion confirmation */}
+        {/* modal for the user to confirm delete */}
         <div>
           <DialogModal
             isOpen={confirmDeleteModalOpen}
@@ -432,6 +487,14 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
             ?
           </DialogModal>
         </div>
+        {/* modal for the user to see a confirmation of their action */}
+        {isActionCompleteModalOpen && (
+          <div>
+            <ActionCompleteModal isOpen={isActionCompleteModalOpen}>
+              {actionCompleteModalText}
+            </ActionCompleteModal>
+          </div>
+        )}
       </div>
 
       {idOfTournamentDisplayedForEditingParticipants > -1 &&

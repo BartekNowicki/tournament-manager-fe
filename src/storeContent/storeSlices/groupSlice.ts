@@ -57,15 +57,15 @@ export const GroupSlice = createSlice({
         state.groups = action.payload;
         // console.info("fetch groups promise fulfilled", state.groups);
         console.info("fetch groups promise fulfilled");
-        state.status = "succeeded";
+        state.status = "succeededFetching";
       })
       .addCase(fetchAllGroups.pending, (state) => {
         // console.info("fetch promise pending...");
-        state.status = "pending";
+        state.status = "pendingFetching";
       })
       .addMatcher(isRejectedAction, (state) => {
         console.info("promise rejected");
-        state.status = "failed";
+        state.status = "failedFetching";
       })
       .addDefaultCase(() => {
         // console.log("thunk in default mode");
