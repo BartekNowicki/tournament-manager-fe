@@ -6,8 +6,8 @@ import {
   PayloadAction,
   Action,
   AnyAction,
-  createAction,
-  isPending,
+  // createAction,
+  // isPending,
 } from "@reduxjs/toolkit";
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
@@ -151,7 +151,18 @@ export const unGroupPlayers = createAsyncThunk(
   }
 );
 
-export type StateStatus = "idle" | "pending" | "succeeded" | "failed";
+export type StateStatus =
+  | "idle"
+  | "pending"
+  | "succeeded"
+  | "failed"
+  | "pendingSaving"
+  | "succeededSaving"
+  | "failedSaving"
+  | "pendingDeleting"
+  | "succeededDeleting"
+  | "failedDeleting"
+  | "succeededFetching";
 
 interface PlayerSliceState {
   players: Player[];
@@ -232,7 +243,7 @@ export const PlayerSlice = createSlice({
     builder
       .addCase(fetchAllPlayers.fulfilled, (state, action) => {
         state.players = action.payload;
-        state.status = "succeeded";
+        state.status = "succeededFetching";
         // console.info("fetch players promise fulfilled", state.players);
         console.info("fetch players promise fulfilled");
         state.forceRerenderPlayerListCount += 1;
@@ -268,16 +279,16 @@ export const PlayerSlice = createSlice({
           state.players = [...state.players, action.payload];
         }
         // console.info("save player promise fulfilled");
-        state.status = "succeeded";
-        state.forceRerenderPlayerListCount += 1;
+        state.status = "succeededSaving";
+        // state.forceRerenderPlayerListCount += 1;
       })
       .addCase(savePlayer.rejected, (state) => {
         console.warn("save player promise rejected!");
-        state.status = "failed";
+        state.status = "failedSaving";
       })
       .addCase(savePlayer.pending, (state) => {
         // console.info("save player promise pending...");
-        state.status = "pending";
+        state.status = "pendingSaving";
       })
       .addCase(checkPlayers.fulfilled, (state, action) => {
         // console.log("PAYLOAD: ", action.payload);
@@ -324,16 +335,16 @@ export const PlayerSlice = createSlice({
           );
         }
         console.info("delete player promise fulfilled");
-        state.status = "succeeded";
+        state.status = "succeededDeleting";
         state.forceRerenderPlayerListCount += 1;
       })
       .addCase(deletePlayer.rejected, (state) => {
         console.warn("delete player promise rejected!");
-        state.status = "failed";
+        state.status = "failedDeleting";
       })
       .addCase(deletePlayer.pending, (state) => {
         // console.info("delete player promise pending...");
-        state.status = "pending";
+        state.status = "pendingDeleting";
       })
       .addCase(groupPlayers.fulfilled, (state) => {
         console.info("group players promise fulfilled");

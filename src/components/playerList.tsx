@@ -59,6 +59,7 @@ import {
   maxHeightOfPlayerListWhenEditingTournamentParticipants,
 } from "../utils/settings";
 import DialogModal from "./confirmation/DialogModal";
+import ActionCompleteModal from "./confirmation/ActionCompleteModal";
 
 interface IPlayerListProps {
   displayedPlayerUpdater: () => void;
@@ -85,9 +86,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     (state) => state.tournament.tournaments
   );
   const allGroups = useAppSelector((state) => state.group.groups);
-  const forceRenderCount = useAppSelector(
-    (state) => state.player.forceRerenderPlayerListCount
-  );
+  // const forceRenderCount = useAppSelector(
+  //   (state) => state.player.forceRerenderPlayerListCount
+  // );
   const [isDividedIntoGroups, setIsDividedIntoGroups] =
     useState<boolean>(false);
   const initialListedItems: Item[] = isParticipantsSingles
@@ -101,6 +102,10 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     useState<string>();
   const [dataOfItemScheduledForDeletion, setDataOfItemScheduledForDeletion] =
     useState<string>();
+  const [actionCompleteModalOpen, setActionCompleteModalOpen] =
+    useState<boolean>(false);
+  const [actionCompleteModalText, setActionCompleteModalText] =
+    useState<string>("");
 
   const dispatch = useAppDispatch();
   const params = useParams() ?? {};
@@ -225,6 +230,14 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     ]
   );
 
+  const closeActionCompleteModal = (ms: number) => {
+    const timer = setTimeout(() => {
+      setActionCompleteModalText((prev) => ``);
+      setActionCompleteModalOpen((prev) => false);
+      clearTimeout(timer);
+    }, ms);
+  };
+
   // useEffect(() => {});
 
   useEffect(() => {
@@ -264,7 +277,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   ]);
 
   // this should not be required under normal flow but here we have a tailwind table and that requires an explicit rerender
-  useEffect(() => {}, [forceRenderCount]);
+  // useEffect(() => {}, [forceRenderCount]);
 
   useEffect(() => {
     // log("RENDERING PLAYERLIST, FOR SINGLES ? ", isParticipantsSingles);
@@ -278,6 +291,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     //   "RENDERING PLAYERLIST, GETTING ID OF ITEM TO SAVE OR EDIT: ",
     //   getIdOfItemToSaveOrEdit(params)
     // );
+    // log(
+    //   "PLAYER SLICE CONFIRMATION MODAL INFO: OPEN + TEXT",
+    //   actionCompleteModalOpen,
+    //   actionCompleteModalText
+    // );
   }, [
     isParticipantsSingles,
     listedItems,
@@ -289,15 +307,53 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   ]);
 
   useEffect(() => {
-    log("PLAYER SLICE STATUS: ", playerSliceStatus);
-  }, [playerSliceStatus]);
+    if (playerSliceStatus === "pendingSaving") {
+      // log("ZMIANA STATUSU", playerSliceStatus);
+      setActionCompleteModalText((prev) => `zapisuję...`);
+      setActionCompleteModalOpen((prev) => true);
+    } else if (playerSliceStatus === "succeededSaving") {
+      setActionCompleteModalText((prev) => `uczestnik zapisany`);
+      closeActionCompleteModal(2000);
+    } else if (playerSliceStatus === "failedSaving") {
+      setActionCompleteModalText(
+        (prev) => `zapis nie powiódł się, skontaktuj się z administratorem`
+      );
+      closeActionCompleteModal(2000);
+    }
+  }, [
+    actionCompleteModalOpen,
+    actionCompleteModalText,
+    isPlayerOrTeamBeingAdded,
+    playerSliceStatus,
+  ]);
 
   useEffect(() => {
-    log("TEAM SLICE STATUS: ", teamSliceStatus);
+    if (playerSliceStatus === "pendingDeleting") {
+      // log("ZMIANA STATUSU", playerSliceStatus);
+      setActionCompleteModalText((prev) => `usuwam...`);
+      setActionCompleteModalOpen((prev) => true);
+    } else if (playerSliceStatus === "succeededDeleting") {
+      setActionCompleteModalText((prev) => `uczestnik usunięty`);
+      closeActionCompleteModal(2000);
+    } else if (playerSliceStatus === "failedDeleting") {
+      setActionCompleteModalText(
+        (prev) => `usunięcie nie powiodło się, skontaktuj się z administratorem`
+      );
+      closeActionCompleteModal(2000);
+    }
+  }, [
+    actionCompleteModalOpen,
+    actionCompleteModalText,
+    isPlayerOrTeamBeingAdded,
+    playerSliceStatus,
+  ]);
+
+  useEffect(() => {
+    // log("TEAM SLICE STATUS: ", teamSliceStatus);
   }, [teamSliceStatus]);
 
   useEffect(() => {
-    log("GROUP SLICE STATUS: ", groupSliceStatus);
+    // log("GROUP SLICE STATUS: ", groupSliceStatus);
   }, [groupSliceStatus]);
 
   if (listedItems.length === 0)
@@ -551,7 +607,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
           </div>
         )}
       </div>
-      {/* modal for deletion confirmation */}
+      {/* modal for the user to confirm delete */}
       <div>
         <DialogModal
           isOpen={confirmDeleteModalOpen}
@@ -560,11 +616,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             log("CANCELLING REQUEST");
           }}
           onConfirm={async () => {
-            log(
-              "USUWAM: ",
-              idOfItemScheduledForDeletion,
-              typeOfItemScheduledForDeletion
-            );
+            // log(
+            //   "USUWAM: ",
+            //   idOfItemScheduledForDeletion,
+            //   typeOfItemScheduledForDeletion
+            // );
             if (typeOfItemScheduledForDeletion === "player") {
               await dispatch(deletePlayer(idOfItemScheduledForDeletion));
             } else if (typeOfItemScheduledForDeletion === "team") {
@@ -577,6 +633,20 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
           {`${dataOfItemScheduledForDeletion}`}?
         </DialogModal>
       </div>
+      {/* modal for the user to see a confirmation of their action */}
+      {actionCompleteModalOpen && isPlayerOrTeamBeingAdded() && (
+        <div>
+          <ActionCompleteModal isOpen={actionCompleteModalOpen}>
+            {actionCompleteModalText}
+          </ActionCompleteModal>
+        </div>
+      )}
+
+      {/* <div>
+        <ActionCompleteModal isOpen={actionCompleteModalOpen}>
+          {actionCompleteModalText + new Date().toLocaleDateString()}
+        </ActionCompleteModal>
+      </div> */}
     </div>
   );
 };

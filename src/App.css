@@ -64,7 +64,7 @@ img {
   color: var(--main-sky) !important;
   align-self: flex-end;
   justify-self: flex-end;
-  z-index: 1000000000000000000001;
+  z-index: 10;
   margin: 10px 10px;
   font-size: large;
 }

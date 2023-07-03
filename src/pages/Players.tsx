@@ -8,11 +8,8 @@ export interface IPlayersProps {}
 
 export function Players(props: IPlayersProps) {
   return (
-    // <div className="flex flex-col">
     <div className={`flex flex-col ${appHeight}`}>
-      <p className="prose prose-2xl font font-bold mx-auto mt-12 text text-center">
-        {/* Uczestnicy */}
-      </p>
+      <p className="prose prose-2xl font font-bold mx-auto mt-12 text text-center" />
       <button className="btn btn-wide mb-[1vh] mx-auto">
         <Link to="/players/addoredit/add">nowy uczestnik</Link>
       </button>
