@@ -1,9 +1,8 @@
+/* eslint-disable import/prefer-default-export */
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { NavLink } from "react-router-dom";
 
-export interface INavbarProps {}
-
-export function Navbar(props: INavbarProps) {
+export function Navbar() {
   const linkActive = "border border-sky-500 border-b-1";
   const linkClass = "btn btn-ghost normal-case text-xl";
   const activeLinkClass = `${linkClass} ${linkActive}`;
@@ -24,7 +23,7 @@ export function Navbar(props: INavbarProps) {
   routeToDestinationMapping.set("Kontakt", "/contact");
 
   return (
-    <nav className="navbar bg-neutral text-neutral-content text-sky-500 flex justify-around mx-auto">
+    <nav className="navbar bg-amber-900 opacity-80 rounded-l-lg text-neutral-content text-sky-500 flex justify-around mx-auto">
       {destinations.map((destination, index) => (
         <NavLink
           key={String(index + destination)}

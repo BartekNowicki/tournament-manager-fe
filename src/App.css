@@ -14,7 +14,7 @@ html {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  background-color: var(--main-green);
+  background-color: black !important;
 }
 
 *, *:before, *:after {
