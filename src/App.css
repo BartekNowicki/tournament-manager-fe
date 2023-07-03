@@ -105,4 +105,10 @@ img {
   transform: translateX(10%) translateY(-120%) !important;
 }
 
+.loaderBackgroundImage {
+  background-image: url("src/assets/tennis-ball.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
 

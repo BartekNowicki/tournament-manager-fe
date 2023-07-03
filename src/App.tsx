@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import MainWrapper from "./components/mainWrapper/MainWrapper";
 import { Navbar } from "./components/Navbar";
 import { Home } from "./pages/Home";
@@ -22,16 +22,26 @@ import AddOrEditTeam from "./components/AddOrEditTeam";
 import { TeamLayout } from "./pages/TeamLayout";
 import { Teams } from "./pages/Teams";
 import { fetchAllGroups } from "./storeContent/storeSlices/groupSlice";
+import Loader from "./components/loader/Loader";
 
 function App() {
   const dispatch = useAppDispatch();
+  const [isContentLoaded, setIsContentLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    dispatch(fetchAllPlayers());
-    dispatch(fetchAllTeams());
-    dispatch(fetchAllTournaments());
-    dispatch(fetchAllGroups());
-  });
+    async function fetchData() {
+      await dispatch(fetchAllPlayers());
+      await dispatch(fetchAllTeams());
+      await dispatch(fetchAllTournaments());
+      await dispatch(fetchAllGroups());
+      setIsContentLoaded((prev) => true);
+    }
+    if (!isContentLoaded) {
+      fetchData();
+    }
+  }, [dispatch, isContentLoaded]);
+
+  if (!isContentLoaded) return <Loader />;
 
   return (
     <MainWrapper>
