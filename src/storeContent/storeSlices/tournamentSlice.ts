@@ -28,11 +28,8 @@ export interface Tournament {
   groupSize: number;
   comment: string;
   participatingPlayers?: number[];
-  // participatingPlayerIds: number[];
   participatingTeams?: number[];
-  // participatingTeamIds: number[];
   groups?: number[];
-  // groupIds: number[];
 }
 
 export const placeholderTournament: Tournament = {
@@ -40,14 +37,11 @@ export const placeholderTournament: Tournament = {
   startDate: new Date(),
   endDate: new Date(),
   type: TournamentType.SINGLES,
-  groupSize: 0,
+  groupSize: 1,
   comment: "",
   participatingPlayers: [],
-  // participatingPlayerIds: [],
   participatingTeams: [],
-  // participatingTeamIds: [],
   groups: [],
-  // groupIds: [],
 };
 
 export const emptyTournament: Tournament = {
@@ -55,14 +49,11 @@ export const emptyTournament: Tournament = {
   startDate: new Date(),
   endDate: new Date(),
   type: TournamentType.SINGLES,
-  groupSize: 0,
+  groupSize: 1,
   comment: "",
   participatingPlayers: [],
-  // participatingPlayerIds: [],
   participatingTeams: [],
-  // participatingTeamIds: [],
   groups: [],
-  // groupIds: [],
 };
 
 interface TournamentSliceState {

@@ -17,6 +17,7 @@ export function Players(props: IPlayersProps) {
         displayedPlayerUpdater={() => {}}
         assignPlayersToTournament={() => {}}
         isEditingTournamentParticipants={false}
+        idOfTournamentDisplayedForEditingParticipants={-1}
         // eslint-disable-next-line react/jsx-boolean-value
         isParticipantsSingles={true}
       />

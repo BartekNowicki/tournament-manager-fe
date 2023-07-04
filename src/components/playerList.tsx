@@ -21,10 +21,8 @@ import {
   unGroupPlayers,
 } from "../storeContent/storeSlices/playerSlice";
 import {
-  // Team,
   checkTeams,
   deleteTeam,
-  // fetchAllTeams,
   groupTeams,
   unGroupTeams,
 } from "../storeContent/storeSlices/teamSlice";
@@ -39,7 +37,6 @@ import TeamInfoColumns from "./TeamInfoColumns";
 import { getIdOfItemToSaveOrEdit } from "./AddOrEditPlayer";
 import {
   Item,
-  // findById,
   findPlayerById,
   findTeamById,
   getSortedPlayerOrTeamGroups,
@@ -89,9 +86,6 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
     (state) => state.tournament.tournaments
   );
   const allGroups = useAppSelector((state) => state.group.groups);
-  // const forceRenderCount = useAppSelector(
-  //   (state) => state.player.forceRerenderPlayerListCount
-  // );
   const [isDividedIntoGroups, setIsDividedIntoGroups] =
     useState<boolean>(false);
   const initialListedItems: Item[] = isParticipantsSingles
@@ -115,11 +109,11 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
 
   const isPlayerChecked = useCallback(
     (id: number): boolean => {
-      const found: Player = findPlayerById(allPlayers, id);
-      if (found && found.isChecked) {
+      const found = findPlayerById(allPlayers, id);
+      if (found && isPlayer(found) && found.isChecked) {
         return found.isChecked;
       }
-      if (found && found.checked) {
+      if (found && isPlayer(found) && found.checked) {
         return found.checked;
       }
       return false;
@@ -150,6 +144,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   const isTournamentEdittingParticipants = () =>
     idOfTournamentDisplayedForEditingParticipants > 0;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const isPlayerOrTeamBeingAdded = () =>
     getIdOfItemToSaveOrEdit(params) === -2 ||
     getIdOfItemToSaveOrEdit(params) > 0;
@@ -161,16 +156,16 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
       !isTournamentEdittingParticipants() &&
       (isPlayerOrTeamBeingAdded() || isPlayerOrTeamBeingEdited())
     ) {
-      return `m-8  ${maxHeightOfPlayerListWhenAddingOrEditing} overflow-y-scroll`;
+      return `m-8  ${maxHeightOfPlayerListWhenAddingOrEditing} overflow-y-auto`;
     }
     if (
       isTournamentEdittingParticipants() &&
       !isPlayerOrTeamBeingAdded() &&
       !isPlayerOrTeamBeingEdited()
     ) {
-      return `m-8  ${maxHeightOfPlayerListWhenEditingTournamentParticipants} overflow-y-scroll`;
+      return `m-8  ${maxHeightOfPlayerListWhenEditingTournamentParticipants} overflow-y-auto`;
     }
-    return `m-8  ${maxHeightOfLists} overflow-y-scroll`;
+    return `m-8  ${maxHeightOfLists} overflow-y-auto`;
   };
 
   const handleCheck = useCallback(
@@ -504,7 +499,16 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
   }, [tournamentSliceStatus]);
 
   if (listedItems.length === 0)
-    return <>Dodaj graczy, stwórz pary, dodaj turnieje :) </>;
+    return (
+      <div className="card card-side bg-base-100 shadow-xl">
+        <figure>
+          <img src="./src/assets/spojnia.jpg" alt="kort" />
+        </figure>
+        <div className="card-body">
+          <h2 className="card-title">Dodaj graczy, pary, turnieje</h2>
+        </div>
+      </div>
+    );
 
   return (
     <div className={getPLayerListClassName()}>
@@ -572,6 +576,7 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                         !isParticipantsSingles &&
                         isTeam(item) && (
                           <CheckTeamRow
+                            players={allPlayers}
                             handleCheck={(e) => handleCheck(e, "team")}
                             id={item.id}
                             isChecked={isTeamChecked}

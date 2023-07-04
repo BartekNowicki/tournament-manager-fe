@@ -1,11 +1,11 @@
 import { useAppSelector } from "../storeContent/store";
-import { Player } from "../storeContent/storeSlices/playerSlice";
 import { Team } from "../storeContent/storeSlices/teamSlice";
 import { findPlayerById } from "../utils/funcs";
 import TeamInfoColumns from "./TeamInfoColumns";
 import TeamSeparator from "./TeamSeparator";
 
 interface ICheckTeamRowProps {
+  players: Player[];
   handleCheck(e: React.ChangeEvent<HTMLInputElement>): void;
   id: number;
   isChecked: (id: number) => boolean;
@@ -16,6 +16,7 @@ interface ICheckTeamRowProps {
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/function-component-definition */
 const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
+  players,
   handleCheck,
   id,
   isChecked,
@@ -23,9 +24,8 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
   isDividedIntoGroups,
 }): JSX.Element => {
   if (id === 999) return <TeamSeparator groupStringId={team.comment} />;
-  const players = useAppSelector((state) => state.player.players);
-  const playerOne: Player = findPlayerById(players, team.playerOneId);
-  const playerTwo: Player = findPlayerById(players, team.playerTwoId);
+  const playerOne = findPlayerById(players, team.playerOneId);
+  const playerTwo = findPlayerById(players, team.playerTwoId);
 
   return (
     <>

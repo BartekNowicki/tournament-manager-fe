@@ -15,7 +15,7 @@ import {
   getUserAction,
 } from "./AddOrEditPlayer";
 import { Team, saveTeam } from "../storeContent/storeSlices/teamSlice";
-import { findPlayerById, findTeamById } from "../utils/funcs";
+import { findPlayerById, findTeamById, isTeam } from "../utils/funcs";
 import { btnSaveColor } from "../utils/settings";
 
 function AddOrEditTeam() {
@@ -26,7 +26,6 @@ function AddOrEditTeam() {
   // id = -1 => reserved for hidden allTeams isChecked (shown only on assignment)
 
   const teams = useAppSelector((state) => state.team.teams);
-  const teamSliceStatus = useAppSelector((state) => state.team.status);
   const players = useAppSelector((state) => state.player.players);
 
   const initialDisplayedTeam = findTeamById(
@@ -35,13 +34,12 @@ function AddOrEditTeam() {
   );
   const [displayedTeam, setDisplayedTeam] = useState(initialDisplayedTeam);
   const [currentAction, setCurrentAction] = useState<string>();
-  const [playerOneId, setPlayerOneId] = useState<number>(
-    displayedTeam.playerOneId
-  );
-  const [playerTwoId, setPlayerTwoId] = useState<number>(
-    displayedTeam.playerTwoId
-  );
-  const [strength, setStrength] = useState(displayedTeam.strength);
+  const p1id = isTeam(displayedTeam) ? displayedTeam.playerOneId : 0;
+  const p2id = isTeam(displayedTeam) ? displayedTeam.playerTwoId : 0;
+  const str = isTeam(displayedTeam) ? displayedTeam.strength : 0;
+  const [playerOneId, setPlayerOneId] = useState<number>(p1id);
+  const [playerTwoId, setPlayerTwoId] = useState<number>(p2id);
+  const [strength, setStrength] = useState(str);
   const [comment, setComment] = useState(displayedTeam.comment);
 
   useEffect(() => {
@@ -55,20 +53,22 @@ function AddOrEditTeam() {
     if (
       getUserAction(params) === UserActions.ADD ||
       getIdOfItemToSaveOrEdit(params) !== displayedTeam.id ||
-      playerOneId !== displayedTeam.playerOneId ||
-      playerTwoId !== displayedTeam.playerTwoId ||
-      comment !== displayedTeam.comment ||
-      strength !== displayedTeam.strength
+      (isTeam(displayedTeam) && playerOneId !== displayedTeam.playerOneId) ||
+      (isTeam(displayedTeam) && playerTwoId !== displayedTeam.playerTwoId) ||
+      (isTeam(displayedTeam) && comment !== displayedTeam.comment) ||
+      (isTeam(displayedTeam) && strength !== displayedTeam.strength)
     ) {
       const currentTeamToDisplay = findTeamById(
         teams,
         getIdOfItemToSaveOrEdit(params)
       );
-      setDisplayedTeam((prev) => currentTeamToDisplay);
-      setPlayerOneId((prev) => currentTeamToDisplay.playerOneId);
-      setPlayerTwoId((prev) => currentTeamToDisplay.playerTwoId);
-      setStrength((prev) => currentTeamToDisplay.strength);
-      setComment((prev) => currentTeamToDisplay.comment);
+      if (isTeam(currentTeamToDisplay)) {
+        setDisplayedTeam((prev) => currentTeamToDisplay);
+        setPlayerOneId((prev) => currentTeamToDisplay.playerOneId);
+        setPlayerTwoId((prev) => currentTeamToDisplay.playerTwoId);
+        setStrength((prev) => currentTeamToDisplay.strength);
+        setComment((prev) => currentTeamToDisplay.comment);
+      }
     }
   };
 
@@ -157,11 +157,7 @@ function AddOrEditTeam() {
                             onChange={(e) => {
                               if (+e.target.value !== playerTwoId) {
                                 setPlayerOneId((prev) => +e.target.value);
-                                console.log("ONE: ", +e.target.value);
-                              } else
-                                console.warn(
-                                  "please select a player different from player 2!"
-                                );
+                              }
                             }}
                           >
                             {players
@@ -185,11 +181,7 @@ function AddOrEditTeam() {
                             onChange={(e) => {
                               if (+e.target.value !== playerOneId) {
                                 setPlayerTwoId((prev) => +e.target.value);
-                                console.log("TWO: ", +e.target.value);
-                              } else
-                                console.warn(
-                                  "please select a player different from player 1!"
-                                );
+                              }
                             }}
                           >
                             {players
@@ -241,24 +233,26 @@ function AddOrEditTeam() {
                         e.preventDefault();
                         const id = getIdOfItemToSaveOrEdit(params);
                         const t = findTeamById(teams, id);
-                        const isChecked = t.isChecked || false;
-                        const { playedDoublesTournaments } = t;
-                        const { belongsToGroups } = t;
-                        const { belongsToGroupIds } = t;
-                        console.log("idToEdit: ", id);
-                        dispatch(
-                          saveTeam({
-                            id,
-                            isChecked,
-                            playerOneId,
-                            playerTwoId,
-                            strength,
-                            comment,
-                            playedDoublesTournaments,
-                            belongsToGroups,
-                            belongsToGroupIds,
-                          })
-                        );
+                        if (isTeam(t)) {
+                          const isChecked = t.isChecked || false;
+                          const { playedDoublesTournaments } = t;
+                          const { belongsToGroups } = t;
+                          const { belongsToGroupIds } = t;
+                          // console.log("idToEdit: ", id);
+                          dispatch(
+                            saveTeam({
+                              id,
+                              isChecked,
+                              playerOneId,
+                              playerTwoId,
+                              strength,
+                              comment,
+                              playedDoublesTournaments,
+                              belongsToGroups,
+                              belongsToGroupIds,
+                            })
+                          );
+                        }
                       }}
                     >
                       {getUserAction(params) === UserActions.ADD
@@ -286,6 +280,7 @@ function AddOrEditTeam() {
       </form>
       <PlayerList
         isEditingTournamentParticipants={false}
+        idOfTournamentDisplayedForEditingParticipants={-1}
         // eslint-disable-next-line react/jsx-boolean-value
         isParticipantsSingles={false}
         displayedPlayerUpdater={updateDisplayedTeam}

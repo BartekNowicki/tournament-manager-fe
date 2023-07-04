@@ -23,7 +23,7 @@ export function Navbar() {
   routeToDestinationMapping.set("Kontakt", "/contact");
 
   return (
-    <nav className="navbar bg-amber-900 opacity-80 rounded-l-lg text-neutral-content text-sky-500 flex justify-around mx-auto">
+    <nav className="navbar bg-neutral-900 opacity-80 rounded-lg text-neutral-content text-sky-500 flex justify-around mx-auto">
       {destinations.map((destination, index) => (
         <NavLink
           key={String(index + destination)}

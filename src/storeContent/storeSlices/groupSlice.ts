@@ -1,39 +1,24 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable no-console */
 /* eslint-disable no-param-reassign */
-import {
-  createAsyncThunk,
-  createSlice,
-  PayloadAction,
-  Action,
-  AnyAction,
-  createAction,
-  isPending,
-} from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, AnyAction } from "@reduxjs/toolkit";
 import axios from "axios";
 // eslint-disable-next-line import/no-cycle
-// import { Tournament } from "./tournamentSlice";
-import { Player, RejectedAction, StateStatus, baseUrl } from "./playerSlice";
-import { Team } from "./teamSlice";
+import { RejectedAction, StateStatus, baseUrl } from "./playerSlice";
 
 export interface Group {
   id: number;
-  members: Player[] | Team[];
+  members: number[];
 }
 
 function isRejectedAction(action: AnyAction): action is RejectedAction {
   return action.type.endsWith("rejected");
 }
 
-// export const baseUrl = "http://localhost:8080";
-
-export const fetchAllGroups = createAsyncThunk(
-  "groups/get",
-  // async (thunkAPI) => {
-  async () => {
-    const response = await axios.get(`${baseUrl}/api/data/groups`);
-    return response.data;
-  }
-);
+export const fetchAllGroups = createAsyncThunk("groups/get", async () => {
+  const response = await axios.get(`${baseUrl}/api/data/groups`);
+  return response.data;
+});
 
 interface GroupSliceState {
   groups: Group[];

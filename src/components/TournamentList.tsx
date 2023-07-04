@@ -20,6 +20,7 @@ import {
   fetchAllTournaments,
 } from "../storeContent/storeSlices/tournamentSlice";
 import { getAdjustedDates } from "../utils/dates";
+
 import PlayerList from "./PlayerList";
 import {
   checkPlayers,
@@ -32,7 +33,6 @@ import {
 } from "../storeContent/storeSlices/teamSlice";
 import {
   count,
-  findTournamentById,
   highlighted,
   injectItemKey,
   isTournament,
@@ -107,9 +107,9 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
 
   const getTournamentListClassName = () => {
     if (isTournamentAddingOrEditingData()) {
-      return `m-8  ${maxHeightOfTournamentListWhenAddingOrEditing} overflow-y-scroll`;
+      return `m-8  ${maxHeightOfTournamentListWhenAddingOrEditing} overflow-y-auto`;
     }
-    return `m-8  ${maxHeightOfLists} overflow-y-scroll`;
+    return `m-8  ${maxHeightOfLists} overflow-y-auto`;
   };
 
   const injectHeaders = () => (
@@ -464,22 +464,19 @@ const TournamentList: React.FunctionComponent<ITournamentListProps> = ({
               log("CANCELLING REQUEST");
             }}
             onConfirm={async () => {
-              log(
-                "USUWAM: ",
-                idOfTournamentScheduledForDeletion,
-                typeOfTournamentScheduledForDeletion
-              );
-              const tournamentType =
-                typeOfTournamentScheduledForDeletion === "SINGLES"
-                  ? "singles"
-                  : "doubles";
-              await dispatch(
-                deleteTournament({
-                  tournamentId: idOfTournamentScheduledForDeletion,
-                  type: tournamentType,
-                })
-              );
-              setConfirmDeleteModalOpen((prev) => false);
+              if (idOfTournamentScheduledForDeletion) {
+                const tournamentType =
+                  typeOfTournamentScheduledForDeletion === "SINGLES"
+                    ? "singles"
+                    : "doubles";
+                await dispatch(
+                  deleteTournament({
+                    tournamentId: idOfTournamentScheduledForDeletion,
+                    type: tournamentType,
+                  })
+                );
+                setConfirmDeleteModalOpen((prev) => false);
+              }
             }}
           >
             Czy na pewno chcesz usunąć turniej{" "}

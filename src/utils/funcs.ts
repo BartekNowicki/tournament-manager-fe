@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-console */
 /* eslint-disable import/no-cycle */
 import { TournamentType } from "../components/Tournament";
@@ -66,7 +67,7 @@ export const highlighted = () => "border-solid border-2 border-sky-500";
 
 export const serializeDate = (date: Date): string => date.toLocaleDateString();
 
-export const findById = (items: Item[], id: number, type?: string): Item => {
+export const findById = (items: Item[], id: number, type?: string) => {
   if (id === -2 && isPlayer(items[0])) return placeholderPlayer;
   if (id === -2 && isTeam(items[0])) return placeholderTeam;
   if (id === -2 && isTournament(items[0])) return placeholderTournament;
@@ -84,7 +85,13 @@ export const findById = (items: Item[], id: number, type?: string): Item => {
     );
   }
   console.warn("something is fishy with item type selection");
-  return emptyPlayer;
+  return isPlayer(items[0])
+    ? emptyPlayer
+    : isTeam(items[0])
+    ? emptyTeam
+    : isTournament(items[0])
+    ? emptyTournament
+    : emptyPlayer;
 };
 
 export const findPlayerById = (players: Player[], id: number) => {
@@ -224,14 +231,17 @@ export const getSortedPlayerOrTeamGroups = (
   });
   const result = [...itemsSorted, ...undersizedGroupToGoLast];
 
-  return isValid(result, tournament.groupSize)
-    ? result
-    : getSortedPlayerOrTeamGroups(
-        tournaments,
-        id,
-        isParticipantsSingles,
-        allGroups,
-        allPlayers,
-        allTeams
-      );
+  if (isTournament(tournament)) {
+    return isValid(result, tournament.groupSize)
+      ? result
+      : getSortedPlayerOrTeamGroups(
+          tournaments,
+          id,
+          isParticipantsSingles,
+          allGroups,
+          allPlayers,
+          allTeams
+        );
+  }
+  return [];
 };

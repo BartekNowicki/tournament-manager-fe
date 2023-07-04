@@ -1,7 +1,6 @@
 import { Player } from "../storeContent/storeSlices/playerSlice";
 import PlayerInfoColumns from "./PlayerInfoColumns";
 import PlayerSeparator from "./PlayerSeparator";
-import Separator from "./PlayerSeparator";
 
 interface ICheckPlayerRowProps {
   handleCheck(e: React.ChangeEvent<HTMLInputElement>): void;

@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/button-has-type */
 /* eslint-disable no-return-assign */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import {
@@ -16,7 +16,7 @@ import { UserActions } from "./AddOrEditPlayer";
 import { TournamentType } from "./Tournament";
 import TournamentList from "./TournamentList";
 import { numericOptions } from "./numericOptions";
-import { findTournamentById, log } from "../utils/funcs";
+import { findTournamentById, isTournament, log } from "../utils/funcs";
 import { btnSaveColor } from "../utils/settings";
 
 function AddOrEditTournament() {
@@ -28,24 +28,29 @@ function AddOrEditTournament() {
   const getIdOfTournamentToSaveOrEdit = (): number =>
     params.id ? parseInt(params.id, 10) : -2;
   const getTypeOfTournamentToSaveOrEdit = (): string => params.type ?? "NONE";
-  const getUserAction = (): string => params.action ?? UserActions.NONE;
-
-  const tournaments = useAppSelector((state) => state.tournament.tournaments);
-  const tournamentSliceStatus = useAppSelector(
-    (state) => state.tournament.status
+  const getUserAction = useCallback(
+    (): string => params.action ?? UserActions.NONE,
+    [params.action]
   );
-
+  const tournaments = useAppSelector((state) => state.tournament.tournaments);
   const [id, setId] = useState<number>(getIdOfTournamentToSaveOrEdit());
   const [type, setType] = useState<string>(getTypeOfTournamentToSaveOrEdit());
-  const [displayedTournament, setDisplayedTournament] = useState<Tournament>(
+  const [displayedTournament, setDisplayedTournament] = useState(
     findTournamentById(tournaments, id, type)
   );
   const [currentAction, setCurrentAction] = useState<string>(getUserAction());
-  const [startDate, setStartDate] = useState<Date>(
-    displayedTournament.startDate
-  );
-  const [endDate, setEndDate] = useState<Date>(displayedTournament.endDate);
-  const [groupSize, setGroupSize] = useState(displayedTournament.groupSize);
+  const sDate = isTournament(displayedTournament)
+    ? displayedTournament.startDate
+    : new Date();
+  const eDate = isTournament(displayedTournament)
+    ? displayedTournament.endDate
+    : new Date();
+  const [startDate, setStartDate] = useState<Date>(sDate);
+  const [endDate, setEndDate] = useState<Date>(eDate);
+  const gSize = isTournament(displayedTournament)
+    ? displayedTournament.groupSize
+    : 1;
+  const [groupSize, setGroupSize] = useState(gSize);
   const [comment, setComment] = useState<string>(displayedTournament.comment);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,21 +59,22 @@ function AddOrEditTournament() {
     tournamentType: string
   ) => {
     if (tournamentId !== id || tournamentType !== type) {
-      log("UPDATING...");
-      const currentTournamentToDisplay: Tournament = findTournamentById(
+      const currentTournamentToDisplay = findTournamentById(
         tournaments,
         tournamentId,
         tournamentType
       );
 
-      setCurrentAction((prev) => getUserAction());
-      setDisplayedTournament((prev) => currentTournamentToDisplay);
-      setId((prev) => currentTournamentToDisplay.id);
-      setStartDate((prev) => currentTournamentToDisplay.startDate);
-      setEndDate((prev) => currentTournamentToDisplay.endDate);
-      setType((prev) => currentTournamentToDisplay.type);
-      setGroupSize((prev) => currentTournamentToDisplay.groupSize);
-      setComment((prev) => currentTournamentToDisplay.comment);
+      if (isTournament(currentTournamentToDisplay)) {
+        setCurrentAction((prev) => getUserAction());
+        setDisplayedTournament((prev) => currentTournamentToDisplay);
+        setId((prev) => currentTournamentToDisplay.id);
+        setStartDate((prev) => currentTournamentToDisplay.startDate);
+        setEndDate((prev) => currentTournamentToDisplay.endDate);
+        setType((prev) => currentTournamentToDisplay.type);
+        setGroupSize((prev) => currentTournamentToDisplay.groupSize);
+        setComment((prev) => currentTournamentToDisplay.comment);
+      }
     }
   };
 

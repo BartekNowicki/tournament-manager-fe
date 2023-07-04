@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/button-has-type */
@@ -6,16 +7,13 @@ import { useEffect, useState } from "react";
 
 import { useParams, useNavigate, Link, Params } from "react-router-dom";
 import {
-  Player,
   emptyPlayer,
-  placeholderPlayer,
   savePlayer,
 } from "../storeContent/storeSlices/playerSlice";
 import { useAppDispatch, useAppSelector } from "../storeContent/store";
-// eslint-disable-next-line import/no-cycle
 import PlayerList from "./PlayerList";
 import { numericOptions } from "./numericOptions";
-import { findPlayerById, log } from "../utils/funcs";
+import { findPlayerById, isPlayer } from "../utils/funcs";
 import { btnSaveColor } from "../utils/settings";
 
 export enum UserActions {
@@ -30,19 +28,6 @@ export const getUserAction = (params: Readonly<Params<string>>): string => {
   }
   return UserActions.NONE;
 };
-
-// export const getIdOfItemToSaveOrEdit = (
-//   params: Readonly<Params<string>>
-// ): number => {
-//   let idOfPlayerToSaveOrEdit = -2;
-//   if (params && params.action) {
-//     idOfPlayerToSaveOrEdit =
-//       params.action !== UserActions.ADD
-//         ? parseInt(params.action.split("").slice(4).join(""), 10)
-//         : idOfPlayerToSaveOrEdit;
-//   }
-//   return idOfPlayerToSaveOrEdit;
-// };
 
 export const getIdOfItemToSaveOrEdit = (
   params: Readonly<Params<string>>
@@ -67,18 +52,20 @@ function AddOrEditPlayer() {
 
   const players = useAppSelector((state) => state.player.players);
 
-  const initialDisplayedPlayer: Player = findPlayerById(
-    players,
-    getIdOfItemToSaveOrEdit(params)
-  );
+  const initialDisplayedPlayer =
+    findPlayerById(players, getIdOfItemToSaveOrEdit(params)) || emptyPlayer;
   const [displayedPlayer, setDisplayedPlayer] = useState(
     initialDisplayedPlayer
   );
   const [currentAction, setCurrentAction] = useState<string>();
-  const [firstName, setFirstName] = useState(displayedPlayer.firstName);
-  const [lastName, setLastName] = useState(displayedPlayer.lastName);
-  const [strength, setStrength] = useState(displayedPlayer.strength);
-  const [comment, setComment] = useState(displayedPlayer.comment);
+  const fname = isPlayer(displayedPlayer) ? displayedPlayer.firstName : "";
+  const lname = isPlayer(displayedPlayer) ? displayedPlayer.lastName : "";
+  const str = isPlayer(displayedPlayer) ? displayedPlayer.strength : 0;
+  const com = isPlayer(displayedPlayer) ? displayedPlayer.firstName : "";
+  const [firstName, setFirstName] = useState<string>(fname);
+  const [lastName, setLastName] = useState<string>(lname);
+  const [strength, setStrength] = useState<number>(str);
+  const [comment, setComment] = useState<string>(com);
 
   useEffect(() => {
     if (getUserAction(params) === UserActions.NONE) {
@@ -91,20 +78,22 @@ function AddOrEditPlayer() {
     if (
       getUserAction(params) === UserActions.ADD ||
       getIdOfItemToSaveOrEdit(params) !== displayedPlayer.id ||
-      firstName !== displayedPlayer.firstName ||
-      lastName !== displayedPlayer.lastName ||
-      comment !== displayedPlayer.comment ||
-      strength !== displayedPlayer.strength
+      (isPlayer(displayedPlayer) && firstName !== displayedPlayer.firstName) ||
+      (isPlayer(displayedPlayer) && lastName !== displayedPlayer.lastName) ||
+      (isPlayer(displayedPlayer) && comment !== displayedPlayer.comment) ||
+      (isPlayer(displayedPlayer) && strength !== displayedPlayer.strength)
     ) {
       const currentPlayerToDisplay = findPlayerById(
         players,
         getIdOfItemToSaveOrEdit(params)
       );
-      setDisplayedPlayer((prev) => currentPlayerToDisplay);
-      setFirstName((prev) => currentPlayerToDisplay.firstName);
-      setLastName((prev) => currentPlayerToDisplay.lastName);
-      setStrength((prev) => currentPlayerToDisplay.strength);
-      setComment((prev) => currentPlayerToDisplay.comment);
+      if (isPlayer(currentPlayerToDisplay)) {
+        setDisplayedPlayer((prev) => currentPlayerToDisplay);
+        setFirstName((prev) => currentPlayerToDisplay.firstName);
+        setLastName((prev) => currentPlayerToDisplay.lastName);
+        setStrength((prev) => currentPlayerToDisplay.strength);
+        setComment((prev) => currentPlayerToDisplay.comment);
+      }
     }
   };
 
@@ -131,10 +120,10 @@ function AddOrEditPlayer() {
               {/* head */}
               <thead>
                 <tr>
-                  <th className="text text-center">Imię i Nazwisko</th>
+                  <th className="text text-center">Imię</th>
+                  <th className="text text-center">Nazwisko</th>
                   <th className="text text-center">Siła</th>
                   <th className="text text-center">Uwagi</th>
-                  <th />
                   <th />
                 </tr>
               </thead>
