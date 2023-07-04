@@ -170,25 +170,31 @@ function AddOrEditTournament() {
                   {params.action !== UserActions.ADD && (
                     <td className="text text-center">{type}</td>
                   )}
-                  {displayedTournament.groups.length === 0 && (
-                    <td className="text text-center">
-                      <div className="font-bold">
-                        <label htmlFor="" />
-                        <select
-                          className="font-bold px-2"
-                          value={groupSize}
-                          onChange={(e) =>
-                            setGroupSize((prev) => +e.target.value)
-                          }
-                        >
-                          {numericOptions(11)}
-                        </select>
-                      </div>
-                    </td>
-                  )}
-                  {displayedTournament.groups.length !== 0 && (
-                    <td>{displayedTournament.groupSize}</td>
-                  )}
+                  {displayedTournament &&
+                    isTournament(displayedTournament) &&
+                    displayedTournament.groups &&
+                    displayedTournament.groups.length === 0 && (
+                      <td className="text text-center">
+                        <div className="font-bold">
+                          <label htmlFor="" />
+                          <select
+                            className="font-bold px-2"
+                            value={groupSize}
+                            onChange={(e) =>
+                              setGroupSize((prev) => +e.target.value)
+                            }
+                          >
+                            {numericOptions(11)}
+                          </select>
+                        </div>
+                      </td>
+                    )}
+                  {displayedTournament &&
+                    isTournament(displayedTournament) &&
+                    displayedTournament.groups &&
+                    displayedTournament.groups.length !== 0 && (
+                      <td>{displayedTournament.groupSize}</td>
+                    )}
                   <td className="text text-center">
                     <div className="font-bold">
                       <label htmlFor="" />
@@ -238,11 +244,13 @@ function AddOrEditTournament() {
           </div>
         </div>
       </form>
-      <TournamentList
-        displayedTournamentUpdater={updateDisplayedTournament}
-        idOfTournamentDisplayedForEditingData={displayedTournament.id}
-        typeOfTournamentDisplayedForEditingData={displayedTournament.type}
-      />
+      {isTournament(displayedTournament) && (
+        <TournamentList
+          displayedTournamentUpdater={updateDisplayedTournament}
+          idOfTournamentDisplayedForEditingData={displayedTournament.id}
+          typeOfTournamentDisplayedForEditingData={displayedTournament.type}
+        />
+      )}
       <button className="btn btn-ghost btn-s bg-slate-600 w-10 h-10 positionMeTopRight">
         <Link to="/tournaments">x</Link>
       </button>

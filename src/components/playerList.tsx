@@ -634,14 +634,9 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                       isTeam(item) && (
                         <>
                           <TeamInfoColumns
-                            playerOne={findPlayerById(
-                              allPlayers,
-                              item.playerOneId
-                            )}
-                            playerTwo={findPlayerById(
-                              allPlayers,
-                              item.playerTwoId
-                            )}
+                            players={allPlayers}
+                            playerOneId={item.playerOneId}
+                            playerTwoId={item.playerTwoId}
                             team={item}
                           />
                           <th>
@@ -669,17 +664,22 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
                                   allPlayers,
                                   item.playerTwoId
                                 );
-                                setIdOfItemScheduledForDeletion(
-                                  (prev) => item.id
-                                );
-                                setTypeOfItemScheduledForDeletion(
-                                  (prev) => "team"
-                                );
-                                setDataOfItemScheduledForDeletion(
-                                  (prev) =>
-                                    `para ${playerOne.firstName} ${playerOne.lastName}, ${playerTwo.firstName} ${playerTwo.lastName}`
-                                );
-                                setConfirmDeleteModalOpen((prev) => true);
+                                if (
+                                  isPlayer(playerOne) &&
+                                  isPlayer(playerTwo)
+                                ) {
+                                  setIdOfItemScheduledForDeletion(
+                                    (prev) => item.id
+                                  );
+                                  setTypeOfItemScheduledForDeletion(
+                                    (prev) => "team"
+                                  );
+                                  setDataOfItemScheduledForDeletion(
+                                    (prev) =>
+                                      `para ${playerOne.firstName} ${playerOne.lastName}, ${playerTwo.firstName} ${playerTwo.lastName}`
+                                  );
+                                  setConfirmDeleteModalOpen((prev) => true);
+                                }
                               }}
                             >
                               usuń
@@ -768,14 +768,15 @@ const PlayerList: React.FunctionComponent<IPlayerListProps> = ({
             log("CANCELLING REQUEST");
           }}
           onConfirm={async () => {
-            // log(
-            //   "USUWAM: ",
-            //   idOfItemScheduledForDeletion,
-            //   typeOfItemScheduledForDeletion
-            // );
-            if (typeOfItemScheduledForDeletion === "player") {
+            if (
+              idOfItemScheduledForDeletion &&
+              typeOfItemScheduledForDeletion === "player"
+            ) {
               await dispatch(deletePlayer(idOfItemScheduledForDeletion));
-            } else if (typeOfItemScheduledForDeletion === "team") {
+            } else if (
+              idOfItemScheduledForDeletion &&
+              typeOfItemScheduledForDeletion === "team"
+            ) {
               await dispatch(deleteTeam(idOfItemScheduledForDeletion));
             }
             setConfirmDeleteModalOpen((prev) => false);

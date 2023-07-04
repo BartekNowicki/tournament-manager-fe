@@ -15,7 +15,7 @@ import {
   getUserAction,
 } from "./AddOrEditPlayer";
 import { Team, saveTeam } from "../storeContent/storeSlices/teamSlice";
-import { findPlayerById, findTeamById, isTeam } from "../utils/funcs";
+import { findPlayerById, findTeamById, isPlayer, isTeam } from "../utils/funcs";
 import { btnSaveColor } from "../utils/settings";
 
 function AddOrEditTeam() {
@@ -41,6 +41,14 @@ function AddOrEditTeam() {
   const [playerTwoId, setPlayerTwoId] = useState<number>(p2id);
   const [strength, setStrength] = useState(str);
   const [comment, setComment] = useState(displayedTeam.comment);
+
+  const getPlayerNames = (team: Team): string[] => {
+    const p1 = findPlayerById(players, team.playerOneId);
+    const p2 = findPlayerById(players, team.playerTwoId);
+    return isPlayer(p1) && isPlayer(p2)
+      ? [p1.firstName, p1.lastName, p2.firstName, p2.lastName]
+      : [];
+  };
 
   useEffect(() => {
     if (getUserAction(params) === UserActions.NONE) {
@@ -128,17 +136,15 @@ function AddOrEditTeam() {
                       </div>
 
                       {/* editing team data */}
-                      {displayedTeam.id !== -2 && (
+                      {isTeam(displayedTeam) && displayedTeam.id !== -2 && (
                         <div>
                           <div className="font-bold">
                             <p>
-                              {findPlayerById(players, playerOneId).firstName}{" "}
-                              {findPlayerById(players, playerOneId).lastName}{" "}
+                              {getPlayerNames(displayedTeam)[0]}{" "}
+                              {getPlayerNames(displayedTeam)[1]}{" "}
                               {"       +       "}
-                              {
-                                findPlayerById(players, playerTwoId).firstName
-                              }{" "}
-                              {findPlayerById(players, playerTwoId).lastName}
+                              {getPlayerNames(displayedTeam)[2]}{" "}
+                              {getPlayerNames(displayedTeam)[3]}
                             </p>
                           </div>
                         </div>

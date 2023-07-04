@@ -1,19 +1,25 @@
 import { Player } from "../storeContent/storeSlices/playerSlice";
 import { Team } from "../storeContent/storeSlices/teamSlice";
+import { findPlayerById, isPlayer } from "../utils/funcs";
 
 interface ITeamInfoColumnsProps {
-  playerOne: Player;
-  playerTwo: Player;
+  players: Player[];
+  playerOneId: number;
+  playerTwoId: number;
   team: Team;
 }
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/function-component-definition */
 const TeamInfoColumns: React.FC<ITeamInfoColumnsProps> = ({
-  playerOne,
-  playerTwo,
+  players,
+  playerOneId,
+  playerTwoId,
   team,
 }): JSX.Element => {
+  const p1 = findPlayerById(players, playerOneId);
+  const p2 = findPlayerById(players, playerTwoId);
+
   return (
     <>
       <td>
@@ -29,8 +35,10 @@ const TeamInfoColumns: React.FC<ITeamInfoColumnsProps> = ({
           <div>
             <div className="font-bold">
               <p>
-                {playerOne.firstName} {playerOne.lastName} {"       +       "}
-                {playerTwo.firstName} {playerTwo.lastName}
+                {p1 && isPlayer(p1) && p1.firstName}{" "}
+                {p1 && isPlayer(p1) && p1.lastName} {"       +       "}
+                {p2 && isPlayer(p2) && p2.firstName}{" "}
+                {p2 && isPlayer(p2) && p2.lastName}
               </p>
             </div>
           </div>

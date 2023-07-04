@@ -211,23 +211,25 @@ function AddOrEditPlayer() {
                         const id: number = getIdOfItemToSaveOrEdit(params);
                         // console.log("idToEdit: ", id);
                         const p = findPlayerById(players, id);
-                        const isChecked = p.isChecked || false;
-                        const { playedSinglesTournaments } = p;
-                        const { belongsToGroups } = p;
-                        const { belongsToGroupIds } = p;
-                        dispatch(
-                          savePlayer({
-                            id,
-                            isChecked,
-                            firstName,
-                            lastName,
-                            strength,
-                            comment,
-                            playedSinglesTournaments,
-                            belongsToGroups,
-                            belongsToGroupIds,
-                          })
-                        );
+                        if (isPlayer(p)) {
+                          const isChecked = p.isChecked || false;
+                          const { playedSinglesTournaments } = p;
+                          const { belongsToGroups } = p;
+                          const { belongsToGroupIds } = p;
+                          dispatch(
+                            savePlayer({
+                              id,
+                              isChecked,
+                              firstName,
+                              lastName,
+                              strength,
+                              comment,
+                              playedSinglesTournaments,
+                              belongsToGroups,
+                              belongsToGroupIds,
+                            })
+                          );
+                        }
                       }}
                     >
                       {getUserAction(params) === UserActions.ADD
@@ -253,6 +255,7 @@ function AddOrEditPlayer() {
       </form>
       <PlayerList
         isEditingTournamentParticipants={false}
+        idOfTournamentDisplayedForEditingParticipants={-1}
         // eslint-disable-next-line react/jsx-boolean-value
         isParticipantsSingles={true}
         displayedPlayerUpdater={updateDisplayedPlayer}

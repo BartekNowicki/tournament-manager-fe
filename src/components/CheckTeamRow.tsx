@@ -1,6 +1,6 @@
-import { useAppSelector } from "../storeContent/store";
+import { Player } from "../storeContent/storeSlices/playerSlice";
 import { Team } from "../storeContent/storeSlices/teamSlice";
-import { findPlayerById } from "../utils/funcs";
+import { findPlayerById, isPlayer } from "../utils/funcs";
 import TeamInfoColumns from "./TeamInfoColumns";
 import TeamSeparator from "./TeamSeparator";
 
@@ -41,10 +41,11 @@ const CheckTeamRow: React.FC<ICheckTeamRowProps> = ({
           />
         </label>
       </th>
-      {playerOne && playerTwo && (
+      {playerOne && isPlayer(playerOne) && playerTwo && isPlayer(playerTwo) && (
         <TeamInfoColumns
-          playerOne={playerOne}
-          playerTwo={playerTwo}
+          players={players}
+          playerOneId={team.playerOneId}
+          playerTwoId={team.playerTwoId}
           team={team}
         />
       )}
